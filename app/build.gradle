@@ -18,12 +18,22 @@ android {
         }
     }
 
+    /* gather required ids */
+    buildTypes.each{
+        it.buildConfigField "String", 'REDDIT_CLIENT_ID', getPropertyFromFile("reddit_client_id")
+        it.buildConfigField "String", 'REDDIT_REDIRECT_URL', getPropertyFromFile("reddit_redirect_url")
+        it.buildConfigField "String", 'REDDIT_USERNAME', getPropertyFromFile("reddit_username")
+    }
+
     /* enable data binding */
     dataBinding.enabled = true;
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+    /* Reddit API Client lib */
+    implementation 'com.github.mattbdean:JRAW:master-SNAPSHOT'
 
     /* AOSP libs */
     implementation "com.android.support:appcompat-v7:${supportLibVersion}"
@@ -50,6 +60,10 @@ dependencies {
         transitive = true
     }
 
+    /* GSON with Retrofit */
+    implementation 'com.google.code.gson:gson:2.8.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.0.2'
+
     /* Libs for running tests */
     testImplementation 'junit:junit:4.12'
     androidTestImplementation "com.android.support.test:runner:${androidTestLibVersion}"
@@ -69,4 +83,11 @@ dependencies {
         exclude group: 'com.android.support', module: 'support-annotations'
         exclude module: 'recyclerview-v7'
     }
+}
+
+//return a API key from a properties file.
+def getPropertyFromFile(String property) {
+    Properties properties = new Properties()
+    properties.load(new FileInputStream("keys.properties"))
+    return "\"" + properties.getProperty(property) +"\""
 }
