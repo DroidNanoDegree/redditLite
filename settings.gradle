@@ -1,1 +1,1 @@
-include ':app', ':redditclient'
+include ':app'
