@@ -1,3 +1,12 @@
 <resources>
     <string name="app_name">redditLite</string>
+
+    <!-- Log in activity -->
+    <string name="signin_title">Log in to Reddit</string>
+    <string name="username">Username</string>
+    <string name="password">Password</string>
+    <string name="log_in">LOG IN</string>
+    <string name="cancel">CANCEL</string>
+    <string name="title_activity_login">Sign in</string>
+    <string name="permission_denied">Permission request denied!</string>
 </resources>
