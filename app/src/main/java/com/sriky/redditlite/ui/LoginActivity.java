@@ -32,13 +32,18 @@ import android.webkit.CookieSyncManager;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import com.sriky.redditlite.App;
 import com.sriky.redditlite.R;
 import com.sriky.redditlite.databinding.ActivityLoginBinding;
+import com.sriky.redditlite.event.Message;
+import com.sriky.redditlite.redditapi.ClientManager;
 
 import net.dean.jraw.RedditClient;
 import net.dean.jraw.oauth.OAuthException;
 import net.dean.jraw.oauth.StatefulAuthHelper;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.lang.ref.WeakReference;
 
@@ -48,6 +53,8 @@ import timber.log.Timber;
  * A login screen that offers login via username/password.
  */
 public class LoginActivity extends AppCompatActivity {
+
+    private static final int ACCOUNT_HELPER_REQUEST_CODE = 1001;
 
     private ActivityLoginBinding mActivityLoginBinding;
     private StatefulAuthHelper mStatefulAuthHelper;
@@ -86,36 +93,26 @@ public class LoginActivity extends AppCompatActivity {
             cookieSyncMngr.stopSync();
             cookieSyncMngr.sync();
         }
+    }
 
-        mStatefulAuthHelper = App.getAccountHelper().switchToNewUser();
+    @Override
+    protected void onStart() {
+        super.onStart();
+        // register to receive events for AccountHelper request with ClientManager.
+        EventBus.getDefault().register(this);
+    }
 
-        String authUrl = mStatefulAuthHelper.getAuthorizationUrl(true,
-                true, App.SCOPES);
+    @Override
+    protected void onStop() {
+        EventBus.getDefault().unregister(this);
+        super.onStop();
+    }
 
-        Timber.d("authUrl: %s", authUrl);
-
-        // Show the user the authorization URL
-        mActivityLoginBinding.loginWebView.loadUrl(authUrl);
-
-        // Listen for pages starting to load
-        mActivityLoginBinding.loginWebView.setWebViewClient(new WebViewClient() {
-
-            @Override
-            public void onPageStarted(WebView view, final String url, Bitmap favicon) {
-                Timber.d("onPageStarted() url: %s", url);
-                // Listen for the final redirect URL.
-                if (mStatefulAuthHelper.isFinalRedirectUrl(url)) {
-                    Timber.d("onPageStarted() isFinalRedirectUrl(%s)", url);
-
-                    // No need to continue loading, we've already got all the required information
-                    mActivityLoginBinding.loginWebView.stopLoading();
-                    mActivityLoginBinding.loginWebView.setVisibility(View.GONE);
-
-                    // Try to authenticate the user
-                    new AuthenticateTask(LoginActivity.this, mStatefulAuthHelper).execute(url);
-                }
-            }
-        });
+    @Override
+    protected void onResume() {
+        super.onResume();
+        //request for the Reddit AccountHelper.
+        ClientManager.requestRedditAccountHelper(LoginActivity.this, ACCOUNT_HELPER_REQUEST_CODE);
     }
 
     @Override
@@ -127,6 +124,50 @@ public class LoginActivity extends AppCompatActivity {
             }
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onAccountHelperRequestComplete(Message.OnRedditClientManagerRequestCompleted event) {
+        int reqCode = event.getRequestCode();
+        Timber.d("onAccountHelperRequestComplete() - requestCode: %d", reqCode);
+
+        //hide the progress bar.
+        mActivityLoginBinding.loginProgressBar.setVisibility(View.INVISIBLE);
+        //show the webview.
+        mActivityLoginBinding.loginWebView.setVisibility(View.VISIBLE);
+
+        if (ACCOUNT_HELPER_REQUEST_CODE == reqCode) {
+            Timber.d("onAccountHelperRequestComplete() - processing requestCode: %d", reqCode);
+            mStatefulAuthHelper = event.getAccountHelper().switchToNewUser();
+
+            String authUrl = mStatefulAuthHelper.getAuthorizationUrl(true,
+                    true, ClientManager.SCOPES);
+
+            Timber.d("authUrl: %s", authUrl);
+
+            // Show the user the authorization URL
+            mActivityLoginBinding.loginWebView.loadUrl(authUrl);
+
+            // Listen for pages starting to load
+            mActivityLoginBinding.loginWebView.setWebViewClient(new WebViewClient() {
+
+                @Override
+                public void onPageStarted(WebView view, final String url, Bitmap favicon) {
+                    Timber.d("onPageStarted() url: %s", url);
+                    // Listen for the final redirect URL.
+                    if (mStatefulAuthHelper.isFinalRedirectUrl(url)) {
+                        Timber.d("onPageStarted() isFinalRedirectUrl(%s)", url);
+
+                        // No need to continue loading, we've already got all the required information
+                        mActivityLoginBinding.loginWebView.stopLoading();
+                        mActivityLoginBinding.loginWebView.setVisibility(View.GONE);
+
+                        // Try to authenticate the user
+                        new AuthenticateTask(LoginActivity.this, mStatefulAuthHelper).execute(url);
+                    }
+                }
+            });
+        }
     }
 
     /**

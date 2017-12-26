@@ -5,10 +5,17 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+        <ProgressBar
+            android:id="@+id/login_progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"/>
+
         <WebView
             android:id="@+id/loginWebView"
             android:layout_height="fill_parent"
             android:layout_width="fill_parent"
-            android:scrollbars="none"/>
+            android:scrollbars="none"
+            android:visibility="invisible"/>
     </android.support.design.widget.CoordinatorLayout>
 </layout>
