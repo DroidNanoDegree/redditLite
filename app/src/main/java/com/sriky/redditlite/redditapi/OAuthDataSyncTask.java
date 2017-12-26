@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and limitations under the License.
  */
 
-package com.sriky.redditlite.tokenstore;
+package com.sriky.redditlite.redditapi;
 
 import android.content.ContentProviderOperation;
 import android.content.Context;
