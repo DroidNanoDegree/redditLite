@@ -52,6 +52,9 @@ dependencies {
     annotationProcessor 'net.simonvt.schematic:schematic-compiler:0.7.0'
     implementation 'net.simonvt.schematic:schematic:0.7.0'
 
+    /* Firebase JobDispatcher */
+    implementation 'com.firebase:firebase-jobdispatcher:0.5.2'
+
     /* Event Bus */
     implementation 'org.greenrobot:eventbus:3.1.1'
 

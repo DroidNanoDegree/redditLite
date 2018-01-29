@@ -34,5 +34,7 @@
             android:authorities="com.sriky.redditlite"
             android:exported="false" />
 
-        </application>
+        <service android:name=".sync.RedditLiteFirebaseJobService" />
+        <service android:name=".sync.RedditLitePostsDataSyncIntentService" />
+    </application>
 </manifest>
