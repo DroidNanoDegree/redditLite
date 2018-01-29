@@ -73,6 +73,7 @@ public class RedditClientTokenStore implements TokenStore {
                         getOAuthDataFromCursor(cursor));
             }
         }
+        cursor.close();
     }
 
     @Override
