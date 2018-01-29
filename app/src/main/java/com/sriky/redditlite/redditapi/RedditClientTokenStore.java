@@ -25,6 +25,7 @@ import com.sriky.redditlite.provider.OAuthDataContract;
 import com.sriky.redditlite.provider.RedditLiteContentProvider;
 
 import net.dean.jraw.models.OAuthData;
+import net.dean.jraw.models.PersistedAuthData;
 import net.dean.jraw.oauth.AuthManager;
 import net.dean.jraw.oauth.TokenStore;
 
@@ -45,23 +46,31 @@ import timber.log.Timber;
 
 public class RedditClientTokenStore implements TokenStore {
     private Context mContext;
-    private Cursor mCursor;
-    private Map<String, Integer> mUserNameToCursorIdxDataMap;
+    //Use Map to access token store data.
+    private Map<String, OAuthData> mUserNameToOAuthDataMap;
 
 
-    public RedditClientTokenStore(Context context, Cursor cursor) {
+    public RedditClientTokenStore(Context context) {
         mContext = context;
-        mCursor = cursor;
-        if (mCursor != null) {
-            if (mUserNameToCursorIdxDataMap == null) {
-                mUserNameToCursorIdxDataMap = new HashMap<>();
+
+        //Get the cursor to the OAuthData table.
+        //NOTE: Performing the db query (quick) on the main thread to make it a blocking call.
+        Cursor cursor = context.getContentResolver().query(RedditLiteContentProvider.OAuthDataEntry.CONTENT_URI,
+                null,
+                null,
+                null,
+                null);
+
+        //build the map used to access token store data.
+        if (cursor != null) {
+            if (mUserNameToOAuthDataMap == null) {
+                mUserNameToOAuthDataMap = new HashMap<>();
             }
-            mUserNameToCursorIdxDataMap.clear();
-            int idx = 0;
-            while (mCursor.moveToNext()) {
-                mUserNameToCursorIdxDataMap.put(
-                        mCursor.getString(mCursor.getColumnIndex(OAuthDataContract.COLUMN_USERNAME)),
-                        idx++);
+            mUserNameToOAuthDataMap.clear();
+            while (cursor.moveToNext()) {
+                mUserNameToOAuthDataMap.put(
+                        cursor.getString(cursor.getColumnIndex(OAuthDataContract.COLUMN_USERNAME)),
+                        getOAuthDataFromCursor(cursor));
             }
         }
     }
@@ -72,6 +81,9 @@ public class RedditClientTokenStore implements TokenStore {
         if (username.equals(AuthManager.USERNAME_UNKOWN))
             throw new IllegalArgumentException("Refusing to store data for unknown username");
 
+        mUserNameToOAuthDataMap.put(username, oAuthData);
+
+        //update the OAuthData db.
         OAuthDataSyncTask oAuthDataSyncTask =
                 new OAuthDataSyncTask(mContext, getContentProviderOperation(username, oAuthData));
         oAuthDataSyncTask.execute();
@@ -83,63 +95,108 @@ public class RedditClientTokenStore implements TokenStore {
         if (username.equals(AuthManager.USERNAME_UNKOWN))
             throw new IllegalArgumentException("Refusing to store data for unknown username");
 
-        if (mUserNameToCursorIdxDataMap.containsKey(username)
-                && (mCursor.moveToPosition(mUserNameToCursorIdxDataMap.get(username)))) {
-            ContentProviderOperation operation =
-                    ContentProviderOperation.newUpdate(RedditLiteContentProvider.OAuthDataEntry.CONTENT_URI)
-                            .withValue(OAuthDataContract.COLUMN_REFRESH_TOKEN, refreshToken)
-                            .withSelection(OAuthDataContract._ID + " =? ",
-                                    new String[mCursor.getInt(mCursor.getColumnIndex(OAuthDataContract._ID))])
-                            .build();
-
-            OAuthDataSyncTask oAuthDataSyncTask = new OAuthDataSyncTask(mContext, operation);
-            oAuthDataSyncTask.execute();
+        if (!mUserNameToOAuthDataMap.containsKey(username)) {
+            throw new RuntimeException("username doesn't exist!");
         }
+
+        PersistedAuthData newOAuthData = PersistedAuthData.create(mUserNameToOAuthDataMap.get(username), refreshToken);
+        mUserNameToOAuthDataMap.put(username, newOAuthData.getLatest());
+
+        //update the db.
+        ContentProviderOperation operation =
+                ContentProviderOperation.newUpdate(RedditLiteContentProvider.OAuthDataEntry.CONTENT_URI)
+                        .withValue(OAuthDataContract.COLUMN_REFRESH_TOKEN, refreshToken)
+                        .withSelection(OAuthDataContract.COLUMN_USERNAME + " =? ",
+                                new String[]{username})
+                        .build();
+
+        OAuthDataSyncTask oAuthDataSyncTask = new OAuthDataSyncTask(mContext, operation);
+        oAuthDataSyncTask.execute();
     }
 
     @Nullable
     @Override
     public OAuthData fetchLatest(String username) {
         Timber.d("fetchLatest() username:%s", username);
-        if (mUserNameToCursorIdxDataMap.containsKey(username)
-                && (mCursor.moveToPosition(mUserNameToCursorIdxDataMap.get(username)))) {
-            return getOAuthDataFromCursor(mCursor);
-        } else {
-            throw new RuntimeException("OAuthData doesn't exist for username: %s" + username);
+
+        if (!mUserNameToOAuthDataMap.containsKey(username)) {
+            throw new RuntimeException("username doesn't exist!");
         }
+
+        return mUserNameToOAuthDataMap.get(username);
     }
 
     @Nullable
     @Override
     public String fetchRefreshToken(String username) {
         Timber.d("fetchRefreshToken() username=%s", username);
-        if (mUserNameToCursorIdxDataMap.containsKey(username)
-                && (mCursor.moveToPosition(mUserNameToCursorIdxDataMap.get(username)))) {
-            return mCursor.getString(mCursor.getColumnIndex(OAuthDataContract.COLUMN_REFRESH_TOKEN));
-        } else {
-            throw new RuntimeException("OAuthData doesn't exist for username: %s" + username);
+
+        if (!mUserNameToOAuthDataMap.containsKey(username)) {
+            throw new RuntimeException("username doesn't exist!");
         }
+
+        OAuthData authData = mUserNameToOAuthDataMap.get(username);
+        return authData.getRefreshToken();
     }
 
     @Override
     public void deleteLatest(String username) {
-        //TODO fix.
         Timber.e("deleteLatest() username:%s - IMPL PENDING!", username);
+
+        if (!mUserNameToOAuthDataMap.containsKey(username)) {
+            throw new RuntimeException("username doesn't exist!");
+        }
+
+        mUserNameToOAuthDataMap.remove(username);
+
+        //remove the OAuthData from the db as well.
+        ContentProviderOperation operation =
+                ContentProviderOperation.newDelete(RedditLiteContentProvider.OAuthDataEntry.CONTENT_URI)
+                        .withSelection(OAuthDataContract.COLUMN_USERNAME + " =? ",
+                                new String[]{username})
+                        .build();
+
+        OAuthDataSyncTask oAuthDataSyncTask = new OAuthDataSyncTask(mContext, operation);
+        oAuthDataSyncTask.execute();
     }
 
     @Override
     public void deleteRefreshToken(String username) {
         Timber.e("deleteRefreshToken() username:%s - - IMPL PENDING!", username);
-        //TODO: IMPL.
+
+        if (!mUserNameToOAuthDataMap.containsKey(username)) {
+            throw new RuntimeException("username doesn't exist!");
+        }
+
+        //clear the refresh token and update the map and database.
+        PersistedAuthData newOAuthData = PersistedAuthData.create(mUserNameToOAuthDataMap.get(username), null);
+        mUserNameToOAuthDataMap.put(username, newOAuthData.getLatest());
+
+        //update the db.
+        ContentProviderOperation operation =
+                ContentProviderOperation.newUpdate(RedditLiteContentProvider.OAuthDataEntry.CONTENT_URI)
+                        .withValue(OAuthDataContract.COLUMN_REFRESH_TOKEN, null)
+                        .withSelection(OAuthDataContract._ID + " =? ",
+                                new String[]{username})
+                        .build();
+
+        OAuthDataSyncTask oAuthDataSyncTask = new OAuthDataSyncTask(mContext, operation);
+        oAuthDataSyncTask.execute();
     }
 
+    /**
+     * Generates a {@link ContentProviderOperation} to add new {@link OAuthData}
+     * @param username   The username associated with the OAuthData.
+     * @param oAuthData  The OAuthData.
+     * @return {@link ContentProviderOperation} to insert new OAuthData.
+     */
     private ContentProviderOperation getContentProviderOperation(String username, OAuthData oAuthData) {
         Gson gson = new Gson();
         Type listOfTestObject = new TypeToken<List<String>>() {
         }.getType();
         String scopesJson = gson.toJson(oAuthData.getScopes(), listOfTestObject);
 
-        ContentProviderOperation operation = ContentProviderOperation.newInsert(RedditLiteContentProvider.OAuthDataEntry.CONTENT_URI)
+        return ContentProviderOperation.newInsert(RedditLiteContentProvider.OAuthDataEntry.CONTENT_URI)
                 .withValue(OAuthDataContract.COLUMN_USERNAME, username)
                 .withValue(OAuthDataContract.COLUMN_SESSION_TOKEN, oAuthData.getAccessToken())
                 .withValue(OAuthDataContract.COLUMN_REFRESH_TOKEN, oAuthData.getRefreshToken())
@@ -147,10 +204,14 @@ public class RedditClientTokenStore implements TokenStore {
                 .withValue(OAuthDataContract.COLUMN_ACCESS_SCOPES, scopesJson)
                 .withValue(OAuthDataContract.COLUMN_EXPIRATION, oAuthData.getExpiration().getTime())
                 .build();
-
-        return operation;
     }
 
+    /**
+     * Returns {@link OAuthData} from the current cursor location.
+     *
+     * @param cursor The cursor to the OAuthData db.
+     * @return {@link OAuthData}
+     */
     private OAuthData getOAuthDataFromCursor(Cursor cursor) {
         Gson gson = new Gson();
         Type listOfTestObject = new TypeToken<List<String>>() {
@@ -162,12 +223,10 @@ public class RedditClientTokenStore implements TokenStore {
         Date expireDate =
                 new Date(cursor.getLong(cursor.getColumnIndex(OAuthDataContract.COLUMN_EXPIRATION)));
 
-        OAuthData oAuthData = OAuthData.create(
+        return OAuthData.create(
                 cursor.getString(cursor.getColumnIndex(OAuthDataContract.COLUMN_SESSION_TOKEN)),
                 accessScopes,
                 cursor.getString(cursor.getColumnIndex(OAuthDataContract.COLUMN_REFRESH_TOKEN)),
                 expireDate);
-
-        return oAuthData;
     }
 }
