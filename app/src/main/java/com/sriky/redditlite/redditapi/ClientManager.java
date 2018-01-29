@@ -19,7 +19,6 @@ import android.content.Context;
 import android.database.Cursor;
 
 import com.sriky.redditlite.BuildConfig;
-import com.sriky.redditlite.event.Message;
 import com.sriky.redditlite.provider.RedditLiteContentProvider;
 
 import net.dean.jraw.http.OkHttpNetworkAdapter;
@@ -27,11 +26,7 @@ import net.dean.jraw.http.UserAgent;
 import net.dean.jraw.oauth.AccountHelper;
 import net.dean.jraw.oauth.Credentials;
 
-import org.greenrobot.eventbus.EventBus;
-
 import java.util.UUID;
-
-import timber.log.Timber;
 
 /**
  * Manager for accessing the {@link net.dean.jraw.RedditClient}
@@ -48,10 +43,9 @@ public final class ClientManager {
     private AccountHelper mAccountHelper;
     private Credentials mCredentials;
     private OkHttpNetworkAdapter mNetworkAdaptor;
-    private boolean mIsInitialized;
 
     //make it a singleton.
-    private ClientManager() {
+    private ClientManager(Context context) {
         UserAgent userAgent = new UserAgent(PLATFORM, BuildConfig.APPLICATION_ID, VERSION,
                 BuildConfig.REDDIT_USERNAME);
 
@@ -61,61 +55,27 @@ public final class ClientManager {
 
         // This is what really sends HTTP requests
         mNetworkAdaptor = new OkHttpNetworkAdapter(userAgent);
+
+        //if there is no data in the local db then triggered a data fetch
+        RedditClientTokenStore tokenStore = new RedditClientTokenStore(context);
+
+        mAccountHelper =
+                new AccountHelper(mNetworkAdaptor, mCredentials, tokenStore, UUID.randomUUID());
     }
 
-    private static ClientManager getInstance() {
+    private static ClientManager getInstance(Context context) {
         if (sInstance == null) {
-            sInstance = new ClientManager();
+            sInstance = new ClientManager(context);
         }
         return sInstance;
     }
 
     /**
-     * Asynchronously builds the {@link net.dean.jraw.RedditClient}'s {@link AccountHelper}
-     * The generated {@link AccountHelper} is returned via {@link Message.OnRedditClientManagerRequestCompleted}
-     * event.
+     * Builds the {@link AccountHelper} for {@link net.dean.jraw.RedditClient}
      *
-     * @param context     The calling context.
-     * @param requestCode The request code that will be returned with
-     *                    {@link Message.OnRedditClientManagerRequestCompleted} event.
+     * @param context The calling context.
      */
-    synchronized public static void requestRedditAccountHelper(Context context, int requestCode) {
-        getInstance().generateRequest(context, requestCode);
-    }
-
-    private void generateRequest(final Context context, final int requestCode) {
-        //if the client is already initialized then return the client.
-        Timber.d("generateRequest()");
-        if (mIsInitialized) {
-            processClientRequest(requestCode);
-        } else {
-            Thread loadOAuthDataCursor = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                /* get the cursor to the OAuthData table. */
-                    Cursor cursor = context.getContentResolver().query(RedditLiteContentProvider.OAuthDataEntry.CONTENT_URI,
-                            null,
-                            null,
-                            null,
-                            null);
-
-                /* if there is no data in the local db then triggered a data fetch */
-                    RedditClientTokenStore tokenStore = new RedditClientTokenStore(context, cursor);
-
-                    mAccountHelper =
-                            new AccountHelper(mNetworkAdaptor, mCredentials, tokenStore, UUID.randomUUID());
-
-                    processClientRequest(requestCode);
-                    mIsInitialized = true;
-                }
-            });
-            loadOAuthDataCursor.run();
-        }
-    }
-
-    private void processClientRequest(int requestCode) {
-        Timber.d("processClientRequest()");
-        EventBus.getDefault().post(
-                new Message.OnRedditClientManagerRequestCompleted(requestCode, mAccountHelper));
+    synchronized public static AccountHelper getRedditAccountHelper(Context context) {
+        return getInstance(context).mAccountHelper;
     }
 }
