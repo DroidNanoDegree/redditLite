@@ -29,4 +29,7 @@ public class RedditLiteDatabase {
 
     @Table(OAuthDataContract.class)
     public static final String OAuthData = "oauth_data";
+
+    @Table(PostContract.class)
+    public static final String PostData = "post_data";
 }

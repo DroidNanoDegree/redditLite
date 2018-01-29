@@ -32,9 +32,6 @@ public class RedditLiteContentProvider {
     /* Authority for the RedditLite' Content Provider */
     public static final String AUTHORITY = "com.sriky.redditlite";
 
-    /* path for the recipes directory */
-    public static final String PATH_OAUTH_DATA = "oauth_data";
-
     /* The base content URI = "content://" + <authority> */
     private static final Uri BASE_CONTENT_URI = Uri.parse("content://" + AUTHORITY);
 
@@ -43,6 +40,8 @@ public class RedditLiteContentProvider {
      */
     @TableEndpoint(table = RedditLiteDatabase.OAuthData)
     public static final class OAuthDataEntry {
+        /* path for the recipes directory */
+        public static final String PATH_OAUTH_DATA = "oauth_data";
 
         /* The base CONTENT_URI used to query the OAuthData table from the content provider */
         @ContentUri(
@@ -51,5 +50,21 @@ public class RedditLiteContentProvider {
                 defaultSort = OAuthDataContract._ID + " ASC")
         public static final Uri CONTENT_URI =
                 BASE_CONTENT_URI.buildUpon().appendPath(PATH_OAUTH_DATA).build();
+    }
+
+    /**
+     * Post data entry specifics
+     */
+    @TableEndpoint(table = RedditLiteDatabase.PostData)
+    public static final class PostDataEntry {
+        private static final String PATH_POSTS_DATA = "posts";
+
+        /* The base CONTENT_URI used to query the Posts table from the content provider */
+        @ContentUri(
+                path = PATH_POSTS_DATA,
+                type = "vnd.android.cursor.dir/" + PATH_POSTS_DATA,
+                defaultSort = OAuthDataContract._ID + " ASC")
+        public static final Uri CONTENT_URI =
+                BASE_CONTENT_URI.buildUpon().appendPath(PATH_POSTS_DATA).build();
     }
 }
