@@ -15,11 +15,8 @@
 
 package com.sriky.redditlite.ui;
 
-import android.app.Activity;
-import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.graphics.Bitmap;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
@@ -34,13 +31,10 @@ import android.webkit.WebViewClient;
 
 import com.sriky.redditlite.R;
 import com.sriky.redditlite.databinding.ActivityLoginBinding;
+import com.sriky.redditlite.redditapi.AuthenticationTask;
 import com.sriky.redditlite.redditapi.ClientManager;
 
-import net.dean.jraw.RedditClient;
-import net.dean.jraw.oauth.OAuthException;
 import net.dean.jraw.oauth.StatefulAuthHelper;
-
-import java.lang.ref.WeakReference;
 
 import timber.log.Timber;
 
@@ -116,7 +110,7 @@ public class LoginActivity extends AppCompatActivity {
                     mActivityLoginBinding.loginWebView.setVisibility(View.GONE);
 
                     // Try to authenticate the user
-                    new AuthenticateTask(LoginActivity.this, mStatefulAuthHelper).execute(url);
+                    new AuthenticationTask(LoginActivity.this, mStatefulAuthHelper).execute(url);
                 }
             }
         });
@@ -131,44 +125,6 @@ public class LoginActivity extends AppCompatActivity {
             }
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    /**
-     * An async task that takes a final redirect URL as a parameter and reports the success of
-     * authorizing the user.
-     */
-    private static final class AuthenticateTask extends AsyncTask<String, Void, Boolean> {
-        // Use a WeakReference so that we don't leak a Context
-        private final WeakReference<Activity> context;
-
-        private final StatefulAuthHelper helper;
-
-        AuthenticateTask(Activity context, StatefulAuthHelper helper) {
-            this.context = new WeakReference<>(context);
-            this.helper = helper;
-        }
-
-        @Override
-        protected Boolean doInBackground(String... urls) {
-            try {
-                RedditClient client = helper.onUserChallenge(urls[0]);
-                Timber.d("username:%s", client.me().getUsername());
-                return true;
-            } catch (OAuthException e) {
-                // Report failure if an OAuthException occurs
-                return false;
-            }
-        }
-
-        @Override
-        protected void onPostExecute(Boolean success) {
-            // Finish the activity if it's still running
-            Activity host = this.context.get();
-            if (host != null) {
-                host.setResult(success ? Activity.RESULT_OK : Activity.RESULT_CANCELED, new Intent());
-                host.finish();
-            }
-        }
     }
 }
 
