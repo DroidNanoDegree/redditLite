@@ -82,6 +82,11 @@ public class RedditClientTokenStore implements TokenStore {
         if (username.equals(AuthManager.USERNAME_UNKOWN))
             throw new IllegalArgumentException("Refusing to store data for unknown username");
 
+        //nothing to store for "userless" mode.
+        if (username.equals(AuthManager.USERNAME_USERLESS)) {
+            return;
+        }
+
         mUserNameToOAuthDataMap.put(username, oAuthData);
 
         //update the OAuthData db.
@@ -95,6 +100,11 @@ public class RedditClientTokenStore implements TokenStore {
         Timber.d("storeRefreshToken() username:%s, refreshToken:%s", username, refreshToken);
         if (username.equals(AuthManager.USERNAME_UNKOWN))
             throw new IllegalArgumentException("Refusing to store data for unknown username");
+
+        //nothing to store for "userless" mode.
+        if (username.equals(AuthManager.USERNAME_USERLESS)) {
+            return;
+        }
 
         if (!mUserNameToOAuthDataMap.containsKey(username)) {
             throw new RuntimeException("username doesn't exist!");
@@ -120,6 +130,11 @@ public class RedditClientTokenStore implements TokenStore {
     public OAuthData fetchLatest(String username) {
         Timber.d("fetchLatest() username:%s", username);
 
+        //for "userless" mode it is ok to return null as there will be no OAuthData for the same.
+        if (username.equals(AuthManager.USERNAME_USERLESS)) {
+            return null;
+        }
+
         if (!mUserNameToOAuthDataMap.containsKey(username)) {
             throw new RuntimeException("username doesn't exist!");
         }
@@ -136,8 +151,13 @@ public class RedditClientTokenStore implements TokenStore {
             throw new RuntimeException("username doesn't exist!");
         }
 
+        //for "userless" mode it is ok to return null as there will be no OAuthData for the same.
+        if (username.equals(AuthManager.USERNAME_USERLESS)) {
+            return null;
+        }
+
         OAuthData authData = mUserNameToOAuthDataMap.get(username);
-        return authData.getRefreshToken();
+        return authData == null ? "" : authData.getRefreshToken();
     }
 
     @Override
@@ -146,6 +166,11 @@ public class RedditClientTokenStore implements TokenStore {
 
         if (!mUserNameToOAuthDataMap.containsKey(username)) {
             throw new RuntimeException("username doesn't exist!");
+        }
+
+        //nothing to do for "userless" mode.
+        if (username.equals(AuthManager.USERNAME_USERLESS)) {
+            return;
         }
 
         mUserNameToOAuthDataMap.remove(username);
@@ -167,6 +192,11 @@ public class RedditClientTokenStore implements TokenStore {
 
         if (!mUserNameToOAuthDataMap.containsKey(username)) {
             throw new RuntimeException("username doesn't exist!");
+        }
+
+        //nothing to do for "userless" mode.
+        if (username.equals(AuthManager.USERNAME_USERLESS)) {
+            return;
         }
 
         //clear the refresh token and update the map and database.
