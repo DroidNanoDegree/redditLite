@@ -9,4 +9,8 @@
     <string name="cancel">CANCEL</string>
     <string name="title_activity_login">Sign in</string>
     <string name="permission_denied">Permission request denied!</string>
+
+    <!-- shared pref authentication -->
+    <string name="user_account_pref_key">user_account</string>
+    <string name="user_account_pref_default">&lt;userless&gt;</string>
 </resources>

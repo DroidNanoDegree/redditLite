@@ -21,4 +21,15 @@ package com.sriky.redditlite.event;
 
 public final class Message {
 
+    /**
+     * Event triggered when authentication process is complete.
+     */
+    public static class RedditClientAuthenticationComplete {
+        private boolean mSuccess;
+
+        public RedditClientAuthenticationComplete(boolean success) {
+            mSuccess = success;
+        }
+    }
+
 }

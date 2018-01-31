@@ -16,10 +16,8 @@
 package com.sriky.redditlite.redditapi;
 
 import android.content.Context;
-import android.database.Cursor;
 
 import com.sriky.redditlite.BuildConfig;
-import com.sriky.redditlite.provider.RedditLiteContentProvider;
 
 import net.dean.jraw.http.OkHttpNetworkAdapter;
 import net.dean.jraw.http.UserAgent;
@@ -27,6 +25,8 @@ import net.dean.jraw.oauth.AccountHelper;
 import net.dean.jraw.oauth.Credentials;
 
 import java.util.UUID;
+
+import timber.log.Timber;
 
 /**
  * Manager for accessing the {@link net.dean.jraw.RedditClient}
@@ -56,14 +56,13 @@ public final class ClientManager {
         // This is what really sends HTTP requests
         mNetworkAdaptor = new OkHttpNetworkAdapter(userAgent);
 
-        //if there is no data in the local db then triggered a data fetch
         RedditClientTokenStore tokenStore = new RedditClientTokenStore(context);
 
         mAccountHelper =
                 new AccountHelper(mNetworkAdaptor, mCredentials, tokenStore, UUID.randomUUID());
     }
 
-    private static ClientManager getInstance(Context context) {
+    synchronized private static ClientManager getInstance(Context context) {
         if (sInstance == null) {
             sInstance = new ClientManager(context);
         }
@@ -75,7 +74,18 @@ public final class ClientManager {
      *
      * @param context The calling context.
      */
-    synchronized public static AccountHelper getRedditAccountHelper(Context context) {
+    public static AccountHelper getRedditAccountHelper(Context context) {
         return getInstance(context).mAccountHelper;
+    }
+
+    /**
+     * Authenticates {@link net.dean.jraw.RedditClient} to last used user account. If there are
+     * no previous user accounts the client will be in userless mode.
+     *
+     * @param username The username to login into.
+     */
+    public static void authenticate(Context context, String username) {
+        Timber.d("authenticate() username:%s", username);
+        new AuthenticationTask(context).execute(username);
     }
 }
