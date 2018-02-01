@@ -15,10 +15,21 @@
 
 package com.sriky.redditlite.sync;
 
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.preference.PreferenceManager;
 
 import com.firebase.jobdispatcher.JobParameters;
 import com.firebase.jobdispatcher.JobService;
+import com.sriky.redditlite.R;
+import com.sriky.redditlite.event.Message;
+import com.sriky.redditlite.redditapi.ClientManager;
+
+import net.dean.jraw.RedditClient;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import timber.log.Timber;
 
@@ -30,6 +41,7 @@ public class RedditLiteFirebaseJobService extends JobService {
 
     /* async task to fetch the recipe data in the background */
     private FetchDataAsyncTask mFetchDataTask;
+    private JobParameters mJob;
 
     /**
      * Starting point for the job. Contains implementation to offload the work onto to another thread.
@@ -38,8 +50,26 @@ public class RedditLiteFirebaseJobService extends JobService {
      */
     @Override
     public boolean onStartJob(JobParameters job) {
-        mFetchDataTask = new FetchDataAsyncTask();
-        mFetchDataTask.execute(job);
+        mJob = job;
+
+        //Trigger a network data sync if the client is authenticated already. Otherwise, log in
+        //with the previously used username, if the user has never logged in, then the client will
+        //be in "userless" mode.
+        if (ClientManager.getRedditAccountHelper(RedditLiteFirebaseJobService.this).isAuthenticated()) {
+            mFetchDataTask = new FetchDataAsyncTask();
+            mFetchDataTask.execute(mJob);
+        } else {
+            SharedPreferences preferences =
+                    PreferenceManager.getDefaultSharedPreferences(RedditLiteFirebaseJobService.this);
+
+            String username = preferences.getString(getResources().getString(R.string.user_account_pref_key),
+                    getResources().getString(R.string.user_account_pref_default));
+
+            //register to listen to authentication callback event.
+            EventBus.getDefault().register(RedditLiteFirebaseJobService.this);
+
+            ClientManager.authenticate(RedditLiteFirebaseJobService.this, username);
+        }
         return true;
     }
 
@@ -55,6 +85,25 @@ public class RedditLiteFirebaseJobService extends JobService {
             mFetchDataTask.cancel(true);
         }
         return true;
+    }
+
+    /**
+     * Event receiver that is triggered after authentication process is complete.
+     *
+     * @param event
+     */
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onAuthenticationComplete(Message.RedditClientAuthenticationComplete event) {
+        final RedditClient redditClient = ClientManager.getRedditAccountHelper(this).getReddit();
+        Timber.d("Authenticated username: %s",
+                redditClient.getAuthManager().currentUsername());
+
+        //unregister from the authentication event.
+        EventBus.getDefault().unregister(RedditLiteFirebaseJobService.this);
+
+        //trigger data sync operation.
+        mFetchDataTask = new FetchDataAsyncTask();
+        mFetchDataTask.execute(mJob);
     }
 
     class FetchDataAsyncTask extends AsyncTask<JobParameters, Void, JobParameters> {
