@@ -147,13 +147,13 @@ public class RedditClientTokenStore implements TokenStore {
     public String fetchRefreshToken(String username) {
         Timber.d("fetchRefreshToken() username=%s", username);
 
-        if (!mUserNameToOAuthDataMap.containsKey(username)) {
-            throw new RuntimeException("username doesn't exist!");
-        }
-
         //for "userless" mode it is ok to return null as there will be no OAuthData for the same.
         if (username.equals(AuthManager.USERNAME_USERLESS)) {
             return null;
+        }
+
+        if (!mUserNameToOAuthDataMap.containsKey(username)) {
+            throw new RuntimeException("username doesn't exist!");
         }
 
         OAuthData authData = mUserNameToOAuthDataMap.get(username);
@@ -164,13 +164,13 @@ public class RedditClientTokenStore implements TokenStore {
     public void deleteLatest(String username) {
         Timber.e("deleteLatest() username:%s - IMPL PENDING!", username);
 
-        if (!mUserNameToOAuthDataMap.containsKey(username)) {
-            throw new RuntimeException("username doesn't exist!");
-        }
-
         //nothing to do for "userless" mode.
         if (username.equals(AuthManager.USERNAME_USERLESS)) {
             return;
+        }
+
+        if (!mUserNameToOAuthDataMap.containsKey(username)) {
+            throw new RuntimeException("username doesn't exist!");
         }
 
         mUserNameToOAuthDataMap.remove(username);
@@ -190,13 +190,13 @@ public class RedditClientTokenStore implements TokenStore {
     public void deleteRefreshToken(String username) {
         Timber.e("deleteRefreshToken() username:%s - - IMPL PENDING!", username);
 
-        if (!mUserNameToOAuthDataMap.containsKey(username)) {
-            throw new RuntimeException("username doesn't exist!");
-        }
-
         //nothing to do for "userless" mode.
         if (username.equals(AuthManager.USERNAME_USERLESS)) {
             return;
+        }
+
+        if (!mUserNameToOAuthDataMap.containsKey(username)) {
+            throw new RuntimeException("username doesn't exist!");
         }
 
         //clear the refresh token and update the map and database.
