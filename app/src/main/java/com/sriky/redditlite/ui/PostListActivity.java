@@ -17,18 +17,22 @@ package com.sriky.redditlite.ui;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 
 import com.sriky.redditlite.R;
+import com.sriky.redditlite.databinding.ActivityPostListBinding;
 import com.sriky.redditlite.event.Message;
 import com.sriky.redditlite.idlingresource.RedditLiteIdlingResource;
 import com.sriky.redditlite.redditapi.ClientManager;
 import com.sriky.redditlite.sync.RedditLiteSyncUtils;
+import com.sriky.redditlite.utils.RedditLiteUtils;
 
 import net.dean.jraw.RedditClient;
 
@@ -45,14 +49,23 @@ import timber.log.Timber;
 public class PostListActivity extends AppCompatActivity {
 
     private static final int REQ_CODE_LOGIN = 222;
+    private static final String MASTER_LIST_FRAGMENT_TAG = "masterlist_fragment";
+
+    private ActivityPostListBinding mActivityPostListBinding;
     private RedditLiteIdlingResource mIdlingResource;
+    private MasterListFragment mMasterListFragment;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        //inflate the layout.
+        mActivityPostListBinding = DataBindingUtil.setContentView(PostListActivity.this,
+                R.layout.activity_post_list);
+
         if (savedInstanceState == null) {
             Timber.plant(new Timber.DebugTree());
+            addMasterListFragment();
         }
     }
 
@@ -67,6 +80,12 @@ public class PostListActivity extends AppCompatActivity {
 
     @Override
     protected void onResume() {
+        super.onResume();
+        //return early if there is no network.
+        if (!RedditLiteUtils.isNetworkConnectionAvailable(PostListActivity.this)) {
+            return;
+        }
+
         //Trigger a network data sync if the client is authenticated already. Otherwise, log in
         //with the previously used username, if the user has never logged in, then the client will
         //be in "userless" mode.
@@ -84,7 +103,6 @@ public class PostListActivity extends AppCompatActivity {
 
             ClientManager.authenticate(PostListActivity.this, username);
         }
-        super.onResume();
     }
 
     /**
@@ -94,6 +112,11 @@ public class PostListActivity extends AppCompatActivity {
      */
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onAuthenticationComplete(Message.RedditClientAuthenticationComplete event) {
+        if (!event.getAuthenticationStatus()) {
+            Timber.e("Unable to authenticate user!");
+            return;
+        }
+
         final RedditClient redditClient = ClientManager.getRedditAccountHelper(this).getReddit();
         Timber.d("Authenticated username: %s",
                 redditClient.getAuthManager().currentUsername());
@@ -123,5 +146,14 @@ public class PostListActivity extends AppCompatActivity {
      */
     private void initDataSync() {
         RedditLiteSyncUtils.initDataSync(PostListActivity.this, getIdlingResource());
+    }
+
+    private void addMasterListFragment() {
+        mMasterListFragment = new MasterListFragment();
+
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        fragmentManager.beginTransaction()
+                .replace(R.id.master_list_container, mMasterListFragment, MASTER_LIST_FRAGMENT_TAG)
+                .commit();
     }
 }
