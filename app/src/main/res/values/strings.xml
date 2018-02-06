@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="app_name">redditLite</string>
 
     <!-- Log in activity -->
@@ -13,4 +13,19 @@
     <!-- shared pref authentication -->
     <string name="user_account_pref_key">user_account</string>
     <string name="user_account_pref_default">&lt;userless&gt;</string>
+
+    <!-- post list items -->
+    <string name="subreddit_format">
+        <xliff:g id="subreddit">r/%1$s</xliff:g>
+    </string>
+
+    <string name="subreddit_date_format">
+        <xliff:g id="date">%1$d</xliff:g>h
+    </string>
+
+    <string name="subreddit_votes_format">
+        <xliff:g id="vote">%1$.1f</xliff:g>k
+    </string>
+    <string name="pref_last_data_fetch_time">0</string>
+    <string name="data_download_error">Failed to get data! Please check the internet connection and try again.</string>
 </resources>
