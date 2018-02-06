@@ -67,6 +67,9 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.8.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.0.2'
 
+    /* Picasso */
+    implementation 'com.squareup.picasso:picasso:2.5.2'
+
     /* Libs for running tests */
     testImplementation 'junit:junit:4.12'
     androidTestImplementation "com.android.support.test:runner:${androidTestLibVersion}"
