@@ -24,6 +24,8 @@ import com.firebase.jobdispatcher.JobService;
 import com.sriky.redditlite.R;
 import com.sriky.redditlite.event.Message;
 import com.sriky.redditlite.redditapi.ClientManager;
+import com.sriky.redditlite.ui.PostListActivity;
+import com.sriky.redditlite.utils.RedditLiteUtils;
 
 import net.dean.jraw.RedditClient;
 
@@ -50,6 +52,11 @@ public class RedditLiteFirebaseJobService extends JobService {
      */
     @Override
     public boolean onStartJob(JobParameters job) {
+        //return early if there is no network.
+        if (!RedditLiteUtils.isNetworkConnectionAvailable(RedditLiteFirebaseJobService.this)) {
+            return false;
+        }
+
         mJob = job;
 
         //Trigger a network data sync if the client is authenticated already. Otherwise, log in
