@@ -81,7 +81,13 @@ public class AuthenticationTask extends AsyncTask<String, Void, Boolean> {
                 if (AuthManager.USERNAME_USERLESS.equals(username)) {
                     ClientManager.getRedditAccountHelper(mContext.get()).switchToUserless();
                 } else {
-                    ClientManager.getRedditAccountHelper(mContext.get()).switchToUser(username);
+                    try {
+                        ClientManager.getRedditAccountHelper(mContext.get()).switchToUser(username);
+                    } catch (IllegalStateException exception) {
+                        Timber.e("IllegalStateException encounterred: "
+                                + exception.getLocalizedMessage());
+                        return false;
+                    }
                 }
                 return true;
             }
@@ -89,7 +95,6 @@ public class AuthenticationTask extends AsyncTask<String, Void, Boolean> {
             default:
                 throw new RuntimeException("Unsupported authentication mode: " + mAuthenticationMode);
         }
-
     }
 
     @Override
