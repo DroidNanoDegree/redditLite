@@ -1,6 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#3F51B5</color>
-    <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorAccent">#FF4081</color>
+    <!-- primary colors -->
+    <color name="primaryColor">#607d8b</color>
+    <color name="primaryLightColor">#8eacbb</color>
+    <color name="primaryDarkColor">#34515e</color>
+
+    <!-- accent colors -->
+    <color name="secondaryColor">#aa00ff</color>
+    <color name="secondaryLightColor">#e254ff</color>
+    <color name="secondaryDarkColor">#7200ca</color>
+
+    <!-- text colors -->
+    <color name="primaryTextColor">#ffffff</color>
+    <color name="secondaryTextColor">#000000</color>
+
+    <!-- misc -->
+    <color name="windowBackgroundColor">#1b1b1b</color>
+    <color name="postItemBackgroundColor">#99000000</color>
+    <color name="headerBackgroundColor">#33e254ff</color>
 </resources>

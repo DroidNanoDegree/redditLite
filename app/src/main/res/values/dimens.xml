@@ -2,4 +2,12 @@
     <!-- Default screen margins, per the Android Design guidelines. -->
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
+    <dimen name="list_toolbar_side_margin">0dp</dimen>
+    <dimen name="master_list_left_padding">4dp</dimen>
+    <dimen name="master_list_right_padding">4dp</dimen>
+
+    <!-- error textview -->
+    <dimen name="redditLite_default_textview_padding">4dp</dimen>
+    <dimen name="redditLite_error_textview_margin">4dp</dimen>
+
 </resources>
