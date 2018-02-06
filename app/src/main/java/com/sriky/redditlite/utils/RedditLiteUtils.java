@@ -15,6 +15,10 @@
 
 package com.sriky.redditlite.utils;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+
 /**
  * Class containing generic utility methods used the app.
  */
@@ -23,5 +27,33 @@ public final class RedditLiteUtils {
 
     public static final int OAUTH_DATA_LOADER_ID = 200;
 
+    private static final long SECONDS_IN_MILLI = 1000;
+    private static final long MINUTES_IN_MILLI = SECONDS_IN_MILLI * 60;
+    private static final long HOURS_IN_MILLI = MINUTES_IN_MILLI * 60;
+    private static final long DAYS_IN_MILLI = HOURS_IN_MILLI * 24;
 
+    /**
+     * Get the hours elapsed from the current time.
+     *
+     * @param originalTime Original time in millis.
+     * @return The number of hour/s elapsed from the supplied time.
+     */
+    public static long getHoursElapsedFromNow(long originalTime) {
+        long difference = System.currentTimeMillis() - originalTime;
+        return (difference % DAYS_IN_MILLI) / HOURS_IN_MILLI;
+    }
+
+    /**
+     * Check if network connection exists.
+     *
+     * @param context The calling context.
+     * @return True if there is network, false otherwise.
+     */
+    public static boolean isNetworkConnectionAvailable(Context context) {
+        ConnectivityManager cm =
+                (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+    }
 }
