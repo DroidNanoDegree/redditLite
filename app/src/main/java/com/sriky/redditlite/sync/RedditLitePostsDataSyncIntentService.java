@@ -24,12 +24,19 @@ import android.support.annotation.Nullable;
  */
 
 public class RedditLitePostsDataSyncIntentService extends IntentService {
+    public static final String CLEAR_DATA_BUNDLE_ARG_KEY = "clear_data";
+
     public RedditLitePostsDataSyncIntentService() {
         super(RedditLitePostsDataSyncIntentService.class.getSimpleName());
     }
 
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
-        RedditLiteSyncTask.fetchPosts(RedditLitePostsDataSyncIntentService.this);
+        boolean clearData = false;
+        if (intent.hasExtra(CLEAR_DATA_BUNDLE_ARG_KEY)) {
+            clearData =
+                    intent.getBooleanExtra(CLEAR_DATA_BUNDLE_ARG_KEY, false);
+        }
+        RedditLiteSyncTask.fetchPosts(RedditLitePostsDataSyncIntentService.this, clearData);
     }
 }

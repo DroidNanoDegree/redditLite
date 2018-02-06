@@ -80,7 +80,7 @@ public final class RedditLiteSyncUtils {
 
                 /* if there is no data in the local db then triggered a data fetch */
                 if (cursor == null || cursor.getCount() == 0) {
-                    fetchRecipeDataImmediately(context);
+                    fetchRecipeDataImmediately(context, false);
                 }
                 cursor.close();
             }
@@ -90,12 +90,13 @@ public final class RedditLiteSyncUtils {
 
     /**
      * Starts an {@link android.app.IntentService} to fetch data
-     *
-     * @param context The context.
+     *  @param context   The context.
+     * @param clearData  Clear existing data in the db.
      */
-    public static void fetchRecipeDataImmediately(Context context) {
+    public static void fetchRecipeDataImmediately(Context context, boolean clearData) {
         Timber.d("fetchRecipeDataImmediately()");
         Intent intent = new Intent(context, RedditLitePostsDataSyncIntentService.class);
+        intent.putExtra(RedditLitePostsDataSyncIntentService.CLEAR_DATA_BUNDLE_ARG_KEY, clearData);
         context.startService(intent);
     }
 

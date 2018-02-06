@@ -111,7 +111,7 @@ public class RedditLiteFirebaseJobService extends JobService {
         @Override
         protected JobParameters doInBackground(JobParameters... jobParameters) {
             Timber.d("doInBackground()");
-            RedditLiteSyncTask.fetchPosts(getApplicationContext());
+            RedditLiteSyncTask.fetchPosts(getApplicationContext(), true);
             return jobParameters[0];
         }
 
