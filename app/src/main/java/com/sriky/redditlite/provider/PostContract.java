@@ -23,6 +23,7 @@ import net.simonvt.schematic.annotation.PrimaryKey;
 import net.simonvt.schematic.annotation.Unique;
 
 import static net.simonvt.schematic.annotation.DataType.Type.INTEGER;
+import static net.simonvt.schematic.annotation.DataType.Type.REAL;
 import static net.simonvt.schematic.annotation.DataType.Type.TEXT;
 
 /**
@@ -43,7 +44,23 @@ public interface PostContract {
 
     @DataType(TEXT)
     @NotNull
-    String COLUMN_POST_LINK = "post_link";
+    String COLUMN_POST_TITLE = "post_title";
+
+    @DataType(TEXT)
+    @NotNull
+    String COLUMN_POST_AUTHOR = "post_author";
+
+    @DataType(TEXT)
+    @NotNull
+    String COLUMN_POST_SUBREDDIT = "post_subreddit";
+
+    @DataType(TEXT)
+    @NotNull
+    String COLUMN_POST_REDDIT_URL = "post_link";
+
+    @DataType(REAL)
+    @NotNull
+    String COLUMN_POST_DATE = "post_date";
 
     @DataType(INTEGER)
     @NotNull
@@ -51,13 +68,17 @@ public interface PostContract {
 
     @DataType(INTEGER)
     @NotNull
+    String COLUMN_POST_VISITED = "post_visited";
+
+    @DataType(TEXT)
+    String COLUMN_POST_DOMAIN = "post_domain";
+
+    @DataType(TEXT)
+    String COLUMN_POST_MEDIA_THUMBNAIL_URL = "post_media_thumbnail_url";
+
+    @DataType(INTEGER)
     String COLUMN_POST_COMMENTS = "post_comments";
 
     @DataType(INTEGER)
-    @NotNull
-    String COLUMN_POST_UNREAD = "post_unread";
-
-    @DataType(INTEGER)
-    @NotNull
     String COLUMN_POST_FAVORITE = "post_favorite";
 }
