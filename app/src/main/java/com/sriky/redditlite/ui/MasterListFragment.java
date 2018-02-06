@@ -31,6 +31,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.sriky.redditlite.R;
 import com.sriky.redditlite.adaptor.PostListAdaptor;
 import com.sriky.redditlite.databinding.FragmentMasterListBinding;
 import com.sriky.redditlite.listener.EndlessRecyclerViewScrollListener;
@@ -82,6 +83,15 @@ public class MasterListFragment extends Fragment implements LoaderManager.Loader
                     }
                 }
         );
+
+        //set the loading animation color to accent color.
+        mMasterListBinding.swipeRefreshLayout.setColorSchemeColors(
+                getResources().getColor(R.color.secondaryLightColor));
+
+        //set the start and end offsets for the loading icon.
+        mMasterListBinding.swipeRefreshLayout.setProgressViewOffset(true,
+                getResources().getDimensionPixelSize(R.dimen.refresher_offset),
+                getResources().getDimensionPixelSize(R.dimen.refresher_offset_end));
 
         //init and set the adaptor for the PostList' RecyclerView.
         mPostListAdaptor = new PostListAdaptor(getContext(), null);
@@ -138,11 +148,11 @@ public class MasterListFragment extends Fragment implements LoaderManager.Loader
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         Timber.d("onLoadFinished() data: %d", data.getCount());
 
-        //hide the refresh loading icon.
-        mMasterListBinding.swipeRefreshLayout.setRefreshing(false);
-
         //swap the RecyclerView's adaptor cursor.
         mPostListAdaptor.swapCursor(data);
+
+        //hide the refresh loading icon.
+        mMasterListBinding.swipeRefreshLayout.setRefreshing(false);
 
         if (mPosition == RecyclerView.NO_POSITION) mPosition = 0;
 

@@ -10,4 +10,7 @@
     <dimen name="redditLite_default_textview_padding">4dp</dimen>
     <dimen name="redditLite_error_textview_margin">4dp</dimen>
 
+    <!-- swipe-to-refresh icon offsets -->
+    <dimen name="refresher_offset">8dp</dimen>
+    <dimen name="refresher_offset_end">64dp</dimen>
 </resources>
