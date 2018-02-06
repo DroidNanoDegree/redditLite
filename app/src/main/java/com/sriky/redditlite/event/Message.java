@@ -30,6 +30,8 @@ public final class Message {
         public RedditClientAuthenticationComplete(boolean success) {
             mSuccess = success;
         }
+
+        public boolean getAuthenticationStatus() { return mSuccess; }
     }
 
 }
