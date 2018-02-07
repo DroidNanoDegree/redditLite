@@ -28,15 +28,8 @@ import android.view.ViewGroup;
 import com.squareup.picasso.Picasso;
 import com.sriky.redditlite.R;
 import com.sriky.redditlite.databinding.PostListItemBinding;
+import com.sriky.redditlite.databinding.PostListItemFooterBinding;
 import com.sriky.redditlite.provider.PostContract;
-
-import java.util.Date;
-import java.util.Locale;
-
-import timber.log.Timber;
-
-import com.sriky.redditlite.R;
-import com.sriky.redditlite.sync.RedditLiteSyncUtils;
 import com.sriky.redditlite.utils.RedditLiteUtils;
 
 /**
@@ -44,7 +37,10 @@ import com.sriky.redditlite.utils.RedditLiteUtils;
  * {@link com.sriky.redditlite.ui.MasterListFragment}
  */
 
-public class PostListAdaptor extends RecyclerView.Adapter<PostListAdaptor.PostListViewHolder> {
+public class PostListAdaptor extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+
+    private static final int POST_ITEM_TYPE = 0;
+    private static final int POST_ITEM_FOOTER_TYPE = 1;
 
     private Cursor mCursor;
     private Context mContext;
@@ -55,16 +51,77 @@ public class PostListAdaptor extends RecyclerView.Adapter<PostListAdaptor.PostLi
     }
 
     @Override
-    public PostListViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
-        PostListItemBinding postListItemBinding = DataBindingUtil.inflate(
-                layoutInflater, R.layout.post_list_item, parent, false);
-        return new PostListViewHolder(postListItemBinding);
+
+        switch (viewType) {
+            case POST_ITEM_TYPE: {
+                return new PostListViewHolder((PostListItemBinding) DataBindingUtil.inflate(
+                        layoutInflater, R.layout.post_list_item, parent, false));
+            }
+
+            case POST_ITEM_FOOTER_TYPE: {
+                return new PostListFooterViewHolder((PostListItemFooterBinding) DataBindingUtil.inflate(
+                        layoutInflater, R.layout.post_list_item_footer, parent, false));
+            }
+
+            default: {
+                throw new RuntimeException("Unsupported item type:" + viewType);
+            }
+        }
+
     }
 
     @Override
-    public void onBindViewHolder(PostListViewHolder holder, int position) {
-        if (mCursor != null && mCursor.moveToPosition(position)) {
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+
+        int viewType = getItemViewType(position);
+        switch (viewType) {
+            case POST_ITEM_TYPE: {
+                bindPostItem((PostListViewHolder) holder, position);
+            }
+
+            case POST_ITEM_FOOTER_TYPE: {
+                break;
+            }
+
+            default: {
+                throw new RuntimeException("Unsupported item type:" + viewType);
+            }
+        }
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        if (position == mCursor.getCount()) {
+            return POST_ITEM_FOOTER_TYPE;
+        }
+        return POST_ITEM_TYPE;
+    }
+
+    @Override
+    public int getItemCount() {
+        if (mCursor == null) return 0;
+
+        int cursorSize = mCursor.getCount();
+        //add the loading footer based on the size of the cursor to avoid adding the footer
+        //when there are no items to load.
+        return cursorSize > 5 ? cursorSize + 1 : cursorSize;
+    }
+
+    public void swapCursor(Cursor cursor) {
+        mCursor = cursor;
+        notifyDataSetChanged();
+    }
+
+    /**
+     * Bind the data to post item views.
+     *
+     * @param holder   The {@link PostListViewHolder}
+     * @param position Position of the item in the {@link RecyclerView}
+     */
+    private void bindPostItem(PostListViewHolder holder, int position) {
+        if (holder != null && mCursor != null && mCursor.moveToPosition(position)) {
 
             //set date
             String dateFormat = mContext.getString(R.string.subreddit_date_format);
@@ -111,19 +168,9 @@ public class PostListAdaptor extends RecyclerView.Adapter<PostListAdaptor.PostLi
 
             //set votes
             String votesFormatted = mContext.getString(R.string.subreddit_votes_format,
-                    mCursor.getInt(mCursor.getColumnIndex(PostContract.COLUMN_POST_VOTES))/1000f);
+                    mCursor.getInt(mCursor.getColumnIndex(PostContract.COLUMN_POST_VOTES)) / 1000f);
             holder.getViewDataBinding().postVotes.setText(votesFormatted);
         }
-    }
-
-    @Override
-    public int getItemCount() {
-        return mCursor == null ? 0 : mCursor.getCount();
-    }
-
-    public void swapCursor(Cursor cursor) {
-        mCursor = cursor;
-        notifyDataSetChanged();
     }
 
     /**
@@ -140,6 +187,24 @@ public class PostListAdaptor extends RecyclerView.Adapter<PostListAdaptor.PostLi
 
         public PostListItemBinding getViewDataBinding() {
             return mPostListItemBinding;
+        }
+    }
+
+    /**
+     * {@link android.support.v7.widget.RecyclerView.ViewHolder} for
+     * the {@link PostListAdaptor}' footer
+     */
+    class PostListFooterViewHolder extends RecyclerView.ViewHolder {
+
+        private PostListItemFooterBinding mPostListItemFooterBinding;
+
+        public PostListFooterViewHolder(PostListItemFooterBinding binding) {
+            super(binding.getRoot());
+            mPostListItemFooterBinding = binding;
+        }
+
+        public PostListItemFooterBinding getViewDataBinding() {
+            return mPostListItemFooterBinding;
         }
     }
 }

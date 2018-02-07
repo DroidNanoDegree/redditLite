@@ -106,6 +106,8 @@ public class MasterListFragment extends Fragment implements LoaderManager.Loader
             @Override
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
                 Timber.d("Page: %d, totalItems: %d", page, totalItemsCount);
+                //set the position the RecyclerView should scroll to after getting new data.
+                mPosition = totalItemsCount;
                 RedditLiteSyncUtils.fetchRecipeDataImmediately(getContext(), false);
             }
         };
