@@ -20,6 +20,7 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -37,6 +38,7 @@ import com.sriky.redditlite.databinding.FragmentMasterListBinding;
 import com.sriky.redditlite.listener.EndlessRecyclerViewScrollListener;
 import com.sriky.redditlite.provider.RedditLiteContentProvider;
 import com.sriky.redditlite.sync.RedditLiteSyncUtils;
+import com.sriky.redditlite.utils.RedditLiteUtils;
 
 import timber.log.Timber;
 
@@ -106,9 +108,14 @@ public class MasterListFragment extends Fragment implements LoaderManager.Loader
             @Override
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
                 Timber.d("Page: %d, totalItems: %d", page, totalItemsCount);
-                //set the position the RecyclerView should scroll to after getting new data.
-                mPosition = totalItemsCount;
-                RedditLiteSyncUtils.fetchRecipeDataImmediately(getContext(), false);
+                if (checkNetworkAvailableOrDisplayError()) {
+                    //set the position the RecyclerView should scroll to after getting new data.
+                    mPosition = totalItemsCount;
+                    RedditLiteSyncUtils.fetchRecipeDataImmediately(getContext(), false);
+                } else {
+                    //reset the state, so that LoadMore can get called once there is network.
+                    resetState();
+                }
             }
         };
 
@@ -122,7 +129,9 @@ public class MasterListFragment extends Fragment implements LoaderManager.Loader
     public void onResume() {
         super.onResume();
 
-        showProgressBarAndHideErrorMessage();
+        showProgressBar();
+
+        mEndlessRecyclerViewScrollListener.resetState();
 
         //init the loader to get data from local db.
         getLoaderManager().initLoader(LOAD_POSTS_DATA_ID, null, MasterListFragment.this);
@@ -193,11 +202,27 @@ public class MasterListFragment extends Fragment implements LoaderManager.Loader
      * Fetch latest posts from the API in the background.
      */
     private void fetchLatestPosts() {
-        //Reset endless scroll listener when performing a new search
-        mEndlessRecyclerViewScrollListener.resetState();
+        if (checkNetworkAvailableOrDisplayError()) {
+            //Reset endless scroll listener when performing a new search
+            mEndlessRecyclerViewScrollListener.resetState();
 
-        //fetch latest posts.
-        RedditLiteSyncUtils.fetchRecipeDataImmediately(getContext(), true);
+            //fetch latest posts.
+            RedditLiteSyncUtils.fetchRecipeDataImmediately(getContext(), true);
+        }
+    }
+
+    /**
+     * Checks for network availability and display an error if the network is not available.
+     *
+     * @return True if there is network, False otherwise and displays an error msg.
+     */
+    private boolean checkNetworkAvailableOrDisplayError() {
+        //display an error if there is no network!
+        if (!RedditLiteUtils.isNetworkConnectionAvailable(getContext())) {
+            displayError();
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -207,7 +232,6 @@ public class MasterListFragment extends Fragment implements LoaderManager.Loader
         Timber.d("onDataLoadComplete()");
         /* hide the progress bar & the error msg view. */
         mMasterListBinding.progressBar.setVisibility(View.INVISIBLE);
-        mMasterListBinding.errorMsg.setVisibility(View.INVISIBLE);
         /* if the timer was running then cancel it. */
         cancelDataFetchTimer();
     }
@@ -233,11 +257,10 @@ public class MasterListFragment extends Fragment implements LoaderManager.Loader
     }
 
     /**
-     * Displays the progress bar and hides the error message views.
+     * Displays the progress bar.
      */
-    private void showProgressBarAndHideErrorMessage() {
+    private void showProgressBar() {
         mMasterListBinding.progressBar.setVisibility(View.VISIBLE);
-        mMasterListBinding.errorMsg.setVisibility(View.INVISIBLE);
     }
 
     /**
@@ -245,6 +268,21 @@ public class MasterListFragment extends Fragment implements LoaderManager.Loader
      */
     private void hideProgressBarAndShowErrorMessage() {
         mMasterListBinding.progressBar.setVisibility(View.INVISIBLE);
-        mMasterListBinding.errorMsg.setVisibility(View.VISIBLE);
+        displayError();
+    }
+
+    /**
+     * Displays the error.
+     */
+    private void displayError() {
+        //hide the refresh loading icon.
+        if (mMasterListBinding.swipeRefreshLayout.isRefreshing()) {
+            mMasterListBinding.swipeRefreshLayout.setRefreshing(false);
+        }
+
+        //display error.
+        Snackbar.make(mMasterListBinding.getRoot(),
+                getContext().getResources().getString(R.string.data_download_error),
+                Snackbar.LENGTH_LONG).show();
     }
 }
