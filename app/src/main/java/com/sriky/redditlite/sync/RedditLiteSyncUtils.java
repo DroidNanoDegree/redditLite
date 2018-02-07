@@ -90,8 +90,9 @@ public final class RedditLiteSyncUtils {
 
     /**
      * Starts an {@link android.app.IntentService} to fetch data
-     *  @param context   The context.
-     * @param clearData  Clear existing data in the db.
+     *
+     * @param context   The context.
+     * @param clearData Clear existing data in the db.
      */
     public static void fetchRecipeDataImmediately(Context context, boolean clearData) {
         Timber.d("fetchRecipeDataImmediately()");

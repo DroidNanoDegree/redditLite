@@ -31,7 +31,9 @@ public final class Message {
             mSuccess = success;
         }
 
-        public boolean getAuthenticationStatus() { return mSuccess; }
+        public boolean getAuthenticationStatus() {
+            return mSuccess;
+        }
     }
 
 }
