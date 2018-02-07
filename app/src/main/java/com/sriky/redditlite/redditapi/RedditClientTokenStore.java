@@ -29,8 +29,6 @@ import net.dean.jraw.models.PersistedAuthData;
 import net.dean.jraw.oauth.AuthManager;
 import net.dean.jraw.oauth.TokenStore;
 
-import org.jetbrains.annotations.Nullable;
-
 import java.lang.reflect.Type;
 import java.util.Date;
 import java.util.HashMap;
@@ -125,7 +123,6 @@ public class RedditClientTokenStore implements TokenStore {
         oAuthDataSyncTask.execute();
     }
 
-    @Nullable
     @Override
     public OAuthData fetchLatest(String username) {
         Timber.d("fetchLatest() username:%s", username);
@@ -142,7 +139,6 @@ public class RedditClientTokenStore implements TokenStore {
         return mUserNameToOAuthDataMap.get(username);
     }
 
-    @Nullable
     @Override
     public String fetchRefreshToken(String username) {
         Timber.d("fetchRefreshToken() username=%s", username);
@@ -217,8 +213,9 @@ public class RedditClientTokenStore implements TokenStore {
 
     /**
      * Generates a {@link ContentProviderOperation} to add new {@link OAuthData}
-     * @param username   The username associated with the OAuthData.
-     * @param oAuthData  The OAuthData.
+     *
+     * @param username  The username associated with the OAuthData.
+     * @param oAuthData The OAuthData.
      * @return {@link ContentProviderOperation} to insert new OAuthData.
      */
     private ContentProviderOperation getContentProviderOperation(String username, OAuthData oAuthData) {

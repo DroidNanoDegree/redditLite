@@ -24,7 +24,6 @@ import com.firebase.jobdispatcher.JobService;
 import com.sriky.redditlite.R;
 import com.sriky.redditlite.event.Message;
 import com.sriky.redditlite.redditapi.ClientManager;
-import com.sriky.redditlite.ui.PostListActivity;
 import com.sriky.redditlite.utils.RedditLiteUtils;
 
 import net.dean.jraw.RedditClient;
