@@ -25,14 +25,14 @@
         android:clickable="true"
         android:focusable="true"
         app:cardCornerRadius="4dp"
-        app:cardElevation="4dp">
+        app:cardElevation="4dp"
+        app:cardBackgroundColor="@color/primaryDarkColor">
 
         <LinearLayout
             android:id="@+id/root"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:background="@color/primaryDarkColor">
+            android:orientation="vertical">
 
             <LinearLayout
                 android:id="@+id/header"
