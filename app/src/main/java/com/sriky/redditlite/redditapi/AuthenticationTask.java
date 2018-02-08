@@ -67,10 +67,9 @@ public class AuthenticationTask extends AsyncTask<String, Void, Boolean> {
                 try {
                     RedditClient client = mHelper.onUserChallenge(params[0]);
                     Timber.d("username:%s", client.me().getUsername());
-                    return true;
                 } catch (OAuthException e) {
                     // Report failure if an OAuthException occurs
-                    Timber.e("Authentication error: " + e.getLocalizedMessage());
+                    Timber.e("Authentication error: %s", e.getLocalizedMessage());
                     return false;
                 }
             }
@@ -84,11 +83,13 @@ public class AuthenticationTask extends AsyncTask<String, Void, Boolean> {
                     try {
                         ClientManager.getRedditAccountHelper(mContext.get()).switchToUser(username);
                     } catch (IllegalStateException exception) {
-                        Timber.e("IllegalStateException encounterred: "
-                                + exception.getLocalizedMessage());
+                        Timber.e("IllegalStateException encountered: %s",
+                                exception.getLocalizedMessage());
                         return false;
                     }
                 }
+                //update the last signed in username in SharedPreferences.
+                ClientManager.updateLastestAuthenticatedUsername(mContext.get());
                 return true;
             }
 
