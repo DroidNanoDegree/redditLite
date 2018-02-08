@@ -16,8 +16,12 @@
 package com.sriky.redditlite.redditapi;
 
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
+import android.text.TextUtils;
 
 import com.sriky.redditlite.BuildConfig;
+import com.sriky.redditlite.R;
 
 import net.dean.jraw.http.OkHttpNetworkAdapter;
 import net.dean.jraw.http.UserAgent;
@@ -39,10 +43,9 @@ public final class ClientManager {
     private static final String VERSION = "v0.1";
 
     private static ClientManager sInstance;
+    private static String mCurrentUsername;
 
     private AccountHelper mAccountHelper;
-    private Credentials mCredentials;
-    private OkHttpNetworkAdapter mNetworkAdaptor;
 
     //make it a singleton.
     private ClientManager(Context context) {
@@ -50,11 +53,11 @@ public final class ClientManager {
                 BuildConfig.REDDIT_USERNAME);
 
         // Create our mCredentials
-        mCredentials = Credentials.installedApp(BuildConfig.REDDIT_CLIENT_ID,
+        Credentials mCredentials = Credentials.installedApp(BuildConfig.REDDIT_CLIENT_ID,
                 BuildConfig.REDDIT_REDIRECT_URL);
 
         // This is what really sends HTTP requests
-        mNetworkAdaptor = new OkHttpNetworkAdapter(userAgent);
+        OkHttpNetworkAdapter mNetworkAdaptor = new OkHttpNetworkAdapter(userAgent);
 
         RedditClientTokenStore tokenStore = new RedditClientTokenStore(context);
 
@@ -79,13 +82,75 @@ public final class ClientManager {
     }
 
     /**
-     * Authenticates {@link net.dean.jraw.RedditClient} to last used user account. If there are
-     * no previous user accounts the client will be in userless mode.
+     * Authenticates {@link net.dean.jraw.RedditClient} into the supplied username.
      *
      * @param username The username to login into.
      */
     public static void authenticate(Context context, String username) {
         Timber.d("authenticate() username:%s", username);
         new AuthenticationTask(context).execute(username);
+    }
+
+    /**
+     * Authenticates {@link net.dean.jraw.RedditClient} to last used user account. If there are
+     * no previous user accounts the client will be in userless mode.
+     *
+     * @param context The calling activity or service.
+     */
+    public static void authenticateUsingLastUsedUsername(Context context) {
+        Timber.d("authenticateUsingLastUsedUsername()");
+        authenticate(context, getCurrentAuthenticatedUsername(context));
+    }
+
+    /**
+     * Save the last logged username in {@link android.content.SharedPreferences}. This can be
+     * retrieved at App Launch or background service to interact with RedditApi.
+     *
+     * @param context The calling context.
+     */
+    public static void updateLastestAuthenticatedUsername(Context context) {
+        mCurrentUsername =
+                getInstance(context).mAccountHelper.getReddit().getAuthManager().currentUsername();
+
+        Timber.i("updateLastestAuthenticatedUsername() - currentUsername: %s", mCurrentUsername);
+        PreferenceManager.getDefaultSharedPreferences(context)
+                .edit()
+                .putString(context.getResources().getString(R.string.user_account_pref_key),
+                        mCurrentUsername)
+                .apply();
+    }
+
+    /**
+     * Get the username of the currently authenticated Reddit account.
+     *
+     * @param context The calling activity or service.
+     * @return The username associated with the authenticated Reddit account.
+     */
+    public static String getCurrentAuthenticatedUsername(Context context) {
+        return !TextUtils.isEmpty(mCurrentUsername) ? mCurrentUsername
+                : getLastestAuthenticatedUsernameFromSharedPreferences(context);
+    }
+
+    /**
+     * Checks if the current authentication mode is in "<userless>" or not.
+     *
+     * @param context The calling activity or service.
+     * @return True is it authenticated in "<userless> mode, false otherwise.
+     */
+    public static boolean isAuthenticateModeUserless(Context context) {
+        String userless = context.getString(R.string.user_account_pref_default);
+        return userless.equals(getCurrentAuthenticatedUsername(context));
+    }
+
+    /**
+     * Gets the last authenticated username from {@link SharedPreferences}
+     *
+     * @param context The calling activity or service
+     * @return The last used username, default "<userless>"
+     */
+    private static String getLastestAuthenticatedUsernameFromSharedPreferences(Context context) {
+        return PreferenceManager.getDefaultSharedPreferences(context)
+                .getString(context.getResources().getString(R.string.user_account_pref_key),
+                        context.getResources().getString(R.string.user_account_pref_default));
     }
 }
