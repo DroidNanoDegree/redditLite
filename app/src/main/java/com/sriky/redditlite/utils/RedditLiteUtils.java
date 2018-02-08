@@ -16,8 +16,15 @@
 package com.sriky.redditlite.utils;
 
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Build;
+import android.support.v7.app.AlertDialog;
+
+import com.sriky.redditlite.R;
+import com.sriky.redditlite.ui.LoginActivity;
 
 /**
  * Class containing generic utility methods used the app.
@@ -55,5 +62,29 @@ public final class RedditLiteUtils {
 
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
         return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+    }
+
+    public static void displayLoginDialog(final Context context) {
+        AlertDialog.Builder builder;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            builder = new AlertDialog.Builder(context, R.style.RedditLite_Dialog);
+        } else {
+            builder = new AlertDialog.Builder(context);
+        }
+        builder.setTitle(context.getResources().getString(R.string.dialog_login_title))
+                .setMessage(context.getResources().getString(R.string.dialog_login_body))
+                .setPositiveButton(R.string.log_in, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        Intent intent = new Intent(context, LoginActivity.class);
+                        context.startActivity(intent);
+                    }
+                })
+                .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        //dimiss
+                        dialog.dismiss();
+                    }
+                })
+                .show();
     }
 }
