@@ -41,7 +41,6 @@ import timber.log.Timber;
 
 /**
  * Helper class containing methods to facilitate network sync tasks.
- *
  */
 
 public final class RedditLiteSyncTask {
@@ -52,26 +51,26 @@ public final class RedditLiteSyncTask {
 
     /**
      * Fetches the post data and updates the local database.
-     *
+     * <p>
      * The {@link RedditLiteSyncTask#fetchPosts(Context, boolean)} is the core function responsible
      * for syncing the local db with the latest data from the Reddit API. This method is called either
      * from the {@link com.firebase.jobdispatcher.Job} or from the {@link RedditLitePostsDataSyncIntentService}.
-     *
+     * <p>
      * The {@link RedditLitePostsDataSyncIntentService} is triggered in the following case:
-     *
+     * <p>
      * 1). At First launch to fetch data immediately.
      * 2). Via Swipe-to-Refresh from {@link com.sriky.redditlite.ui.MasterListFragment}
      * 3). Paging data into the {@link android.support.v7.widget.RecyclerView}
-     *     in {@link com.sriky.redditlite.ui.MasterListFragment}
-     *
+     * in {@link com.sriky.redditlite.ui.MasterListFragment}
+     * <p>
      * For all the scenarios mentioned above we first check if the
      * {@link net.dean.jraw.pagination.Paginator} instance already exists , if not, or if we need to
      * fetch new data from the first page then we reset the handle. Otherwise, if we are paging
      * where clearData == false, we gather the number of pages specified by
      * {@link RedditLiteSyncTask#NUMBER_OF_PAGES_TO_ACCUMULATE}.
      *
-     * @param context    The context.
-     * @param clearData  Clear existing data in the db.
+     * @param context   The context.
+     * @param clearData Clear existing data in the db.
      */
     synchronized public static void fetchPosts(Context context, boolean clearData) {
         Timber.d("fetchPosts() clearData : %b", clearData);
@@ -106,8 +105,8 @@ public final class RedditLiteSyncTask {
     /**
      * Adds post submissions to local db.
      *
-     * @param context      The calling context.
-     * @param submissions  Reddit Posts.
+     * @param context     The calling context.
+     * @param submissions Reddit Posts.
      */
     private static void addEntries(Context context, List<Submission> submissions) {
         //list of database operations(insert) to be performed.
@@ -163,6 +162,6 @@ public final class RedditLiteSyncTask {
         editor.putLong(context.getString(R.string.pref_last_data_fetch_time),
                 System.currentTimeMillis());
         //commit the changes.
-        editor.commit();
+        editor.apply();
     }
 }
