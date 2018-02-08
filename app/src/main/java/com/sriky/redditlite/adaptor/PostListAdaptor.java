@@ -15,10 +15,13 @@
 
 package com.sriky.redditlite.adaptor;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.databinding.DataBindingUtil;
 import android.net.Uri;
+import android.support.v4.app.ShareCompat;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -29,8 +32,14 @@ import com.squareup.picasso.Picasso;
 import com.sriky.redditlite.R;
 import com.sriky.redditlite.databinding.PostListItemBinding;
 import com.sriky.redditlite.databinding.PostListItemFooterBinding;
+import com.sriky.redditlite.event.Message;
 import com.sriky.redditlite.provider.PostContract;
+import com.sriky.redditlite.redditapi.ClientManager;
 import com.sriky.redditlite.utils.RedditLiteUtils;
+
+import org.greenrobot.eventbus.EventBus;
+
+import timber.log.Timber;
 
 /**
  * {@link android.support.v7.widget.RecyclerView} Adaptor used in the
@@ -122,31 +131,33 @@ public class PostListAdaptor extends RecyclerView.Adapter<RecyclerView.ViewHolde
      */
     private void bindPostItem(PostListViewHolder holder, int position) {
         if (holder != null && mCursor != null && mCursor.moveToPosition(position)) {
+            PostListItemBinding postListItemBinding = holder.getViewDataBinding();
 
             //set date
             String dateFormat = mContext.getString(R.string.subreddit_date_format);
             String fomattedDate = String.format(dateFormat,
                     RedditLiteUtils.getHoursElapsedFromNow(mCursor.getLong(
                             mCursor.getColumnIndex(PostContract.COLUMN_POST_DATE))));
-            holder.getViewDataBinding().postDate.setText(fomattedDate);
+            postListItemBinding.postDate.setText(fomattedDate);
 
             //set title
-            holder.getViewDataBinding().postTitle.setText(
+            postListItemBinding.postTitle.setText(
                     mCursor.getString(mCursor.getColumnIndex(PostContract.COLUMN_POST_TITLE)));
 
             //set subreddit
             String subredditFormat = mContext.getString(R.string.subreddit_format);
-            String formattedSubreddit = String.format(subredditFormat, mCursor.getString(mCursor.getColumnIndex(PostContract.COLUMN_POST_SUBREDDIT)));
-            holder.getViewDataBinding().postSubreddit.setText(formattedSubreddit);
+            String formattedSubreddit = String.format(subredditFormat,
+                    mCursor.getString(mCursor.getColumnIndex(PostContract.COLUMN_POST_SUBREDDIT)));
+            postListItemBinding.postSubreddit.setText(formattedSubreddit);
 
             //set domain if any.
             String domain = mCursor.getString(
                     mCursor.getColumnIndex(PostContract.COLUMN_POST_DOMAIN));
             if (!TextUtils.isEmpty(domain)) {
-                holder.getViewDataBinding().postProvider.setText(domain);
-                holder.getViewDataBinding().postProvider.setVisibility(View.VISIBLE);
+                postListItemBinding.postProvider.setText(domain);
+                postListItemBinding.postProvider.setVisibility(View.VISIBLE);
             } else {
-                holder.getViewDataBinding().postProvider.setVisibility(View.INVISIBLE);
+                postListItemBinding.postProvider.setVisibility(View.INVISIBLE);
             }
 
             //set thumbnail
@@ -156,37 +167,131 @@ public class PostListAdaptor extends RecyclerView.Adapter<RecyclerView.ViewHolde
             if (!TextUtils.isEmpty(mediaUrl)) {
                 //Timber.d("mediaUrl: %s", mediaUrl);
                 //TODO: handle image types specified via url, i.e "image, self, default etc."
-                holder.getViewDataBinding().postThumbnail.setVisibility(View.VISIBLE);
+                postListItemBinding.postThumbnail.setVisibility(View.VISIBLE);
                 Picasso.with(mContext)
                         .load(Uri.parse(mediaUrl))
                         .placeholder(R.drawable.ic_image_placeholder)
                         .error(R.drawable.ic_error)
-                        .into(holder.getViewDataBinding().postThumbnail);
+                        .into(postListItemBinding.postThumbnail);
             } else {
-                holder.getViewDataBinding().postThumbnail.setVisibility(View.GONE);
+                postListItemBinding.postThumbnail.setVisibility(View.GONE);
             }
 
             //set votes
             String votesFormatted = mContext.getString(R.string.subreddit_votes_format,
                     mCursor.getInt(mCursor.getColumnIndex(PostContract.COLUMN_POST_VOTES)) / 1000f);
-            holder.getViewDataBinding().postVotes.setText(votesFormatted);
+            postListItemBinding.postVotes.setText(votesFormatted);
+
+            //set CardView's tag for onClicked() event.
+            String postId = mCursor.getString(mCursor.getColumnIndex(PostContract.COLUMN_POST_ID));
+            postListItemBinding.getRoot().setTag(postId);
+
+            //set tag for vote btn for onClicked() event.
+            postListItemBinding.postVotes.setTag(postId);
+
+            //set tag for share btn for onClicked() event.
+            postListItemBinding.share.setTag(
+                    mCursor.getString(mCursor.getColumnIndex(PostContract.COLUMN_POST_REDDIT_URL)));
         }
     }
 
     /**
      * {@link android.support.v7.widget.RecyclerView.ViewHolder} for the {@link PostListAdaptor}
      */
-    class PostListViewHolder extends RecyclerView.ViewHolder {
+    class PostListViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         private PostListItemBinding mPostListItemBinding;
 
         public PostListViewHolder(PostListItemBinding binding) {
             super(binding.getRoot());
             mPostListItemBinding = binding;
+            mPostListItemBinding.getRoot().setOnClickListener(this);
+            mPostListItemBinding.share.setOnClickListener(this);
+            mPostListItemBinding.postVotes.setOnClickListener(this);
         }
+
 
         public PostListItemBinding getViewDataBinding() {
             return mPostListItemBinding;
+        }
+
+        @Override
+        public void onClick(View view) {
+            Timber.d("onClick()");
+            int id = view.getId();
+            switch (id) {
+                case R.id.share: {
+                    String url = (String) view.getTag();
+                    //sanity check
+                    if (url == null) {
+                        Timber.e("Url for sharing not set to the View!");
+                        return;
+                    }
+                    //share
+                    sharePost(url);
+                    break;
+                }
+
+                case R.id.post_votes: {
+                    String postId = (String) view.getTag();
+                    if (postId == null) {
+                        Timber.e("PostId not set to the View!");
+                        return;
+                    }
+
+                    //vote
+                    voteRedditPost(postId);
+                    break;
+                }
+
+                case R.id.posts_cardView: {
+                    String postId = (String) view.getTag();
+                    if (postId == null) {
+                        Timber.e("PostId not set to the View!");
+                        return;
+                    }
+
+                    EventBus.getDefault().post(new Message.EventPostClicked(postId));
+                    break;
+                }
+
+                default: {
+                    throw new RuntimeException("Click not supported for id:" + id);
+                }
+            }
+        }
+
+        /**
+         * Shares the post with available apps.
+         *
+         * @param url The content to share(should to reddit post's url).
+         */
+        private void sharePost(String url) {
+            String mimeType = "text/plain";
+            String title = "Share";
+            Intent intent = ShareCompat.IntentBuilder.from((Activity) mContext)
+                    .setType(mimeType)
+                    .setChooserTitle(title)
+                    .setText(url)
+                    .getIntent();
+
+            //This is a check we perform with every implicit Intent that we launch. In some cases,
+            //the device where this code is running might not have an Activity to perform the action
+            //with the data we've specified. Without this check, in those cases your app would crash.
+            if (intent.resolveActivity(mContext.getPackageManager()) != null) {
+                Timber.d("onClick() - sharing: %s", url);
+                mContext.startActivity(intent);
+            }
+        }
+
+        private void voteRedditPost(String postId) {
+
+            //if user hasn't logged in then prompt to log in.
+            if (ClientManager.isAuthenticateModeUserless(mContext)) {
+                RedditLiteUtils.displayLoginDialog(mContext);
+            } else {
+                //TODO: Vote!!!
+            }
         }
     }
 
