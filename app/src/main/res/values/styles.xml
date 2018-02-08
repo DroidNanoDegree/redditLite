@@ -9,6 +9,14 @@
         <item name="android:windowBackground">@color/primaryLightColor</item>
     </style>
 
+    <style name="RedditLite.Dialog" parent="@android:style/Theme.Material.Light.Dialog.Alert">
+        <item name="android:background">@color/primaryLightColor</item>
+        <item name="android:textColor">@color/primaryTextColor</item>
+        <item name="colorAccent">@color/secondaryLightColor</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
     <style name="AppTheme.Detail">
         <item name="android:statusBarColor">@android:color/transparent</item>
     </style>
