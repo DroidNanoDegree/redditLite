@@ -15,18 +15,13 @@
 
 package com.sriky.redditlite.sync;
 
-import android.content.SharedPreferences;
 import android.os.AsyncTask;
-import android.preference.PreferenceManager;
 
 import com.firebase.jobdispatcher.JobParameters;
 import com.firebase.jobdispatcher.JobService;
-import com.sriky.redditlite.R;
 import com.sriky.redditlite.event.Message;
 import com.sriky.redditlite.redditapi.ClientManager;
 import com.sriky.redditlite.utils.RedditLiteUtils;
-
-import net.dean.jraw.RedditClient;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -65,16 +60,10 @@ public class RedditLiteFirebaseJobService extends JobService {
             mFetchDataTask = new FetchDataAsyncTask();
             mFetchDataTask.execute(mJob);
         } else {
-            SharedPreferences preferences =
-                    PreferenceManager.getDefaultSharedPreferences(RedditLiteFirebaseJobService.this);
-
-            String username = preferences.getString(getResources().getString(R.string.user_account_pref_key),
-                    getResources().getString(R.string.user_account_pref_default));
-
             //register to listen to authentication callback event.
             EventBus.getDefault().register(RedditLiteFirebaseJobService.this);
 
-            ClientManager.authenticate(RedditLiteFirebaseJobService.this, username);
+            ClientManager.authenticateUsingLastUsedUsername(RedditLiteFirebaseJobService.this);
         }
         return true;
     }
@@ -100,9 +89,8 @@ public class RedditLiteFirebaseJobService extends JobService {
      */
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onAuthenticationComplete(Message.RedditClientAuthenticationComplete event) {
-        final RedditClient redditClient = ClientManager.getRedditAccountHelper(this).getReddit();
         Timber.d("Authenticated username: %s",
-                redditClient.getAuthManager().currentUsername());
+                ClientManager.getCurrentAuthenticatedUsername(this));
 
         //unregister from the authentication event.
         EventBus.getDefault().unregister(RedditLiteFirebaseJobService.this);

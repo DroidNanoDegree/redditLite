@@ -16,10 +16,8 @@
 package com.sriky.redditlite.ui;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
@@ -33,8 +31,6 @@ import com.sriky.redditlite.idlingresource.RedditLiteIdlingResource;
 import com.sriky.redditlite.redditapi.ClientManager;
 import com.sriky.redditlite.sync.RedditLiteSyncUtils;
 import com.sriky.redditlite.utils.RedditLiteUtils;
-
-import net.dean.jraw.RedditClient;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -92,16 +88,10 @@ public class PostListActivity extends AppCompatActivity {
         if (ClientManager.getRedditAccountHelper(PostListActivity.this).isAuthenticated()) {
             initDataSync();
         } else {
-            SharedPreferences preferences =
-                    PreferenceManager.getDefaultSharedPreferences(PostListActivity.this);
-
-            String username = preferences.getString(getResources().getString(R.string.user_account_pref_key),
-                    getResources().getString(R.string.user_account_pref_default));
-
             //register to listen to authentication callback event.
             EventBus.getDefault().register(PostListActivity.this);
 
-            ClientManager.authenticate(PostListActivity.this, username);
+            ClientManager.authenticateUsingLastUsedUsername(PostListActivity.this);
         }
     }
 
@@ -117,9 +107,8 @@ public class PostListActivity extends AppCompatActivity {
             return;
         }
 
-        final RedditClient redditClient = ClientManager.getRedditAccountHelper(this).getReddit();
         Timber.d("Authenticated username: %s",
-                redditClient.getAuthManager().currentUsername());
+                ClientManager.getCurrentAuthenticatedUsername(this));
 
         //unregister from the authentication event.
         EventBus.getDefault().unregister(PostListActivity.this);
