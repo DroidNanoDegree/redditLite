@@ -22,9 +22,13 @@
         <xliff:g id="date">%1$d</xliff:g>h
     </string>
 
-    <string name="subreddit_votes_format">
+    <string name="subreddit_format_count_over_thousand">
         <xliff:g id="vote">%1$.1f</xliff:g>k
     </string>
+    <string name="subreddit_format_count_less_than_thousand">
+        <xliff:g id="vote">%1$d</xliff:g>
+    </string>
+
     <string name="pref_last_data_fetch_time">0</string>
     <string name="data_download_error">Failed to get data! Please check the internet connection and try again.</string>
     <string name="share">Share</string>

@@ -39,6 +39,8 @@ import com.sriky.redditlite.utils.RedditLiteUtils;
 
 import org.greenrobot.eventbus.EventBus;
 
+import java.util.Locale;
+
 import timber.log.Timber;
 
 /**
@@ -178,9 +180,31 @@ public class PostListAdaptor extends RecyclerView.Adapter<RecyclerView.ViewHolde
             }
 
             //set votes
-            String votesFormatted = mContext.getString(R.string.subreddit_votes_format,
-                    mCursor.getInt(mCursor.getColumnIndex(PostContract.COLUMN_POST_VOTES)) / 1000f);
-            postListItemBinding.postVotes.setText(votesFormatted);
+            int votesCount = mCursor.getInt(mCursor.getColumnIndex(PostContract.COLUMN_POST_VOTES));
+            String votesCountFormatted;
+
+            if (votesCount >= 1000) {
+                votesCountFormatted = mContext.getString(R.string.subreddit_format_count_over_thousand,
+                        votesCount / 1000f);
+            } else {
+                votesCountFormatted = mContext.getString( R.string.subreddit_format_count_less_than_thousand,
+                         votesCount);
+            }
+            postListItemBinding.postVotes.setText(votesCountFormatted);
+
+            //set comment count
+            int commentsCount =
+                    mCursor.getInt(mCursor.getColumnIndex(PostContract.COLUMN_POST_COMMENTS_COUNT));
+
+            String commentsCountFormatted;
+            if (commentsCount >= 1000) {
+                commentsCountFormatted =
+                        mContext.getString(R.string.subreddit_format_count_over_thousand,commentsCount / 1000f);
+            } else {
+                commentsCountFormatted =
+                        mContext.getString(R.string.subreddit_format_count_less_than_thousand, commentsCount);
+            }
+            postListItemBinding.postComments.setText(commentsCountFormatted);
 
             //set CardView's tag for onClicked() event.
             String postId = mCursor.getString(mCursor.getColumnIndex(PostContract.COLUMN_POST_ID));
@@ -188,6 +212,9 @@ public class PostListAdaptor extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
             //set tag for vote btn for onClicked() event.
             postListItemBinding.postVotes.setTag(postId);
+
+            //set tag for comments btn for onClicked() event.
+            postListItemBinding.postComments.setTag(postId);
 
             //set tag for share btn for onClicked() event.
             postListItemBinding.share.setTag(
@@ -208,6 +235,7 @@ public class PostListAdaptor extends RecyclerView.Adapter<RecyclerView.ViewHolde
             mPostListItemBinding.getRoot().setOnClickListener(this);
             mPostListItemBinding.share.setOnClickListener(this);
             mPostListItemBinding.postVotes.setOnClickListener(this);
+            mPostListItemBinding.postComments.setOnClickListener(this);
         }
 
 
@@ -241,6 +269,17 @@ public class PostListAdaptor extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
                     //vote
                     voteRedditPost(postId);
+                    break;
+                }
+
+                case R.id.post_comments: {
+                    String postId = (String) view.getTag();
+                    if (postId == null) {
+                        Timber.e("PostId not set to the View!");
+                        return;
+                    }
+                    //launch post details.
+                    EventBus.getDefault().post(new Message.EventPostClicked(postId));
                     break;
                 }
 

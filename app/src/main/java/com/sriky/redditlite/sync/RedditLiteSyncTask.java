@@ -126,6 +126,7 @@ public final class RedditLiteSyncTask {
                 cv.put(PostContract.COLUMN_POST_VOTES, submission.getScore());
                 cv.put(PostContract.COLUMN_POST_DOMAIN, submission.getDomain());
                 cv.put(PostContract.COLUMN_POST_MEDIA_THUMBNAIL_URL, submission.getThumbnail());
+                cv.put(PostContract.COLUMN_POST_COMMENTS_COUNT, submission.getCommentCount());
 
                 ContentProviderOperation operation =
                         ContentProviderOperation.newInsert(RedditLiteContentProvider.PostDataEntry.CONTENT_URI)
