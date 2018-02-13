@@ -23,6 +23,7 @@ import android.content.OperationApplicationException;
 import android.content.SharedPreferences;
 import android.os.RemoteException;
 import android.preference.PreferenceManager;
+import android.text.TextUtils;
 
 import com.sriky.redditlite.R;
 import com.sriky.redditlite.provider.PostContract;
@@ -30,7 +31,9 @@ import com.sriky.redditlite.provider.RedditLiteContentProvider;
 import com.sriky.redditlite.redditapi.ClientManager;
 
 import net.dean.jraw.RedditClient;
+import net.dean.jraw.models.EmbeddedMedia;
 import net.dean.jraw.models.Submission;
+import net.dean.jraw.models.SubmissionPreview;
 import net.dean.jraw.models.TimePeriod;
 import net.dean.jraw.pagination.DefaultPaginator;
 
@@ -116,6 +119,7 @@ public final class RedditLiteSyncTask {
             //add only SFW posts
             if (!submission.isNsfw()) {
                 ContentValues cv = new ContentValues();
+
                 cv.put(PostContract.COLUMN_POST_ID, submission.getId());
                 cv.put(PostContract.COLUMN_POST_TITLE, submission.getTitle());
                 cv.put(PostContract.COLUMN_POST_AUTHOR, submission.getAuthor());
@@ -127,6 +131,31 @@ public final class RedditLiteSyncTask {
                 cv.put(PostContract.COLUMN_POST_DOMAIN, submission.getDomain());
                 cv.put(PostContract.COLUMN_POST_MEDIA_THUMBNAIL_URL, submission.getThumbnail());
                 cv.put(PostContract.COLUMN_POST_COMMENTS_COUNT, submission.getCommentCount());
+                cv.put(PostContract.COLUMN_POST_HINT, submission.getPostHint());
+                cv.put(PostContract.COLUMN_POST_FAVORITE, submission.isSaved());
+
+                if (submission.getEmbeddedMedia() != null) {
+                    EmbeddedMedia.RedditVideo video = submission.getEmbeddedMedia().getRedditVideo();
+                    if (video != null) {
+                        String fallBackUrl = video.getFallbackUrl();
+                        String scrubberUrl = video.getScrubberMediaUrl();
+                        cv.put(PostContract.COLUMN_POST_VIDEO_URL,
+                                (!TextUtils.isEmpty(scrubberUrl)) ? scrubberUrl : fallBackUrl);
+                    }
+                }
+
+                if (submission.getPreview() != null) {
+                    List<SubmissionPreview.ImageSet> imageSets = submission.getPreview().getImages();
+                    if (imageSets != null && imageSets.size() > 0) {
+                        SubmissionPreview.ImageSet imageSet = imageSets.get(0);
+                        if (imageSet != null) {
+                            SubmissionPreview.Variation variation = imageSet.getSource();
+                            if (variation != null && !TextUtils.isEmpty(variation.getUrl())) {
+                                cv.put(PostContract.COLUMN_POST_IMAGE_URL, variation.getUrl());
+                            }
+                        }
+                    }
+                }
 
                 ContentProviderOperation operation =
                         ContentProviderOperation.newInsert(RedditLiteContentProvider.PostDataEntry.CONTENT_URI)
