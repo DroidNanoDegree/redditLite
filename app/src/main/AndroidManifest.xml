@@ -29,6 +29,16 @@
             android:label="@string/signin_title"
             android:theme="@style/AppTheme"/>
 
+        <!-- Post Details activity -->
+        <activity
+            android:name=".ui.PostDetailActivity"
+            android:theme="@style/AppTheme"
+            android:parentActivityName=".ui.PostListActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.PostListActivity" />
+        </activity>
+
         <!-- The ContentProvider -->
         <provider
             android:name=".provider.generated.RedditLiteContentProvider"
