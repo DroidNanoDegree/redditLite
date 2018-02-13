@@ -44,6 +44,9 @@ dependencies {
     implementation "com.android.support:appcompat-v7:${supportLibVersion}"
     implementation 'com.android.support.constraint:constraint-layout:1.0.2'
     implementation "com.android.support.test.espresso:espresso-idling-resource:${espressoLibVersion}"
+    // ViewModel and LiveData
+    implementation "android.arch.lifecycle:extensions:1.1.0"
+    annotationProcessor "android.arch.lifecycle:compiler:1.1.0"
 
     /* Timber dependencies used for logging */
     implementation 'com.jakewharton.timber:timber:4.6.0'
@@ -70,6 +73,16 @@ dependencies {
     /* Picasso */
     implementation 'com.squareup.picasso:picasso:2.5.2'
 
+    /* ExoPlayer */
+    implementation 'com.google.android.exoplayer:exoplayer:r2.2.0'
+
+    /* Advanced webview */
+    implementation 'com.github.delight-im:Android-AdvancedWebView:v3.0.0'
+
+    /* Groupie */
+    implementation 'com.xwray:groupie:2.0.3'
+    implementation 'com.xwray:groupie-databinding:2.0.3'
+
     /* Libs for running tests */
     testImplementation 'junit:junit:4.12'
     androidTestImplementation "com.android.support.test:runner:${androidTestLibVersion}"
@@ -80,6 +93,8 @@ dependencies {
     androidTestImplementation "com.android.support.test.espresso:espresso-intents:${espressoLibVersion}"
     androidTestImplementation "com.android.support.test.espresso:espresso-idling-resource:${espressoLibVersion}"
     androidTestImplementation "com.android.support:support-annotations:${supportLibVersion}"
+    // Test helpers for LiveData
+    testImplementation "android.arch.core:core-testing:1.1.0"
 
     /* For testing RecyclerViews */
     androidTestImplementation('com.android.support.test.espresso:espresso-contrib:2.2') {
