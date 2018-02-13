@@ -15,6 +15,7 @@
 
 package com.sriky.redditlite.ui;
 
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
@@ -31,6 +32,7 @@ import com.sriky.redditlite.idlingresource.RedditLiteIdlingResource;
 import com.sriky.redditlite.redditapi.ClientManager;
 import com.sriky.redditlite.sync.RedditLiteSyncUtils;
 import com.sriky.redditlite.utils.RedditLiteUtils;
+import com.sriky.redditlite.viewmodel.RedditPostSharedViewModel;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -50,6 +52,7 @@ public class PostListActivity extends AppCompatActivity {
     private ActivityPostListBinding mActivityPostListBinding;
     private RedditLiteIdlingResource mIdlingResource;
     private MasterListFragment mMasterListFragment;
+    private RedditPostSharedViewModel mRedditPostSharedViewModel;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -63,6 +66,9 @@ public class PostListActivity extends AppCompatActivity {
             Timber.plant(new Timber.DebugTree());
             addMasterListFragment();
         }
+
+        mRedditPostSharedViewModel = ViewModelProviders.of(this)
+                .get(RedditPostSharedViewModel.class);
     }
 
     @Override
@@ -77,6 +83,7 @@ public class PostListActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+
         //return early if there is no network.
         if (!RedditLiteUtils.isNetworkConnectionAvailable(PostListActivity.this)) {
             return;
@@ -88,11 +95,22 @@ public class PostListActivity extends AppCompatActivity {
         if (ClientManager.getRedditAccountHelper(PostListActivity.this).isAuthenticated()) {
             initDataSync();
         } else {
-            //register to listen to authentication callback event.
-            EventBus.getDefault().register(PostListActivity.this);
-
             ClientManager.authenticateUsingLastUsedUsername(PostListActivity.this);
         }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        //register to listen to callback events.
+        EventBus.getDefault().register(PostListActivity.this);
+    }
+
+    @Override
+    protected void onStop() {
+        //unregister to listen to callback events.
+        EventBus.getDefault().unregister(PostListActivity.this);
+        super.onStop();
     }
 
     /**
@@ -110,10 +128,24 @@ public class PostListActivity extends AppCompatActivity {
         Timber.d("Authenticated username: %s",
                 ClientManager.getCurrentAuthenticatedUsername(this));
 
-        //unregister from the authentication event.
-        EventBus.getDefault().unregister(PostListActivity.this);
         //trigger data sync operation.
         initDataSync();
+    }
+
+    /**
+     * Event receiver that is triggered after PostListItem is clicked.
+     *
+     * @param event The event data.
+     */
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onPostClicked(Message.EventPostClicked event) {
+        Timber.d("onPostClicked()");
+
+        //start PostDetailsActivity for phones!
+        Intent intent = new Intent(PostListActivity.this, PostDetailActivity.class);
+        intent.putExtra(PostDetailFragment.POST_BUNDLE_KEY,
+                mRedditPostSharedViewModel.getSelected().getValue());
+        startActivity(intent);
     }
 
     /**
