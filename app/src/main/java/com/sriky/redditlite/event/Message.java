@@ -37,14 +37,7 @@ public final class Message {
     }
 
     public static class EventPostClicked {
-        private String mPostId;
-
-        public EventPostClicked(String postId) {
-            mPostId = postId;
-        }
-
-        public String getPostId() {
-            return mPostId;
+        public EventPostClicked() {
         }
     }
 }
