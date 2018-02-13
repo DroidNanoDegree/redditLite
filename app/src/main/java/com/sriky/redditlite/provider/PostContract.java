@@ -75,10 +75,19 @@ public interface PostContract {
     String COLUMN_POST_COMMENTS_COUNT = "post_comments_count";
 
     @DataType(TEXT)
+    String COLUMN_POST_HINT = "post_hint";
+
+    @DataType(TEXT)
     String COLUMN_POST_DOMAIN = "post_domain";
 
     @DataType(TEXT)
     String COLUMN_POST_MEDIA_THUMBNAIL_URL = "post_media_thumbnail_url";
+
+    @DataType(TEXT)
+    String COLUMN_POST_VIDEO_URL = "post_video_url";
+
+    @DataType(TEXT)
+    String COLUMN_POST_IMAGE_URL = "post_image_url";
 
     @DataType(INTEGER)
     String COLUMN_POST_FAVORITE = "post_favorite";
