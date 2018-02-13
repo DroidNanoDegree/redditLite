@@ -167,7 +167,10 @@ public class MasterListFragment extends Fragment implements LoaderManager.Loader
 
         if (mPosition == RecyclerView.NO_POSITION) mPosition = 0;
 
-        mMasterListBinding.recyclerView.smoothScrollToPosition(mPosition);
+        //scroll to last know position other than scrolling to top when 0.
+        if (mPosition != 0) {
+            mMasterListBinding.recyclerView.smoothScrollToPosition(mPosition);
+        }
 
         if (data.getCount() > 0) {
             onDataLoadComplete();
