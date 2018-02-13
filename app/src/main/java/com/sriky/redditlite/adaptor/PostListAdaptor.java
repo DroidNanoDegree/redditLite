@@ -16,11 +16,13 @@
 package com.sriky.redditlite.adaptor;
 
 import android.app.Activity;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.databinding.DataBindingUtil;
 import android.net.Uri;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.ShareCompat;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -33,13 +35,12 @@ import com.sriky.redditlite.R;
 import com.sriky.redditlite.databinding.PostListItemBinding;
 import com.sriky.redditlite.databinding.PostListItemFooterBinding;
 import com.sriky.redditlite.event.Message;
-import com.sriky.redditlite.provider.PostContract;
+import com.sriky.redditlite.model.RedditPost;
 import com.sriky.redditlite.redditapi.ClientManager;
 import com.sriky.redditlite.utils.RedditLiteUtils;
+import com.sriky.redditlite.viewmodel.RedditPostSharedViewModel;
 
 import org.greenrobot.eventbus.EventBus;
-
-import java.util.Locale;
 
 import timber.log.Timber;
 
@@ -135,26 +136,24 @@ public class PostListAdaptor extends RecyclerView.Adapter<RecyclerView.ViewHolde
         if (holder != null && mCursor != null && mCursor.moveToPosition(position)) {
             PostListItemBinding postListItemBinding = holder.getViewDataBinding();
 
+            RedditPost redditPost = new RedditPost(mCursor, mContext);
+
             //set date
             String dateFormat = mContext.getString(R.string.subreddit_date_format);
             String fomattedDate = String.format(dateFormat,
-                    RedditLiteUtils.getHoursElapsedFromNow(mCursor.getLong(
-                            mCursor.getColumnIndex(PostContract.COLUMN_POST_DATE))));
+                    RedditLiteUtils.getHoursElapsedFromNow(redditPost.getDate()));
             postListItemBinding.postDate.setText(fomattedDate);
 
             //set title
-            postListItemBinding.postTitle.setText(
-                    mCursor.getString(mCursor.getColumnIndex(PostContract.COLUMN_POST_TITLE)));
+            postListItemBinding.postTitle.setText(redditPost.getTitle());
 
             //set subreddit
             String subredditFormat = mContext.getString(R.string.subreddit_format);
-            String formattedSubreddit = String.format(subredditFormat,
-                    mCursor.getString(mCursor.getColumnIndex(PostContract.COLUMN_POST_SUBREDDIT)));
+            String formattedSubreddit = String.format(subredditFormat, redditPost.getSubreddit());
             postListItemBinding.postSubreddit.setText(formattedSubreddit);
 
             //set domain if any.
-            String domain = mCursor.getString(
-                    mCursor.getColumnIndex(PostContract.COLUMN_POST_DOMAIN));
+            String domain = redditPost.getDomain();
             if (!TextUtils.isEmpty(domain)) {
                 postListItemBinding.postProvider.setText(domain);
                 postListItemBinding.postProvider.setVisibility(View.VISIBLE);
@@ -163,24 +162,10 @@ public class PostListAdaptor extends RecyclerView.Adapter<RecyclerView.ViewHolde
             }
 
             //set thumbnail
-            String mediaUrl = mCursor.getString(
-                    mCursor.getColumnIndex(PostContract.COLUMN_POST_MEDIA_THUMBNAIL_URL));
-
-            if (!TextUtils.isEmpty(mediaUrl)) {
-                //Timber.d("mediaUrl: %s", mediaUrl);
-                //TODO: handle image types specified via url, i.e "image, self, default etc."
-                postListItemBinding.postThumbnail.setVisibility(View.VISIBLE);
-                Picasso.with(mContext)
-                        .load(Uri.parse(mediaUrl))
-                        .placeholder(R.drawable.ic_image_placeholder)
-                        .error(R.drawable.ic_error)
-                        .into(postListItemBinding.postThumbnail);
-            } else {
-                postListItemBinding.postThumbnail.setVisibility(View.GONE);
-            }
+            setThumbnail(redditPost, postListItemBinding);
 
             //set votes
-            int votesCount = mCursor.getInt(mCursor.getColumnIndex(PostContract.COLUMN_POST_VOTES));
+            int votesCount = redditPost.getVotesCount();
             String votesCountFormatted;
 
             if (votesCount >= 1000) {
@@ -193,8 +178,7 @@ public class PostListAdaptor extends RecyclerView.Adapter<RecyclerView.ViewHolde
             postListItemBinding.postVotes.setText(votesCountFormatted);
 
             //set comment count
-            int commentsCount =
-                    mCursor.getInt(mCursor.getColumnIndex(PostContract.COLUMN_POST_COMMENTS_COUNT));
+            int commentsCount = redditPost.getCommentsCount();
 
             String commentsCountFormatted;
             if (commentsCount >= 1000) {
@@ -207,18 +191,54 @@ public class PostListAdaptor extends RecyclerView.Adapter<RecyclerView.ViewHolde
             postListItemBinding.postComments.setText(commentsCountFormatted);
 
             //set CardView's tag for onClicked() event.
-            String postId = mCursor.getString(mCursor.getColumnIndex(PostContract.COLUMN_POST_ID));
-            postListItemBinding.getRoot().setTag(postId);
+            String postId = redditPost.getPostId();
+            postListItemBinding.getRoot().setTag(redditPost);
 
             //set tag for vote btn for onClicked() event.
-            postListItemBinding.postVotes.setTag(postId);
+            postListItemBinding.postVotes.setTag(redditPost);
 
             //set tag for comments btn for onClicked() event.
-            postListItemBinding.postComments.setTag(postId);
+            postListItemBinding.postComments.setTag(redditPost);
 
             //set tag for share btn for onClicked() event.
-            postListItemBinding.share.setTag(
-                    mCursor.getString(mCursor.getColumnIndex(PostContract.COLUMN_POST_REDDIT_URL)));
+            postListItemBinding.share.setTag(redditPost.getUrl());
+        }
+    }
+
+    private void setThumbnail(RedditPost redditPost, PostListItemBinding postListItemBinding) {
+        switch (redditPost.getThumbnailType()) {
+            case DEFAULT: {
+                postListItemBinding.postThumbnail.setImageDrawable(
+                        mContext.getResources().getDrawable(R.drawable.ic_link));
+                break;
+            }
+
+            case SELF: {
+                postListItemBinding.postThumbnail.setImageDrawable(
+                        mContext.getResources().getDrawable(R.drawable.ic_insert_comment));
+                break;
+            }
+
+            case IMAGE: {
+                postListItemBinding.postThumbnail.setImageDrawable(
+                        mContext.getResources().getDrawable(R.drawable.ic_image_placeholder));
+                break;
+            }
+
+            case THUMBNAIL: {
+                Picasso.with(mContext)
+                        .load(Uri.parse(redditPost.getThumbnailUrl()))
+                        .placeholder(R.color.primaryLightColor)
+                        .error(R.drawable.ic_error)
+                        .into(postListItemBinding.postThumbnail);
+                break;
+            }
+
+            default: {
+                Timber.e("Thumbnail type not supported, type: %d",
+                        redditPost.getThumbnailType());
+                postListItemBinding.postThumbnail.setVisibility(View.GONE);
+            }
         }
     }
 
@@ -261,36 +281,30 @@ public class PostListAdaptor extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 }
 
                 case R.id.post_votes: {
-                    String postId = (String) view.getTag();
-                    if (postId == null) {
-                        Timber.e("PostId not set to the View!");
+                    RedditPost post = (RedditPost) view.getTag();
+                    if (post == null) {
+                        Timber.e("Post not set to the View's tag!");
                         return;
                     }
 
                     //vote
-                    voteRedditPost(postId);
+                    voteRedditPost(post);
                     break;
                 }
 
-                case R.id.post_comments: {
-                    String postId = (String) view.getTag();
-                    if (postId == null) {
-                        Timber.e("PostId not set to the View!");
-                        return;
-                    }
-                    //launch post details.
-                    EventBus.getDefault().post(new Message.EventPostClicked(postId));
-                    break;
-                }
-
+                //open details for following actions.
+                case R.id.post_comments:
                 case R.id.posts_cardView: {
-                    String postId = (String) view.getTag();
-                    if (postId == null) {
-                        Timber.e("PostId not set to the View!");
+                    RedditPost post = (RedditPost) view.getTag();
+                    if (post == null) {
+                        Timber.e("Post not set to the View's tag!");
                         return;
                     }
 
-                    EventBus.getDefault().post(new Message.EventPostClicked(postId));
+                    //set the selected item so it can be retrieved by the detail fragment.
+                    ViewModelProviders.of((FragmentActivity) mContext)
+                            .get(RedditPostSharedViewModel.class).select(post);
+                    EventBus.getDefault().post(new Message.EventPostClicked());
                     break;
                 }
 
@@ -323,8 +337,7 @@ public class PostListAdaptor extends RecyclerView.Adapter<RecyclerView.ViewHolde
             }
         }
 
-        private void voteRedditPost(String postId) {
-
+        private void voteRedditPost(RedditPost post) {
             //if user hasn't logged in then prompt to log in.
             if (ClientManager.isAuthenticateModeUserless(mContext)) {
                 RedditLiteUtils.displayLoginDialog(mContext);
