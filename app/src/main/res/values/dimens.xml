@@ -13,4 +13,5 @@
     <!-- swipe-to-refresh icon offsets -->
     <dimen name="refresher_offset">8dp</dimen>
     <dimen name="refresher_offset_end">64dp</dimen>
+    <dimen name="app_bar_height">56dp</dimen>
 </resources>

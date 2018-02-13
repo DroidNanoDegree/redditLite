@@ -34,4 +34,5 @@
     <string name="share">Share</string>
     <string name="dialog_login_title">Login Required!</string>
     <string name="dialog_login_body">This action requires you to be logged in to Reddit.</string>
+    <string name="data_updating">Loading, please wait.</string>
 </resources>
