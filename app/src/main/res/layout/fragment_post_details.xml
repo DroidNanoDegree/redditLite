@@ -21,70 +21,100 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <android.support.constraint.ConstraintLayout
+        <android.support.v4.widget.NestedScrollView
+            android:id="@+id/scrollview"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:layout_marginBottom="4dp"
+            android:layout_marginLeft="4dp"
+            android:layout_marginRight="4dp"
+            android:elevation="4dp">
 
-            <TextView
-                android:id="@+id/title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginLeft="8dp"
-                android:layout_marginTop="64dp"
-                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:text="Title" />
-
-            <FrameLayout
-                android:id="@+id/media_layout"
+            <android.support.constraint.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="500dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/title">
+                android:layout_height="match_parent">
 
-                <com.google.android.exoplayer2.ui.SimpleExoPlayerView
-                    android:id="@+id/player"
+                <TextView
+                    android:id="@+id/title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginLeft="8dp"
+                    android:layout_marginTop="64dp"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:text="Title" />
+
+                <FrameLayout
+                    android:id="@+id/media_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    tools:layout_editor_absoluteX="0dp"
-                    tools:layout_editor_absoluteY="101dp"
-                    android:visibility="invisible"/>
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginStart="8dp"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/title">
 
-                <ImageView
-                    android:id="@+id/image"
+                    <com.google.android.exoplayer2.ui.SimpleExoPlayerView
+                        android:id="@+id/player"
+                        android:layout_width="wrap_content"
+                        android:layout_height="400dp"
+                        android:visibility="invisible"/>
+
+                    <ImageView
+                        android:id="@+id/image"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:scaleType="centerCrop"
+                        android:visibility="invisible" />
+
+                    <im.delight.android.webview.AdvancedWebView
+                        android:id="@+id/webview"
+                        android:layout_width="match_parent"
+                        android:layout_height="400dp"
+                        android:visibility="invisible" />
+
+                </FrameLayout>
+
+                <FrameLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp"
-                    android:scaleType="centerCrop"
-                    android:visibility="invisible" />
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/media_layout">
 
-                <im.delight.android.webview.AdvancedWebView
-                    android:id="@+id/webview"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:visibility="invisible" />
+                        <android.support.v7.widget.RecyclerView
+                            android:id="@+id/comments_recyclerView"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_gravity="center"
+                            android:layout_marginTop="4dp"
+                            android:clipChildren="false"
+                            android:visibility="invisible" />
 
-            </FrameLayout>
+                        <ProgressBar
+                            android:id="@+id/comments_progressBar"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:visibility="visible" />
 
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/comments_recyclerView"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginEnd="8dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="64dp"
-                android:clipChildren="false"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/media_layout" />
+                        <TextView
+                            android:id="@+id/no_comments_to_display"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:text="@string/no_comments"
+                            android:visibility="invisible" />
+                </FrameLayout>
 
-        </android.support.constraint.ConstraintLayout>
+            </android.support.constraint.ConstraintLayout>
+
+        </android.support.v4.widget.NestedScrollView>
 
     </android.support.design.widget.CoordinatorLayout>
+
 </layout>

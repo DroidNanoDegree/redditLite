@@ -23,6 +23,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.GridLayoutManager;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -47,12 +48,18 @@ import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
 import com.squareup.picasso.Picasso;
 import com.sriky.redditlite.R;
+import com.sriky.redditlite.adaptor.ExpandableCommentGroup;
 import com.sriky.redditlite.databinding.FragmentPostDetailsBinding;
 import com.sriky.redditlite.model.RedditPost;
 import com.sriky.redditlite.viewmodel.PostCommentsViewModel;
 import com.sriky.redditlite.viewmodel.RedditPostSharedViewModel;
+import com.xwray.groupie.GroupAdapter;
 
+import net.dean.jraw.models.Comment;
+import net.dean.jraw.tree.CommentNode;
 import net.dean.jraw.tree.RootCommentNode;
+
+import java.util.Iterator;
 
 import timber.log.Timber;
 
@@ -72,6 +79,7 @@ public class PostDetailFragment extends Fragment implements ExoPlayer.EventListe
     private FragmentPostDetailsBinding mFragmentPostDetailsBinding;
     private Snackbar mLoadingSnackbar;
     private Bundle mSavedInstanceState;
+    private GroupAdapter mGroupAdaptor;
 
     /* mandatory empty constructor */
     public PostDetailFragment() {
@@ -87,9 +95,17 @@ public class PostDetailFragment extends Fragment implements ExoPlayer.EventListe
 
         mSavedInstanceState = savedInstanceState;
 
+        //setup the comments recyclerview.
+        mGroupAdaptor = new GroupAdapter();
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(getContext(), mGroupAdaptor.getSpanCount());
+        gridLayoutManager.setSpanSizeLookup(mGroupAdaptor.getSpanSizeLookup());
+        mFragmentPostDetailsBinding.commentsRecyclerView.setLayoutManager(gridLayoutManager);
+        mFragmentPostDetailsBinding.commentsRecyclerView.setAdapter(mGroupAdaptor);
+
         displayLoadingSnackbar();
 
         Bundle bundle = getArguments();
+        //Bundle will be null on tablets(TwoPane mode).
         if (bundle == null) {
             RedditPostSharedViewModel redditPostSharedViewModel = ViewModelProviders.of(getActivity())
                     .get(RedditPostSharedViewModel.class);
@@ -292,6 +308,17 @@ public class PostDetailFragment extends Fragment implements ExoPlayer.EventListe
 
     private void showComments(RootCommentNode rootCommentNode) {
         Timber.d("showComments() - size: %d", rootCommentNode.totalSize());
+        mFragmentPostDetailsBinding.commentsProgressBar.setVisibility(View.INVISIBLE);
+        if (rootCommentNode.totalSize() == 0) {
+            Timber.e("No comments ");
+            mFragmentPostDetailsBinding.noCommentsToDisplay.setVisibility(View.VISIBLE);
+        } else {
+            mFragmentPostDetailsBinding.commentsRecyclerView.setVisibility(View.VISIBLE);
+            Iterator<CommentNode<Comment>> comments = rootCommentNode.iterator();
+            while (comments.hasNext()) {
+                mGroupAdaptor.add(new ExpandableCommentGroup(comments.next(), 0));
+            }
+        }
     }
 
     /**
