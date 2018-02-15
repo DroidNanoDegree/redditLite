@@ -18,10 +18,12 @@ package com.sriky.redditlite.utils;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
 import android.support.v7.app.AlertDialog;
+import android.util.DisplayMetrics;
 
 import com.sriky.redditlite.R;
 import com.sriky.redditlite.ui.LoginActivity;
@@ -31,8 +33,6 @@ import com.sriky.redditlite.ui.LoginActivity;
  */
 
 public final class RedditLiteUtils {
-
-    public static final int OAUTH_DATA_LOADER_ID = 200;
 
     private static final long SECONDS_IN_MILLI = 1000;
     private static final long MINUTES_IN_MILLI = SECONDS_IN_MILLI * 60;
@@ -86,5 +86,19 @@ public final class RedditLiteUtils {
                     }
                 })
                 .show();
+    }
+
+    /**
+     * This method converts device specific pixels to density independent pixels.
+     *
+     * @param context Context to get resources and device specific display metrics
+     * @param px      A value in px (pixels) unit. Which we need to convert into db
+     * @return A float value to represent dp equivalent to px value
+     */
+    public static float convertPixelsToDp(Context context, float px) {
+        Resources resources = context.getResources();
+        DisplayMetrics metrics = resources.getDisplayMetrics();
+        float dp = px / ((float) metrics.densityDpi / DisplayMetrics.DENSITY_DEFAULT);
+        return dp;
     }
 }
