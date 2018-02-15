@@ -14,4 +14,6 @@
     <dimen name="refresher_offset">8dp</dimen>
     <dimen name="refresher_offset_end">64dp</dimen>
     <dimen name="app_bar_height">56dp</dimen>
+    <dimen name="comment_item_start_margin">4dp</dimen>
+    <dimen name="comment_item_end_margin">4dp</dimen>
 </resources>

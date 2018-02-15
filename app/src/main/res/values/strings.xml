@@ -15,7 +15,7 @@
 
     <!-- post list items -->
     <string name="subreddit_format">
-        <xliff:g id="subreddit">r/%1$s</xliff:g>
+        <xliff:g id="subreddit">/r/%1$s</xliff:g>
     </string>
 
     <string name="subreddit_date_format">
@@ -29,10 +29,18 @@
         <xliff:g id="vote">%1$d</xliff:g>
     </string>
 
+    <!-- post comment items -->
+    <string name="comment_author_format">
+        <xliff:g id="subreddit">/u/%1$s</xliff:g>
+    </string>
+
     <string name="pref_last_data_fetch_time">0</string>
     <string name="data_download_error">Failed to get data! Please check the internet connection and try again.</string>
     <string name="share">Share</string>
     <string name="dialog_login_title">Login Required!</string>
     <string name="dialog_login_body">This action requires you to be logged in to Reddit.</string>
     <string name="data_updating">Loading, please wait.</string>
+    <string name="no_comments">No comments for the post yet!</string>
+    <string name="view_replies">view replies</string>
+    <string name="close_replies">close replies</string>
 </resources>
