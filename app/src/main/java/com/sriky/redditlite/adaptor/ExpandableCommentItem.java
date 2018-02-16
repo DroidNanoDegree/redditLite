@@ -19,6 +19,8 @@ import com.xwray.groupie.ViewHolder;
 import net.dean.jraw.models.Comment;
 import net.dean.jraw.tree.CommentNode;
 
+import java.util.Locale;
+
 import timber.log.Timber;
 
 /**
@@ -88,23 +90,28 @@ public class ExpandableCommentItem extends Item implements ExpandableItem {
         body.setText(comment.getBody());
 
         final Button toggle = viewHolder.itemView.findViewById(R.id.toggle_expand);
-        if (mCommentNode.hasMoreChildren()) {
+        toggle.setText(String.format(Locale.getDefault(), "%d %s",
+                mCommentNode.totalSize(), context.getString(R.string.replies)));
+
+        if (mCommentNode.totalSize() > 0) {
             toggle.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     mExpanded = !mExpanded;
                     if (mExpanded) {
-                        toggle.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_expand_less, 0);
-                        ((Button) view).setText(view.getContext().getString(R.string.close_replies));
+                        toggle.setCompoundDrawablesWithIntrinsicBounds(0,
+                                0, R.drawable.ic_expand_less, 0);
                     } else {
-                        toggle.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_expand_more, 0);
-                        ((Button) view).setText(view.getContext().getString(R.string.view_replies));
+                        toggle.setCompoundDrawablesWithIntrinsicBounds(0,
+                                0, R.drawable.ic_expand_more, 0);
                     }
                     mExpandableGroup.onToggleExpanded();
                 }
             });
         } else {
-            toggle.setVisibility(View.GONE);
+            //hide the toggle btn.
+            toggle.setCompoundDrawablesWithIntrinsicBounds(0,
+                    0, 0, 0);
         }
     }
 

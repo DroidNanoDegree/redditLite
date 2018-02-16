@@ -41,6 +41,5 @@
     <string name="dialog_login_body">This action requires you to be logged in to Reddit.</string>
     <string name="data_updating">Loading, please wait.</string>
     <string name="no_comments">No comments for the post yet!</string>
-    <string name="view_replies">view replies</string>
-    <string name="close_replies">close replies</string>
+    <string name="replies">replies</string>
 </resources>
