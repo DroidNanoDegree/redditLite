@@ -206,6 +206,7 @@ public class MasterListFragment extends Fragment implements LoaderManager.Loader
      */
     private void fetchLatestPosts() {
         if (checkNetworkAvailableOrDisplayError()) {
+            mPosition = 0;
             //Reset endless scroll listener when performing a new search
             mEndlessRecyclerViewScrollListener.resetState();
 
