@@ -14,34 +14,44 @@
   -->
 
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
     <LinearLayout
-        android:id="@+id/body"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:background="@color/primaryDarkColor"
+        android:orientation="vertical">
 
-        <ImageView
-            android:id="@+id/post_thumbnail"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:layout_gravity="top"
-            android:layout_marginLeft="8dp"
+        <include
+            android:id="@+id/post_header_layout"
+            layout="@layout/post_item_header"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
             android:layout_marginStart="8dp"
             android:layout_marginTop="4dp"
-            android:scaleType="centerCrop" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:id="@+id/post_title"
+            android:id="@+id/post_author"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="top"
-            android:layout_marginLeft="8dp"
-            android:layout_marginStart="8dp"
-            android:gravity="top"
+            android:layout_marginLeft="16dp"
+            android:layout_marginStart="16dp"
+            tools:text="/u/author" />
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="16dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="2dp"
             android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-            tools:text="Post title goes here!" />
+            tools:text="Title" />
 
     </LinearLayout>
 </layout>

@@ -18,7 +18,7 @@
     <LinearLayout
         android:id="@+id/header"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="horizontal">
 
         <TextView
@@ -27,7 +27,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
             android:textAppearance="@style/TextAppearance.AppCompat.Small"
-            tools:text="r/subreddit" />
+            tools:text="/r/subreddit" />
 
         <ImageView
             android:id="@+id/first_circle_separator"
