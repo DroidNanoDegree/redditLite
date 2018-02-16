@@ -93,7 +93,7 @@
         android:layout_marginLeft="2dp"
         android:layout_marginTop="2dp"
         android:background="@android:color/transparent"
-        android:text="@string/view_replies"
+        android:text="@string/replies"
         android:drawableRight="@drawable/ic_expand_more"
         android:drawableEnd="@drawable/ic_expand_more"
         android:textAppearance="@style/TextAppearance.AppCompat.Small"
