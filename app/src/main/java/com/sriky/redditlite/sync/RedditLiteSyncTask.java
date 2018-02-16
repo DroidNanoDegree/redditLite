@@ -133,6 +133,7 @@ public final class RedditLiteSyncTask {
                 cv.put(PostContract.COLUMN_POST_COMMENTS_COUNT, submission.getCommentCount());
                 cv.put(PostContract.COLUMN_POST_HINT, submission.getPostHint());
                 cv.put(PostContract.COLUMN_POST_FAVORITE, submission.isSaved());
+                cv.put(PostContract.COLUMN_POST_BODY, submission.getBody());
 
                 if (submission.getEmbeddedMedia() != null) {
                     EmbeddedMedia.RedditVideo video = submission.getEmbeddedMedia().getRedditVideo();

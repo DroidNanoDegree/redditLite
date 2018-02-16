@@ -89,6 +89,9 @@ public interface PostContract {
     @DataType(TEXT)
     String COLUMN_POST_IMAGE_URL = "post_image_url";
 
+    @DataType(TEXT)
+    String COLUMN_POST_BODY = "post_body";
+
     @DataType(INTEGER)
     String COLUMN_POST_FAVORITE = "post_favorite";
 }

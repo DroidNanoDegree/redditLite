@@ -229,6 +229,11 @@ public class PostDetailFragment extends Fragment implements ExoPlayer.EventListe
 
         switch (type) {
             case NO_MEDIA:
+                String body = redditPost.getBody();
+                if (!TextUtils.isEmpty(body)) {
+                    setBody(body);
+                    return;
+                }
             case IMAGE:
             case HOSTED_VIDEO: {
                 setImage(redditPost);
@@ -255,6 +260,11 @@ public class PostDetailFragment extends Fragment implements ExoPlayer.EventListe
                 Timber.e("Unsupported post type: %d", type);
             }
         }
+    }
+
+    private void setBody(String body) {
+        mFragmentPostDetailsBinding.textBody.setText(body);
+        mFragmentPostDetailsBinding.textBody.setVisibility(View.VISIBLE);
     }
 
     private void setImage(RedditPost post) {

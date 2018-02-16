@@ -57,6 +57,14 @@
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/title">
 
+                    <TextView
+                        android:id="@+id/text_body"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                        android:textColor="@color/primaryTextColor"
+                        android:visibility="invisible" />
+
                     <com.google.android.exoplayer2.ui.SimpleExoPlayerView
                         android:id="@+id/player"
                         android:layout_width="wrap_content"
