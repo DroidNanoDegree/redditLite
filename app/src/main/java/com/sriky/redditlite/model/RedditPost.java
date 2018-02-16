@@ -25,6 +25,8 @@ import android.text.TextUtils;
 import com.sriky.redditlite.R;
 import com.sriky.redditlite.provider.PostContract;
 
+import timber.log.Timber;
+
 /**
  * Class to represent a Reddit post.
  */
@@ -73,7 +75,7 @@ public class RedditPost implements Parcelable {
         parcel.writeLong(mDate);
         parcel.writeInt(mVotesCount);
         parcel.writeInt(mCommentesCount);
-        parcel.writeString(mType.name());
+        parcel.writeString(mType == null ? PostType.NO_MEDIA.name() : mType.name());
         parcel.writeString(mPostThumbnailType.name());
         parcel.writeString(mPostId);
         parcel.writeString(mTitle);
