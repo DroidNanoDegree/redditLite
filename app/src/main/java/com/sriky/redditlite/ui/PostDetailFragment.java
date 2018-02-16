@@ -17,6 +17,7 @@ package com.sriky.redditlite.ui;
 
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -51,6 +52,7 @@ import com.sriky.redditlite.R;
 import com.sriky.redditlite.adaptor.ExpandableCommentGroup;
 import com.sriky.redditlite.databinding.FragmentPostDetailsBinding;
 import com.sriky.redditlite.model.RedditPost;
+import com.sriky.redditlite.utils.RedditLiteUtils;
 import com.sriky.redditlite.viewmodel.PostCommentsViewModel;
 import com.sriky.redditlite.viewmodel.RedditPostSharedViewModel;
 import com.xwray.groupie.GroupAdapter;
@@ -214,15 +216,75 @@ public class PostDetailFragment extends Fragment implements ExoPlayer.EventListe
         }
     }
 
-    private void bindViews(RedditPost redditPost) {
+    private void bindViews(final RedditPost redditPost) {
         //hide loading snackbar.
         hideLoadingSnackbar();
 
         //fetch the comments data.
         getCommentsRootNode(redditPost.getPostId());
 
+        final Context context = getContext();
+        //set date
+        String dateFormat = context.getString(R.string.subreddit_date_format);
+        String fomattedDate = String.format(dateFormat,
+                RedditLiteUtils.getHoursElapsedFromNow(redditPost.getDate()));
+        mFragmentPostDetailsBinding.commentHeader.postHeaderLayout.postDate.setText(fomattedDate);
+
+        //set subreddit
+        String subredditFormat = context.getString(R.string.subreddit_format);
+        String formattedSubreddit = String.format(subredditFormat, redditPost.getSubreddit());
+        mFragmentPostDetailsBinding.commentHeader.postHeaderLayout.postSubreddit.setText(formattedSubreddit);
+
+        //set domain if any.
+        String domain = redditPost.getDomain();
+        if (!TextUtils.isEmpty(domain)) {
+            mFragmentPostDetailsBinding.commentHeader.postHeaderLayout.postProvider.setText(domain);
+            mFragmentPostDetailsBinding.commentHeader.postHeaderLayout.postProvider.setVisibility(View.VISIBLE);
+        } else {
+            mFragmentPostDetailsBinding.commentHeader.postHeaderLayout.postProvider.setVisibility(View.INVISIBLE);
+        }
+
+        //set the username
+        String authorName = context.getString(R.string.comment_author_format);
+        String formattedAuthorName = String.format(authorName, redditPost.getAuthor());
+        mFragmentPostDetailsBinding.commentHeader.postAuthor.setText(formattedAuthorName);
+
         //set title
-        mFragmentPostDetailsBinding.title.setText(redditPost.getTitle());
+        mFragmentPostDetailsBinding.commentHeader.title.setText(redditPost.getTitle());
+
+        //set votes
+        int votesCount = redditPost.getVotesCount();
+        String votesCountFormatted;
+
+        if (votesCount >= 1000) {
+            votesCountFormatted = context.getString(R.string.subreddit_format_count_over_thousand,
+                    votesCount / 1000f);
+        } else {
+            votesCountFormatted = context.getString(R.string.subreddit_format_count_less_than_thousand,
+                    votesCount);
+        }
+        mFragmentPostDetailsBinding.commentFooterLayout.postVotes.setText(votesCountFormatted);
+
+        //set comment count
+        int commentsCount = redditPost.getCommentsCount();
+
+        String commentsCountFormatted;
+        if (commentsCount >= 1000) {
+            commentsCountFormatted =
+                    context.getString(R.string.subreddit_format_count_over_thousand, commentsCount / 1000f);
+        } else {
+            commentsCountFormatted =
+                    context.getString(R.string.subreddit_format_count_less_than_thousand, commentsCount);
+        }
+        mFragmentPostDetailsBinding.commentFooterLayout.postComments.setText(commentsCountFormatted);
+
+        //set the onClick listener to share the post.
+        mFragmentPostDetailsBinding.commentFooterLayout.share.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                RedditLiteUtils.sharePost(context, redditPost.getUrl());
+            }
+        });
 
         RedditPost.PostType type = redditPost.getType();
         Timber.d("Post type: %s, url: %s", type, redditPost.getUrl());
