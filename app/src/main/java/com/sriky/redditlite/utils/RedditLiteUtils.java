@@ -15,6 +15,7 @@
 
 package com.sriky.redditlite.utils;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -22,11 +23,14 @@ import android.content.res.Resources;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
+import android.support.v4.app.ShareCompat;
 import android.support.v7.app.AlertDialog;
 import android.util.DisplayMetrics;
 
 import com.sriky.redditlite.R;
 import com.sriky.redditlite.ui.LoginActivity;
+
+import timber.log.Timber;
 
 /**
  * Class containing generic utility methods used the app.
@@ -100,5 +104,33 @@ public final class RedditLiteUtils {
         DisplayMetrics metrics = resources.getDisplayMetrics();
         float dp = px / ((float) metrics.densityDpi / DisplayMetrics.DENSITY_DEFAULT);
         return dp;
+    }
+
+    /**
+     *
+     */
+
+    /**
+     * Shares the post with available apps.
+     *
+     * @param context The calling activity.
+     * @param url     The content to share(should to reddit post's url).
+     */
+    public static void sharePost(Context context, String url) {
+        String mimeType = "text/plain";
+        String title = "Share";
+        Intent intent = ShareCompat.IntentBuilder.from((Activity) context)
+                .setType(mimeType)
+                .setChooserTitle(title)
+                .setText(url)
+                .getIntent();
+
+        //This is a check we perform with every implicit Intent that we launch. In some cases,
+        //the device where this code is running might not have an Activity to perform the action
+        //with the data we've specified. Without this check, in those cases your app would crash.
+        if (intent.resolveActivity(context.getPackageManager()) != null) {
+            Timber.d("onClick() - sharing: %s", url);
+            context.startActivity(intent);
+        }
     }
 }

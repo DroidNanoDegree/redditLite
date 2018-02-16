@@ -15,15 +15,12 @@
 
 package com.sriky.redditlite.adaptor;
 
-import android.app.Activity;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
 import android.databinding.DataBindingUtil;
 import android.net.Uri;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.ShareCompat;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -320,21 +317,7 @@ public class PostListAdaptor extends RecyclerView.Adapter<RecyclerView.ViewHolde
          * @param url The content to share(should to reddit post's url).
          */
         private void sharePost(String url) {
-            String mimeType = "text/plain";
-            String title = "Share";
-            Intent intent = ShareCompat.IntentBuilder.from((Activity) mContext)
-                    .setType(mimeType)
-                    .setChooserTitle(title)
-                    .setText(url)
-                    .getIntent();
-
-            //This is a check we perform with every implicit Intent that we launch. In some cases,
-            //the device where this code is running might not have an Activity to perform the action
-            //with the data we've specified. Without this check, in those cases your app would crash.
-            if (intent.resolveActivity(mContext.getPackageManager()) != null) {
-                Timber.d("onClick() - sharing: %s", url);
-                mContext.startActivity(intent);
-            }
+            RedditLiteUtils.sharePost(mContext, url);
         }
 
         private void voteRedditPost(RedditPost post) {
