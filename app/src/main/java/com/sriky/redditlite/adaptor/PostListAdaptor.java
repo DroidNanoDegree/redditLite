@@ -142,23 +142,23 @@ public class PostListAdaptor extends RecyclerView.Adapter<RecyclerView.ViewHolde
             String dateFormat = mContext.getString(R.string.subreddit_date_format);
             String fomattedDate = String.format(dateFormat,
                     RedditLiteUtils.getHoursElapsedFromNow(redditPost.getDate()));
-            postListItemBinding.postDate.setText(fomattedDate);
+            postListItemBinding.headerLayout.postDate.setText(fomattedDate);
 
             //set title
-            postListItemBinding.postTitle.setText(redditPost.getTitle());
+            postListItemBinding.bodyLayout.postTitle.setText(redditPost.getTitle());
 
             //set subreddit
             String subredditFormat = mContext.getString(R.string.subreddit_format);
             String formattedSubreddit = String.format(subredditFormat, redditPost.getSubreddit());
-            postListItemBinding.postSubreddit.setText(formattedSubreddit);
+            postListItemBinding.headerLayout.postSubreddit.setText(formattedSubreddit);
 
             //set domain if any.
             String domain = redditPost.getDomain();
             if (!TextUtils.isEmpty(domain)) {
-                postListItemBinding.postProvider.setText(domain);
-                postListItemBinding.postProvider.setVisibility(View.VISIBLE);
+                postListItemBinding.headerLayout.postProvider.setText(domain);
+                postListItemBinding.headerLayout.postProvider.setVisibility(View.VISIBLE);
             } else {
-                postListItemBinding.postProvider.setVisibility(View.INVISIBLE);
+                postListItemBinding.headerLayout.postProvider.setVisibility(View.INVISIBLE);
             }
 
             //set thumbnail
@@ -175,7 +175,7 @@ public class PostListAdaptor extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 votesCountFormatted = mContext.getString( R.string.subreddit_format_count_less_than_thousand,
                          votesCount);
             }
-            postListItemBinding.postVotes.setText(votesCountFormatted);
+            postListItemBinding.footerLayout.postVotes.setText(votesCountFormatted);
 
             //set comment count
             int commentsCount = redditPost.getCommentsCount();
@@ -188,39 +188,39 @@ public class PostListAdaptor extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 commentsCountFormatted =
                         mContext.getString(R.string.subreddit_format_count_less_than_thousand, commentsCount);
             }
-            postListItemBinding.postComments.setText(commentsCountFormatted);
+            postListItemBinding.footerLayout.postComments.setText(commentsCountFormatted);
 
             //set CardView's tag for onClicked() event.
             String postId = redditPost.getPostId();
             postListItemBinding.getRoot().setTag(redditPost);
 
             //set tag for vote btn for onClicked() event.
-            postListItemBinding.postVotes.setTag(redditPost);
+            postListItemBinding.footerLayout.postVotes.setTag(redditPost);
 
             //set tag for comments btn for onClicked() event.
-            postListItemBinding.postComments.setTag(redditPost);
+            postListItemBinding.footerLayout.postComments.setTag(redditPost);
 
             //set tag for share btn for onClicked() event.
-            postListItemBinding.share.setTag(redditPost.getUrl());
+            postListItemBinding.footerLayout.share.setTag(redditPost.getUrl());
         }
     }
 
     private void setThumbnail(RedditPost redditPost, PostListItemBinding postListItemBinding) {
         switch (redditPost.getThumbnailType()) {
             case DEFAULT: {
-                postListItemBinding.postThumbnail.setImageDrawable(
+                postListItemBinding.bodyLayout.postThumbnail.setImageDrawable(
                         mContext.getResources().getDrawable(R.drawable.ic_link));
                 break;
             }
 
             case SELF: {
-                postListItemBinding.postThumbnail.setImageDrawable(
+                postListItemBinding.bodyLayout.postThumbnail.setImageDrawable(
                         mContext.getResources().getDrawable(R.drawable.ic_insert_comment));
                 break;
             }
 
             case IMAGE: {
-                postListItemBinding.postThumbnail.setImageDrawable(
+                postListItemBinding.bodyLayout.postThumbnail.setImageDrawable(
                         mContext.getResources().getDrawable(R.drawable.ic_image_placeholder));
                 break;
             }
@@ -230,14 +230,14 @@ public class PostListAdaptor extends RecyclerView.Adapter<RecyclerView.ViewHolde
                         .load(Uri.parse(redditPost.getThumbnailUrl()))
                         .placeholder(R.color.primaryLightColor)
                         .error(R.drawable.ic_error)
-                        .into(postListItemBinding.postThumbnail);
+                        .into(postListItemBinding.bodyLayout.postThumbnail);
                 break;
             }
 
             default: {
                 Timber.e("Thumbnail type not supported, type: %d",
                         redditPost.getThumbnailType());
-                postListItemBinding.postThumbnail.setVisibility(View.GONE);
+                postListItemBinding.bodyLayout.postThumbnail.setVisibility(View.GONE);
             }
         }
     }
@@ -253,9 +253,9 @@ public class PostListAdaptor extends RecyclerView.Adapter<RecyclerView.ViewHolde
             super(binding.getRoot());
             mPostListItemBinding = binding;
             mPostListItemBinding.getRoot().setOnClickListener(this);
-            mPostListItemBinding.share.setOnClickListener(this);
-            mPostListItemBinding.postVotes.setOnClickListener(this);
-            mPostListItemBinding.postComments.setOnClickListener(this);
+            mPostListItemBinding.footerLayout.share.setOnClickListener(this);
+            mPostListItemBinding.footerLayout.postVotes.setOnClickListener(this);
+            mPostListItemBinding.footerLayout.postComments.setOnClickListener(this);
         }
 
 

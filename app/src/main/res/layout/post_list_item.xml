@@ -15,8 +15,7 @@
   -->
 
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <android.support.v7.widget.CardView
         android:id="@+id/posts_cardView"
         android:layout_width="match_parent"
@@ -34,174 +33,17 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-            <LinearLayout
-                android:id="@+id/header"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="horizontal">
+            <include
+                android:id="@+id/header_layout"
+                layout="@layout/post_item_header" />
 
-                <TextView
-                    android:id="@+id/post_subreddit"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="8dp"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Small"
-                    tools:text="r/subreddit" />
+            <include
+                android:id="@+id/body_layout"
+                layout="@layout/post_item_body" />
 
-                <ImageView
-                    android:id="@+id/first_circle_separator"
-                    android:layout_width="5dp"
-                    android:layout_height="5dp"
-                    android:layout_marginTop="16dp"
-                    android:background="@drawable/circle" />
-
-                <TextView
-                    android:id="@+id/post_date"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="8dp"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Small"
-                    tools:text="3h" />
-
-                <ImageView
-                    android:id="@+id/second_circle_separator"
-                    android:layout_width="5dp"
-                    android:layout_height="5dp"
-                    android:layout_marginTop="16dp"
-                    android:background="@drawable/circle" />
-
-                <TextView
-                    android:id="@+id/post_provider"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="8dp"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Small"
-                    tools:text="v.redd.it" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/body"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="horizontal">
-
-                <ImageView
-                    android:id="@+id/post_thumbnail"
-                    android:layout_width="100dp"
-                    android:layout_height="100dp"
-                    android:layout_gravity="top"
-                    android:layout_marginLeft="8dp"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginTop="4dp"
-                    android:scaleType="centerCrop" />
-
-                <TextView
-                    android:id="@+id/post_title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="top"
-                    android:layout_marginLeft="8dp"
-                    android:layout_marginStart="8dp"
-                    android:gravity="top"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                    tools:text="Post title goes here!" />
-
-            </LinearLayout>
-
-            <android.support.constraint.ConstraintLayout
-                android:id="@+id/footer"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
-                <Button
-                    android:id="@+id/post_votes"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp"
-                    android:layout_marginStart="24dp"
-                    android:layout_marginLeft="24dp"
-                    android:layout_marginTop="8dp"
-                    android:layout_toLeftOf="@+id/divider"
-                    android:layout_toStartOf="@+id/divider"
-                    android:background="@android:color/transparent"
-                    android:drawableEnd="@drawable/ic_arrow_downward"
-                    android:drawableLeft="@drawable/ic_arrow_upward"
-                    android:drawableRight="@drawable/ic_arrow_downward"
-                    android:drawableStart="@drawable/ic_arrow_upward"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Small"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintVertical_bias="0.0"
-                    tools:text="40.5k" />
-
-                <View
-                    android:id="@+id/divider"
-                    android:layout_width="1dp"
-                    android:layout_height="25dp"
-                    android:layout_marginStart="24dp"
-                    android:layout_marginLeft="24dp"
-                    android:background="@color/primaryLightColor"
-                    app:layout_constraintBottom_toBottomOf="@+id/post_votes"
-                    app:layout_constraintStart_toEndOf="@+id/post_votes"
-                    app:layout_constraintTop_toTopOf="@+id/post_votes" />
-
-                <Button
-                    android:id="@+id/post_comments"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp"
-                    android:layout_marginStart="32dp"
-                    android:layout_marginLeft="32dp"
-                    android:layout_marginTop="8dp"
-                    android:background="@android:color/transparent"
-                    android:drawableLeft="@drawable/ic_insert_comment"
-                    android:drawablePadding="4dp"
-                    android:drawableStart="@drawable/ic_insert_comment"
-                    android:gravity="start|center_vertical"
-                    android:textAlignment="viewStart"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toEndOf="@+id/divider"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintVertical_bias="0.0"
-                    tools:text="300" />
-
-                <View
-                    android:id="@+id/divider2"
-                    android:layout_width="1dp"
-                    android:layout_height="25dp"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginLeft="8dp"
-                    android:background="@color/primaryLightColor"
-                    app:layout_constraintBottom_toBottomOf="@+id/post_votes"
-                    app:layout_constraintStart_toEndOf="@+id/post_comments"
-                    app:layout_constraintTop_toTopOf="@+id/post_votes" />
-
-                <Button
-                    android:id="@+id/share"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp"
-                    android:layout_marginEnd="16dp"
-                    android:layout_marginRight="16dp"
-                    android:layout_marginStart="24dp"
-                    android:layout_marginLeft="24dp"
-                    android:layout_marginTop="8dp"
-                    android:background="@android:color/transparent"
-                    android:drawableLeft="@drawable/ic_share"
-                    android:drawablePadding="4dp"
-                    android:drawableStart="@drawable/ic_share"
-                    android:gravity="start|center_vertical"
-                    android:text="@string/share"
-                    android:textAlignment="viewStart"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Small"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@+id/divider2"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintVertical_bias="0.0" />
-
-            </android.support.constraint.ConstraintLayout>
+            <include
+                android:id="@+id/footer_layout"
+                layout="@layout/post_item_footer" />
 
         </LinearLayout>
     </android.support.v7.widget.CardView>
