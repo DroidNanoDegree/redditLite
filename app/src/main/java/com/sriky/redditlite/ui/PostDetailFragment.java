@@ -225,15 +225,12 @@ public class PostDetailFragment extends Fragment implements ExoPlayer.EventListe
 
         final Context context = getContext();
         //set date
-        String dateFormat = context.getString(R.string.subreddit_date_format);
-        String fomattedDate = String.format(dateFormat,
-                RedditLiteUtils.getHoursElapsedFromNow(redditPost.getDate()));
-        mFragmentPostDetailsBinding.commentHeader.postHeaderLayout.postDate.setText(fomattedDate);
+        mFragmentPostDetailsBinding.commentHeader.postHeaderLayout.postDate.setText(
+                RedditLiteUtils.getFormattedDateFromNow(context, redditPost.getDate()));
 
         //set subreddit
-        String subredditFormat = context.getString(R.string.subreddit_format);
-        String formattedSubreddit = String.format(subredditFormat, redditPost.getSubreddit());
-        mFragmentPostDetailsBinding.commentHeader.postHeaderLayout.postSubreddit.setText(formattedSubreddit);
+        mFragmentPostDetailsBinding.commentHeader.postHeaderLayout.postSubreddit.setText(
+                RedditLiteUtils.getFormattedSubreddit(context, redditPost.getSubreddit()));
 
         //set domain if any.
         String domain = redditPost.getDomain();
@@ -253,30 +250,12 @@ public class PostDetailFragment extends Fragment implements ExoPlayer.EventListe
         mFragmentPostDetailsBinding.commentHeader.title.setText(redditPost.getTitle());
 
         //set votes
-        int votesCount = redditPost.getVotesCount();
-        String votesCountFormatted;
-
-        if (votesCount >= 1000) {
-            votesCountFormatted = context.getString(R.string.subreddit_format_count_over_thousand,
-                    votesCount / 1000f);
-        } else {
-            votesCountFormatted = context.getString(R.string.subreddit_format_count_less_than_thousand,
-                    votesCount);
-        }
-        mFragmentPostDetailsBinding.commentFooterLayout.postVotes.setText(votesCountFormatted);
+        mFragmentPostDetailsBinding.commentFooterLayout.postVotes.setText(
+                RedditLiteUtils.getFormattedCountByThousand(context, redditPost.getVotesCount()));
 
         //set comment count
-        int commentsCount = redditPost.getCommentsCount();
-
-        String commentsCountFormatted;
-        if (commentsCount >= 1000) {
-            commentsCountFormatted =
-                    context.getString(R.string.subreddit_format_count_over_thousand, commentsCount / 1000f);
-        } else {
-            commentsCountFormatted =
-                    context.getString(R.string.subreddit_format_count_less_than_thousand, commentsCount);
-        }
-        mFragmentPostDetailsBinding.commentFooterLayout.postComments.setText(commentsCountFormatted);
+        mFragmentPostDetailsBinding.commentFooterLayout.postComments.setText(
+                RedditLiteUtils.getFormattedCountByThousand(context, redditPost.getCommentsCount()));
 
         //set the onClick listener to share the post.
         mFragmentPostDetailsBinding.commentFooterLayout.share.setOnClickListener(new View.OnClickListener() {

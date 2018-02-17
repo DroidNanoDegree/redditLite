@@ -18,8 +18,12 @@
         <xliff:g id="subreddit">/r/%1$s</xliff:g>
     </string>
 
-    <string name="subreddit_date_format">
-        <xliff:g id="date">%1$d</xliff:g>h
+    <string name="subreddit_date_format_hours">
+        <xliff:g id="date">%1$1.0f</xliff:g>h
+    </string>
+
+    <string name="subreddit_date_format_mins">
+        <xliff:g id="date">%1$1.0f</xliff:g>m
     </string>
 
     <string name="subreddit_format_count_over_thousand">

@@ -59,25 +59,12 @@ public class ExpandableCommentItem extends Item implements ExpandableItem {
         author.setText(formattedAuthorName);
 
         //set date
-        String dateFormat = context.getString(R.string.subreddit_date_format);
-        String fomattedDate = String.format(dateFormat,
-                RedditLiteUtils.getHoursElapsedFromNow(comment.getCreated().getTime()));
         TextView date = viewHolder.itemView.findViewById(R.id.comment_date);
-        date.setText(fomattedDate);
+        date.setText(RedditLiteUtils.getFormattedDateFromNow(context, comment.getCreated().getTime()));
 
         //set votes
-        int votesCount = comment.getScore();
-        String votesCountFormatted;
-
-        if (votesCount >= 1000) {
-            votesCountFormatted = context.getString(R.string.subreddit_format_count_over_thousand,
-                    votesCount / 1000f);
-        } else {
-            votesCountFormatted = context.getString(R.string.subreddit_format_count_less_than_thousand,
-                    votesCount);
-        }
         Button btn = viewHolder.itemView.findViewById(R.id.btn_votes_count);
-        btn.setText(votesCountFormatted);
+        btn.setText(RedditLiteUtils.getFormattedCountByThousand(context, comment.getScore()));
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

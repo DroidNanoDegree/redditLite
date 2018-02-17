@@ -38,10 +38,11 @@ import timber.log.Timber;
 
 public final class RedditLiteUtils {
 
-    private static final long SECONDS_IN_MILLI = 1000;
-    private static final long MINUTES_IN_MILLI = SECONDS_IN_MILLI * 60;
-    private static final long HOURS_IN_MILLI = MINUTES_IN_MILLI * 60;
-    private static final long DAYS_IN_MILLI = HOURS_IN_MILLI * 24;
+    private static final float SECONDS_IN_MILLI = 1000;
+    private static final float HOUR_IN_MINUTES = 60;
+    private static final float MINUTES_IN_MILLI = SECONDS_IN_MILLI * HOUR_IN_MINUTES;
+    private static final float HOURS_IN_MILLI = MINUTES_IN_MILLI * HOUR_IN_MINUTES;
+    private static final float DAYS_IN_MILLI = HOURS_IN_MILLI * 24;
 
     /**
      * Get the hours elapsed from the current time.
@@ -49,9 +50,65 @@ public final class RedditLiteUtils {
      * @param originalTime Original time in millis.
      * @return The number of hour/s elapsed from the supplied time.
      */
-    public static long getHoursElapsedFromNow(long originalTime) {
-        long difference = System.currentTimeMillis() - originalTime;
+    public static float getHoursElapsedFromNow(long originalTime) {
+        float difference = System.currentTimeMillis() - originalTime;
         return (difference % DAYS_IN_MILLI) / HOURS_IN_MILLI;
+    }
+
+    /**
+     * Convert the hours elapsed to mins.
+     *
+     * @param originalTime Original time in hours.
+     * @return The number of hour/s elapsed from the supplied time.
+     */
+    public static float convertHoursToMins(float originalTime) {
+        return originalTime * HOUR_IN_MINUTES;
+    }
+
+    /**
+     * Formats supplied date(in milli) to hours or mins from current time.
+     *
+     * @param context       The calling activity or service.
+     * @param dateInMillis  The date in millis.
+     *
+     * @return String formatted to either hour or min from current time.
+     */
+    public static String getFormattedDateFromNow(Context context, long dateInMillis) {
+        float hours = getHoursElapsedFromNow(dateInMillis);
+        String fomattedDate;
+        if (hours > 1) {
+            fomattedDate =
+                    String.format(context.getString(R.string.subreddit_date_format_hours), hours);
+        } else {
+            fomattedDate =
+                    String.format(context.getString(R.string.subreddit_date_format_mins),
+                            RedditLiteUtils.convertHoursToMins(hours));
+        }
+        return fomattedDate;
+    }
+
+    /**
+     * Formats votes (int) to be represented in terms of 1000s i.e k. Eg: 1500 = 1.5k
+     * Anything less then 1000 will be represented as it, i.e. 500 = 500.
+     *
+     * @param context The calling activity or service.
+     * @param votes   The number of votes.
+     * @return Formatted votes string in the 1000s.
+     */
+    public static String getFormattedCountByThousand(Context context, int votes) {
+        String votesCountFormatted;
+        if (votes >= 1000) {
+            votesCountFormatted = context.getString(R.string.subreddit_format_count_over_thousand,
+                    votes / 1000f);
+        } else {
+            votesCountFormatted = context.getString( R.string.subreddit_format_count_less_than_thousand,
+                    votes);
+        }
+        return votesCountFormatted;
+    }
+
+    public static String getFormattedSubreddit(Context context, String subReddit) {
+        return String.format(context.getString(R.string.subreddit_format), subReddit);
     }
 
     /**

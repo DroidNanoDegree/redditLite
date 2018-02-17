@@ -136,18 +136,15 @@ public class PostListAdaptor extends RecyclerView.Adapter<RecyclerView.ViewHolde
             RedditPost redditPost = new RedditPost(mCursor, mContext);
 
             //set date
-            String dateFormat = mContext.getString(R.string.subreddit_date_format);
-            String fomattedDate = String.format(dateFormat,
-                    RedditLiteUtils.getHoursElapsedFromNow(redditPost.getDate()));
-            postListItemBinding.headerLayout.postDate.setText(fomattedDate);
+            postListItemBinding.headerLayout.postDate.setText(
+                    RedditLiteUtils.getFormattedDateFromNow(mContext, redditPost.getDate()));
 
             //set title
             postListItemBinding.bodyLayout.postTitle.setText(redditPost.getTitle());
 
             //set subreddit
-            String subredditFormat = mContext.getString(R.string.subreddit_format);
-            String formattedSubreddit = String.format(subredditFormat, redditPost.getSubreddit());
-            postListItemBinding.headerLayout.postSubreddit.setText(formattedSubreddit);
+            postListItemBinding.headerLayout.postSubreddit.setText(
+                    RedditLiteUtils.getFormattedSubreddit(mContext, redditPost.getSubreddit()));
 
             //set domain if any.
             String domain = redditPost.getDomain();
@@ -162,30 +159,12 @@ public class PostListAdaptor extends RecyclerView.Adapter<RecyclerView.ViewHolde
             setThumbnail(redditPost, postListItemBinding);
 
             //set votes
-            int votesCount = redditPost.getVotesCount();
-            String votesCountFormatted;
-
-            if (votesCount >= 1000) {
-                votesCountFormatted = mContext.getString(R.string.subreddit_format_count_over_thousand,
-                        votesCount / 1000f);
-            } else {
-                votesCountFormatted = mContext.getString( R.string.subreddit_format_count_less_than_thousand,
-                         votesCount);
-            }
-            postListItemBinding.footerLayout.postVotes.setText(votesCountFormatted);
+            postListItemBinding.footerLayout.postVotes.setText(
+                    RedditLiteUtils.getFormattedCountByThousand(mContext, redditPost.getVotesCount()));
 
             //set comment count
-            int commentsCount = redditPost.getCommentsCount();
-
-            String commentsCountFormatted;
-            if (commentsCount >= 1000) {
-                commentsCountFormatted =
-                        mContext.getString(R.string.subreddit_format_count_over_thousand,commentsCount / 1000f);
-            } else {
-                commentsCountFormatted =
-                        mContext.getString(R.string.subreddit_format_count_less_than_thousand, commentsCount);
-            }
-            postListItemBinding.footerLayout.postComments.setText(commentsCountFormatted);
+            postListItemBinding.footerLayout.postComments.setText(
+                    RedditLiteUtils.getFormattedCountByThousand(mContext, redditPost.getCommentsCount()));
 
             //set CardView's tag for onClicked() event.
             String postId = redditPost.getPostId();
