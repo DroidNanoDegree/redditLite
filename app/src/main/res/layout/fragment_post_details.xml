@@ -71,9 +71,10 @@
                     <ImageView
                         android:id="@+id/image"
                         android:layout_width="match_parent"
-                        android:layout_height="400dp"
+                        android:layout_height="@dimen/details_image_height"
                         android:layout_marginBottom="8dp"
                         android:scaleType="fitCenter"
+                        android:adjustViewBounds="true"
                         android:visibility="invisible" />
 
                     <im.delight.android.webview.AdvancedWebView

@@ -16,4 +16,5 @@
     <dimen name="app_bar_height">56dp</dimen>
     <dimen name="comment_item_start_margin">4dp</dimen>
     <dimen name="comment_item_end_margin">4dp</dimen>
+    <dimen name="details_image_height">400dp</dimen>
 </resources>

@@ -29,6 +29,7 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 
 import com.google.android.exoplayer2.DefaultLoadControl;
@@ -223,6 +224,43 @@ public class PostDetailFragment extends Fragment implements ExoPlayer.EventListe
         //fetch the comments data.
         getCommentsRootNode(redditPost.getPostId());
 
+        RedditPost.PostType type = redditPost.getType();
+        Timber.d("Post type: %s, url: %s", type, redditPost.getUrl());
+
+        switch (type) {
+            case NO_MEDIA:
+                String body = redditPost.getBody();
+                if (!TextUtils.isEmpty(body)) {
+                    setBody(body);
+                    return;
+                }
+            case IMAGE:
+            case HOSTED_VIDEO: {
+                setImage(redditPost);
+                break;
+            }
+
+            case RICH_VIDEO: {
+                //play the video.
+                initPlayer(redditPost.getVideoUrl());
+                break;
+            }
+
+            case LINK: {
+                if (redditPost.getUrl().endsWith(".gif")
+                        || redditPost.getUrl().endsWith(".gifv")) {
+                    setWebView(redditPost.getUrl());
+                } else {
+                    setImage(redditPost);
+                }
+                break;
+            }
+
+            default: {
+                Timber.e("Unsupported post type: %d", type);
+            }
+        }
+
         final Context context = getContext();
         //set date
         mFragmentPostDetailsBinding.commentHeader.postHeaderLayout.postDate.setText(
@@ -264,43 +302,6 @@ public class PostDetailFragment extends Fragment implements ExoPlayer.EventListe
                 RedditLiteUtils.sharePost(context, redditPost.getUrl());
             }
         });
-
-        RedditPost.PostType type = redditPost.getType();
-        Timber.d("Post type: %s, url: %s", type, redditPost.getUrl());
-
-        switch (type) {
-            case NO_MEDIA:
-                String body = redditPost.getBody();
-                if (!TextUtils.isEmpty(body)) {
-                    setBody(body);
-                    return;
-                }
-            case IMAGE:
-            case HOSTED_VIDEO: {
-                setImage(redditPost);
-                break;
-            }
-
-            case RICH_VIDEO: {
-                //play the video.
-                initPlayer(redditPost.getVideoUrl());
-                break;
-            }
-
-            case LINK: {
-                if (redditPost.getUrl().endsWith(".gif")
-                        || redditPost.getUrl().endsWith(".gifv")) {
-                    setWebView(redditPost.getUrl());
-                } else {
-                    setImage(redditPost);
-                }
-                break;
-            }
-
-            default: {
-                Timber.e("Unsupported post type: %d", type);
-            }
-        }
     }
 
     private void setBody(String body) {
@@ -317,6 +318,11 @@ public class PostDetailFragment extends Fragment implements ExoPlayer.EventListe
                     .placeholder(R.drawable.ic_image_placeholder)
                     .error(R.drawable.ic_error)
                     .into(mFragmentPostDetailsBinding.image);
+
+            //reset the image view to wrap content to remove any space.
+            mFragmentPostDetailsBinding.image.getLayoutParams().height =
+                    ViewGroup.LayoutParams.WRAP_CONTENT;
+            mFragmentPostDetailsBinding.image.requestLayout();
         }
     }
 
