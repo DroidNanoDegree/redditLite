@@ -20,11 +20,15 @@ import android.content.Context;
 
 import net.dean.jraw.tree.RootCommentNode;
 
+import java.util.List;
+
+import tellh.com.recyclertreeview_lib.TreeNode;
+
 /**
  * The {@link LiveData} associated with Post Details.
  */
 
-public class PostCommentsLiveData extends LiveData<RootCommentNode> {
+public class PostCommentsLiveData extends LiveData<List<TreeNode>> {
     private Context mContext;
     private String mPostId;
 
@@ -39,7 +43,7 @@ public class PostCommentsLiveData extends LiveData<RootCommentNode> {
      *
      * @param rootNode The root node from the comments tree data.
      */
-    public void setCommentRootNodeData(RootCommentNode rootNode) {
+    public void setCommentRootNodeData(List<TreeNode> rootNode) {
         setValue(rootNode);
     }
 

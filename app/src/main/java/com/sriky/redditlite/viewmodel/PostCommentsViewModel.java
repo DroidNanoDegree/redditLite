@@ -25,6 +25,9 @@ import com.sriky.redditlite.livedata.PostCommentsLiveData;
 
 import net.dean.jraw.tree.RootCommentNode;
 
+import java.util.List;
+
+import tellh.com.recyclertreeview_lib.TreeNode;
 import timber.log.Timber;
 
 /**
@@ -55,7 +58,7 @@ public class PostCommentsViewModel extends AndroidViewModel {
         mPostCommentsLiveData = new PostCommentsLiveData(this.getApplication(), mPostId);
     }
 
-    public LiveData<RootCommentNode> getData() {
+    public LiveData<List<TreeNode>> getData() {
         return mPostCommentsLiveData;
     }
 }

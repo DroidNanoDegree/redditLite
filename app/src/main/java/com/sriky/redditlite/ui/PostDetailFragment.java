@@ -25,10 +25,13 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 
@@ -50,6 +53,7 @@ import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
 import com.squareup.picasso.Picasso;
 import com.sriky.redditlite.R;
+import com.sriky.redditlite.adaptor.CommentNodeBinder;
 import com.sriky.redditlite.adaptor.ExpandableCommentGroup;
 import com.sriky.redditlite.databinding.FragmentPostDetailsBinding;
 import com.sriky.redditlite.model.RedditPost;
@@ -62,8 +66,13 @@ import net.dean.jraw.models.Comment;
 import net.dean.jraw.tree.CommentNode;
 import net.dean.jraw.tree.RootCommentNode;
 
+import java.sql.Array;
+import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 
+import tellh.com.recyclertreeview_lib.TreeNode;
+import tellh.com.recyclertreeview_lib.TreeViewAdapter;
 import timber.log.Timber;
 
 /**
@@ -84,6 +93,8 @@ public class PostDetailFragment extends Fragment implements ExoPlayer.EventListe
     private Bundle mSavedInstanceState;
     private GroupAdapter mGroupAdaptor;
 
+    private TreeViewAdapter mTreeViewAdaptor;
+
     /* mandatory empty constructor */
     public PostDetailFragment() {
     }
@@ -99,11 +110,12 @@ public class PostDetailFragment extends Fragment implements ExoPlayer.EventListe
         mSavedInstanceState = savedInstanceState;
 
         //setup the comments recyclerview.
+        /*
         mGroupAdaptor = new GroupAdapter();
         GridLayoutManager gridLayoutManager = new GridLayoutManager(getContext(), mGroupAdaptor.getSpanCount());
         gridLayoutManager.setSpanSizeLookup(mGroupAdaptor.getSpanSizeLookup());
         mFragmentPostDetailsBinding.commentsRecyclerView.setLayoutManager(gridLayoutManager);
-        mFragmentPostDetailsBinding.commentsRecyclerView.setAdapter(mGroupAdaptor);
+        mFragmentPostDetailsBinding.commentsRecyclerView.setAdapter(mGroupAdaptor); */
 
         displayLoadingSnackbar();
 
@@ -185,16 +197,16 @@ public class PostDetailFragment extends Fragment implements ExoPlayer.EventListe
                 ViewModelProviders.of(this).get(PostCommentsViewModel.class);
 
         postDetailViewModel.setPostId(postId);
-        postDetailViewModel.getData().observe(this, new Observer<RootCommentNode>() {
+        postDetailViewModel.getData().observe(this, new Observer<List<TreeNode>>() {
             @Override
-            public void onChanged(@Nullable RootCommentNode rootCommentNode) {
-                if (rootCommentNode == null) {
+            public void onChanged(@Nullable List<TreeNode> nodes) {
+                if (nodes == null) {
                     Timber.e("Unable to fetch post comments for PostId: %s", postId);
                     //TODO: Display error via Snackbar.
                     return;
                 }
                 //show the comments.
-                showComments(rootCommentNode);
+                showComments(nodes);
             }
         });
     }
@@ -375,6 +387,45 @@ public class PostDetailFragment extends Fragment implements ExoPlayer.EventListe
             while (comments.hasNext()) {
                 mGroupAdaptor.add(new ExpandableCommentGroup(comments.next(), 0));
             }
+        }
+    }
+
+    private void showComments(List<TreeNode> commentList) {
+        Timber.d("showComments() - size: %d", commentList.size());
+        mFragmentPostDetailsBinding.commentsProgressBar.setVisibility(View.INVISIBLE);
+        if (commentList.size() == 0) {
+            Timber.e("No comments ");
+            mFragmentPostDetailsBinding.noCommentsToDisplay.setVisibility(View.VISIBLE);
+        } else {
+            mFragmentPostDetailsBinding.commentsRecyclerView.setVisibility(View.VISIBLE);
+            LinearLayoutManager linearLayoutManager =
+                    new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
+            mFragmentPostDetailsBinding.commentsRecyclerView.setLayoutManager(linearLayoutManager);
+            mTreeViewAdaptor = new TreeViewAdapter(commentList, Arrays.asList(new CommentNodeBinder()));
+            mTreeViewAdaptor.setOnTreeNodeListener(new TreeViewAdapter.OnTreeNodeListener() {
+                @Override
+                public boolean onClick(TreeNode treeNode, RecyclerView.ViewHolder viewHolder) {
+                    if (!treeNode.isLeaf()) {
+                        //Update and toggle the node.
+                        onToggle(!treeNode.isExpand(), viewHolder);
+                    }
+                    return false;
+                }
+
+                @Override
+                public void onToggle(boolean b, RecyclerView.ViewHolder viewHolder) {
+                    Button toggle = viewHolder.itemView.findViewById(R.id.toggle_expand);
+                    if (b) {
+                        toggle.setCompoundDrawablesWithIntrinsicBounds(0,
+                                0, R.drawable.ic_expand_less, 0);
+                    } else {
+                        toggle.setCompoundDrawablesWithIntrinsicBounds(0,
+                                0, R.drawable.ic_expand_more, 0);
+                    }
+                    //Timber.e("onToggle() - TODO!!!");
+                }
+            });
+            mFragmentPostDetailsBinding.commentsRecyclerView.setAdapter(mTreeViewAdaptor);
         }
     }
 
