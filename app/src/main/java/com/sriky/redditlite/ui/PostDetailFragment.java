@@ -113,7 +113,6 @@ public class PostDetailFragment extends Fragment implements ExoPlayer.EventListe
             RedditPostSharedViewModel redditPostSharedViewModel = ViewModelProviders.of(getActivity())
                     .get(RedditPostSharedViewModel.class);
 
-
             redditPostSharedViewModel.getSelected().observe(PostDetailFragment.this, new Observer<RedditPost>() {
                 @Override
                 public void onChanged(@Nullable RedditPost redditPost) {
@@ -121,10 +120,6 @@ public class PostDetailFragment extends Fragment implements ExoPlayer.EventListe
                     bindViews(redditPost);
                 }
             });
-
-            //TODO: in two pane does the code above work? else try the code below!!!
-            //setup the views.
-            //bindViews(redditPostSharedViewModel.getSelected().getValue());
         } else {
             if (!bundle.containsKey(POST_BUNDLE_KEY)) {
                 throw new RuntimeException("Bundle not set!");
