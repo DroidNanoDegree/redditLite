@@ -27,7 +27,7 @@
             android:layout_marginBottom="4dp"
             android:layout_marginLeft="4dp"
             android:layout_marginRight="4dp"
-            android:layout_marginTop="@dimen/app_bar_height"
+            android:layout_marginTop="@dimen/details_first_item_top_margin"
             android:elevation="4dp">
 
             <android.support.constraint.ConstraintLayout

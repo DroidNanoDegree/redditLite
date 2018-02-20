@@ -33,7 +33,7 @@
                 android:paddingBottom="4dp"
                 android:paddingLeft="@dimen/master_list_left_padding"
                 android:paddingRight="@dimen/master_list_right_padding"
-                android:paddingTop="64dp" />
+                android:paddingTop="@dimen/master_list_first_item_top_margin" />
         </android.support.v4.widget.SwipeRefreshLayout>
 
         <ProgressBar
