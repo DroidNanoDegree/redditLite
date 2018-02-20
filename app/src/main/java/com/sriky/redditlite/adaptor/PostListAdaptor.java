@@ -53,6 +53,7 @@ public class PostListAdaptor extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     private Cursor mCursor;
     private Context mContext;
+    private boolean mEventAlreadySent;
 
     public PostListAdaptor(Context context, Cursor cursor) {
         mContext = context;
@@ -119,6 +120,13 @@ public class PostListAdaptor extends RecyclerView.Adapter<RecyclerView.ViewHolde
     }
 
     public void swapCursor(Cursor cursor) {
+        //in an event of an item removed from the list (which can happen in TwoPane mode, when
+        //a post is removed from the favorite list), or when new data is fetched via swipe-to-refresh
+        //then reset the selected item to the first item.
+        if (mCursor != null && cursor != null
+                && mCursor.getCount() != cursor.getCount()) {
+            mEventAlreadySent = false;
+        }
         mCursor = cursor;
         notifyDataSetChanged();
     }
@@ -178,6 +186,15 @@ public class PostListAdaptor extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
             //set tag for share btn for onClicked() event.
             postListItemBinding.footerLayout.share.setTag(redditPost.getUrl());
+
+            /* trigger an event to pass the recipeId of the first item in the list,
+             * which is used in the TwoPane mode for tablets. This event should ONLY be triggered once!
+             */
+            if (!mEventAlreadySent && position == 0) {
+                updateSharedViewModel(redditPost);
+                EventBus.getDefault().post(new Message.EventPostDataLoaded());
+                mEventAlreadySent = true;
+            }
         }
     }
 
@@ -216,6 +233,12 @@ public class PostListAdaptor extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 postListItemBinding.bodyLayout.postThumbnail.setVisibility(View.GONE);
             }
         }
+    }
+
+    private void updateSharedViewModel(RedditPost post) {
+        //set the selected item so it can be retrieved by the detail fragment.
+        ViewModelProviders.of((FragmentActivity) mContext)
+                .get(RedditPostSharedViewModel.class).select(post);
     }
 
     /**
@@ -277,9 +300,7 @@ public class PostListAdaptor extends RecyclerView.Adapter<RecyclerView.ViewHolde
                         return;
                     }
 
-                    //set the selected item so it can be retrieved by the detail fragment.
-                    ViewModelProviders.of((FragmentActivity) mContext)
-                            .get(RedditPostSharedViewModel.class).select(post);
+                    updateSharedViewModel(post);
                     EventBus.getDefault().post(new Message.EventPostClicked());
                     break;
                 }

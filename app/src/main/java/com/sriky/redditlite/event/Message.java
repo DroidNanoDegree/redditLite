@@ -36,8 +36,19 @@ public final class Message {
         }
     }
 
+    /**
+     * Event triggered when a post list item is clicked.
+     */
     public static class EventPostClicked {
         public EventPostClicked() {
+        }
+    }
+
+    /**
+     * Event triggered when post list items are loaded.
+     */
+    public static class EventPostDataLoaded {
+        public EventPostDataLoaded() {
         }
     }
 }
