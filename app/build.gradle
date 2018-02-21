@@ -61,14 +61,18 @@ dependencies {
     /* Event Bus */
     implementation 'org.greenrobot:eventbus:3.1.1'
 
+    /* Material Drawer */
+    implementation("com.mikepenz:materialdrawer:6.0.6@aar") {
+        transitive = true
+    }
     /* About screen helper */
     implementation('com.mikepenz:aboutlibraries:6.0.0@aar') {
         transitive = true
     }
 
     /* GSON with Retrofit */
-    implementation 'com.google.code.gson:gson:2.8.0'
-    implementation 'com.squareup.retrofit2:converter-gson:2.0.2'
+    implementation 'com.google.code.gson:gson:2.8.1'
+    implementation 'com.squareup.retrofit2:converter-gson:2.2.0'
 
     /* Picasso */
     implementation 'com.squareup.picasso:picasso:2.5.2'
