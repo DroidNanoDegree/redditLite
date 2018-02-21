@@ -24,8 +24,15 @@ import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.view.View;
 
+import com.mikepenz.aboutlibraries.LibsBuilder;
+import com.mikepenz.aboutlibraries.ui.LibsSupportFragment;
+import com.mikepenz.materialdrawer.Drawer;
+import com.mikepenz.materialdrawer.DrawerBuilder;
+import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
+import com.mikepenz.materialdrawer.model.interfaces.Nameable;
 import com.sriky.redditlite.R;
 import com.sriky.redditlite.databinding.ActivityPostListBinding;
 import com.sriky.redditlite.event.Message;
@@ -46,14 +53,16 @@ import timber.log.Timber;
  * Main Activity for the app.
  */
 
-public class PostListActivity extends AppCompatActivity {
+public class PostListActivity extends AppCompatActivity
+        implements Drawer.OnDrawerItemClickListener {
 
     private static final int REQ_CODE_LOGIN = 222;
     private static final String MASTER_LIST_FRAGMENT_TAG = "masterlist_fragment";
     private static final String DETAILS_FRAGMENT_TAG = "post_details_fragment";
     private static final String DRAWER_SELECTED_ITEM_POSITION_BUNDLE_KEY = "selected_drawer_item";
-    private static final String LAYOUT_DETAILS_VISIBILITY_BUNDLE_KEY = "details_visibility";
-    private static final String LAYOUT_DIVIDER_VISIBILITY_BUNDLE_KEY = "layout_divider_visibility";
+    private static final String LAYOUT_DETAILS_DIVIDER_VISIBILITY_BUNDLE_KEY = "layout_details_divider_visibility";
+    private static final String ABOUT_FRAGMENT_TAG = "the_about_fragment";
+    private static final String TOOLBAR_TITLE_BUNDLE_KEY = "toolbar_title";
 
     private ActivityPostListBinding mActivityPostListBinding;
     private RedditLiteIdlingResource mIdlingResource;
@@ -62,9 +71,12 @@ public class PostListActivity extends AppCompatActivity {
     private boolean mIsTwoPane;
     private boolean mCanReplaceDetailsFragment;
     private int mRestoredSelectedItemPosition;
+    private String mRestoredToolbarTitle;
     private PostDetailFragment mDetailsFragment;
     private String mSelectedId;
     private String mPreviousSelectedId;
+    private Drawer mNavigationDrawer;
+    private LibsSupportFragment mAboutFragment;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -88,6 +100,9 @@ public class PostListActivity extends AppCompatActivity {
 
         mRedditPostSharedViewModel = ViewModelProviders.of(this)
                 .get(RedditPostSharedViewModel.class);
+
+        // add the navigation drawer
+        addNavigationDrawer();
     }
 
     @Override
@@ -134,18 +149,41 @@ public class PostListActivity extends AppCompatActivity {
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        /* TODO navi drawer
+
         outState.putInt(DRAWER_SELECTED_ITEM_POSITION_BUNDLE_KEY,
-                mNavigationDrawer.getCurrentSelectedPosition()); */
+                mNavigationDrawer.getCurrentSelectedPosition());
+
+        outState.putString(TOOLBAR_TITLE_BUNDLE_KEY,
+                mActivityPostListBinding.toolbarTitle.getText().toString());
 
         if (mIsTwoPane) {
-            outState.putInt(LAYOUT_DIVIDER_VISIBILITY_BUNDLE_KEY,
+            outState.putInt(LAYOUT_DETAILS_DIVIDER_VISIBILITY_BUNDLE_KEY,
                     mActivityPostListBinding.divider.getVisibility());
-
-            outState.putInt(LAYOUT_DETAILS_VISIBILITY_BUNDLE_KEY,
-                    mActivityPostListBinding.detailsContainer.getVisibility());
         }
         super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
+        switch (view.getId()) {
+            case R.id.drawer_action_discover: {
+                Timber.d("action_discover");
+                onNavigationDrawerMasterSelected();
+                break;
+            }
+
+            case R.id.drawer_action_about: {
+                Timber.d("action_about");
+                onNavigationDrawerAboutSelected();
+                break;
+            }
+
+            default: {
+                Timber.e("Unsupported action: %s", ((Nameable) drawerItem).getName());
+                return true;
+            }
+        }
+        return false;
     }
 
 
@@ -206,8 +244,6 @@ public class PostListActivity extends AppCompatActivity {
         Timber.d("onPostDataLoaded(), mSelectedId: %s", mSelectedId);
 
         if (mIsTwoPane && (mDetailsFragment == null || mCanReplaceDetailsFragment)) {
-            mActivityPostListBinding.detailsContainer.setVisibility(View.VISIBLE);
-            mActivityPostListBinding.divider.setVisibility(View.VISIBLE);
             updateDetailsFragment();
         }
     }
@@ -238,6 +274,77 @@ public class PostListActivity extends AppCompatActivity {
         RedditLiteSyncUtils.initDataSync(PostListActivity.this, getIdlingResource());
     }
 
+    private void addNavigationDrawer() {
+        // add toolbar
+        setSupportActionBar(mActivityPostListBinding.toolbar);
+
+        //disable the tile.
+        getSupportActionBar().setTitle("");
+
+        //set the actionbar title
+        mActivityPostListBinding.toolbarTitle.setText(
+                !TextUtils.isEmpty(mRestoredToolbarTitle) ?
+                        mRestoredToolbarTitle : getString(R.string.action_popular));
+
+        // Create the drawer
+        mNavigationDrawer = new DrawerBuilder()
+                .withActivity(this)
+                .withToolbar(mActivityPostListBinding.toolbar)
+                .withSelectedItemByPosition(mRestoredSelectedItemPosition)
+                .inflateMenu(R.menu.navigation_drawer_menu)
+                .withOnDrawerItemClickListener(PostListActivity.this)
+                .build();
+    }
+
+    private void onNavigationDrawerMasterSelected() {
+        //set the actionbar title
+        mActivityPostListBinding.toolbarTitle.setText(getString(R.string.action_popular));
+
+        if (mIsTwoPane) {
+            //remove the old details fragment.
+            removeRecipeDetailsFragment();
+
+            //show the views.
+            setDividerAndDetailsContainerVisibility(View.VISIBLE);
+        }
+
+        //remove the details fragment.
+        removeAboutFragment();
+        // add the MasterFragment with all recipes
+        addMasterListFragment();
+    }
+
+    private void onNavigationDrawerAboutSelected() {
+
+        //remove masterlist.
+        removeMasterListFragment();
+
+        mActivityPostListBinding.toolbarTitle.setText(getString(R.string.action_about));
+
+        //add the about fragment.
+        mAboutFragment = new LibsBuilder()
+                .withAboutAppName(getString(R.string.app_name))
+                .withAboutDescription(getString(R.string.about_the_app))
+                .withShowLoadingProgress(true)
+                .withAboutIconShown(true)
+                .withAboutVersionShown(true)
+                .withAboutVersionShownCode(true)
+                .withAutoDetect(true)
+                .supportFragment();
+
+        if (mIsTwoPane) {
+            //remove detail fragments.
+            removeRecipeDetailsFragment();
+
+            //hide views.
+            setDividerAndDetailsContainerVisibility(View.GONE);
+        }
+
+        //add the about fragment.
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fl_main, mAboutFragment, ABOUT_FRAGMENT_TAG)
+                .commit();
+    }
 
     /**
      * Restores the states of the components after a configuration change.
@@ -252,8 +359,12 @@ public class PostListActivity extends AppCompatActivity {
         mDetailsFragment =
                 (PostDetailFragment) fm.findFragmentByTag(DETAILS_FRAGMENT_TAG);
 
-        /* TODO
-        mAboutFragment = (LibsSupportFragment) fm.findFragmentByTag(ABOUT_FRAGMENT_TAG); */
+        mAboutFragment = (LibsSupportFragment) fm.findFragmentByTag(ABOUT_FRAGMENT_TAG);
+
+        //restore the toolbar title
+        if (savedInstanceState.containsKey(TOOLBAR_TITLE_BUNDLE_KEY)) {
+            mRestoredToolbarTitle = savedInstanceState.getString(TOOLBAR_TITLE_BUNDLE_KEY);
+        }
 
         //get the previous selected item position of the drawer.
         if (savedInstanceState.containsKey(DRAWER_SELECTED_ITEM_POSITION_BUNDLE_KEY)) {
@@ -262,20 +373,17 @@ public class PostListActivity extends AppCompatActivity {
         }
 
         if (mIsTwoPane) {
-            if (savedInstanceState.containsKey(LAYOUT_DETAILS_VISIBILITY_BUNDLE_KEY)) {
-                mActivityPostListBinding.detailsContainer.setVisibility(
-                        savedInstanceState.getInt(LAYOUT_DETAILS_VISIBILITY_BUNDLE_KEY));
-            }
-
-            if (savedInstanceState.containsKey(LAYOUT_DIVIDER_VISIBILITY_BUNDLE_KEY)) {
-                mActivityPostListBinding.divider.setVisibility(
-                        savedInstanceState.getInt(LAYOUT_DIVIDER_VISIBILITY_BUNDLE_KEY));
+            if (savedInstanceState.containsKey(LAYOUT_DETAILS_DIVIDER_VISIBILITY_BUNDLE_KEY)) {
+                setDividerAndDetailsContainerVisibility(
+                        savedInstanceState.getInt(LAYOUT_DETAILS_DIVIDER_VISIBILITY_BUNDLE_KEY));
             }
         }
     }
 
     private void addMasterListFragment() {
         mMasterListFragment = new MasterListFragment();
+
+        setDividerAndDetailsContainerVisibility(View.VISIBLE);
 
         FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction()
@@ -285,6 +393,8 @@ public class PostListActivity extends AppCompatActivity {
 
     private void updateDetailsFragment() {
         Timber.d("updateDetailsFragment(), mSelectedId: %s", mSelectedId);
+
+        setDividerAndDetailsContainerVisibility(View.VISIBLE);
 
         if (!mSelectedId.equals(mPreviousSelectedId)) {
 
@@ -298,5 +408,49 @@ public class PostListActivity extends AppCompatActivity {
                     .replace(R.id.details_container, mDetailsFragment, DETAILS_FRAGMENT_TAG)
                     .commit();
         }
+    }
+
+    /**
+     * Removes the {@link PostDetailFragment}
+     */
+    private void removeRecipeDetailsFragment() {
+        if (mDetailsFragment != null) {
+            getSupportFragmentManager().beginTransaction()
+                    .remove(mDetailsFragment)
+                    .commit();
+            mPreviousSelectedId = null;
+            mDetailsFragment = null;
+        }
+    }
+
+    /**
+     * Removes the {@link MasterListFragment}.
+     */
+    private void removeMasterListFragment() {
+        if (mMasterListFragment != null) {
+            getSupportFragmentManager().beginTransaction()
+                    .remove(mMasterListFragment)
+                    .commit();
+            mMasterListFragment = null;
+        }
+    }
+
+    /**
+     * Removes the About fragment.
+     */
+    private void removeAboutFragment() {
+        if (mAboutFragment != null) {
+            getSupportFragmentManager().beginTransaction()
+                    .remove(mAboutFragment)
+                    .commit();
+            mAboutFragment = null;
+        }
+    }
+
+    private void setDividerAndDetailsContainerVisibility(int visibility) {
+        if (!mIsTwoPane) return;
+
+        mActivityPostListBinding.detailsContainer.setVisibility(visibility);
+        mActivityPostListBinding.divider.setVisibility(visibility);
     }
 }

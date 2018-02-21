@@ -46,4 +46,9 @@
     <string name="data_updating">Loading, please wait.</string>
     <string name="no_comments">No comments for the post yet!</string>
     <string name="replies">replies</string>
+    <string name="action_popular">Popular</string>
+    <string name="action_about">About</string>
+    <string name="about_the_app">Stay on top of your communities (subreddits) with App’s news feed tailored to the communities you subscribe to, with the functionality to identify and sort through unread posts. Never miss any action from your community and get notified periodically when there is new content. redditLite will manage unread posts and provide various UI indicators to keep track of unread posts. \n
+        The redditLite makes it easy to navigate between communities/content but also provides the ability to discover/join new communities from all of Reddit.\n\n
+        RedditLite App was developed as a project part of the Android Developer Nanodegree program by Udacity.</string>
 </resources>

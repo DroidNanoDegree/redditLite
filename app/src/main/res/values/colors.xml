@@ -17,5 +17,27 @@
     <!-- misc -->
     <color name="windowBackgroundColor">#1b1b1b</color>
     <color name="postItemBackgroundColor">#99000000</color>
-    <color name="headerBackgroundColor">#33e254ff</color>
+    <color name="drawerSelectedItemColor">#33e254ff</color>
+
+    <!-- Material DEFAULT colors -->
+    <color name="material_drawer_primary">@color/primaryColor</color>
+    <color name="material_drawer_primary_dark">@color/primaryDarkColor</color>
+    <color name="material_drawer_primary_light">@color/primaryLightColor</color>
+    <color name="material_drawer_accent">@color/secondaryLightColor</color>
+
+    <!-- OVERWRITE THESE COLORS FOR A LIGHT THEME -->
+    <!-- MaterialDrawer DEFAULT colors -->
+    <color name="material_drawer_background">@color/primaryColor</color>
+
+    <!-- Material DEFAULT text / items colors -->
+    <color name="material_drawer_primary_text">@color/primaryTextColor</color>
+    <color name="material_drawer_primary_icon">@color/secondaryColor</color>
+    <color name="material_drawer_secondary_text">@color/primaryTextColor</color>
+    <color name="material_drawer_hint_text">@color/secondaryTextColor</color>
+    <color name="material_drawer_divider">@color/primaryLightColor</color>
+
+    <!-- Material DEFAULT drawer colors -->
+    <color name="material_drawer_selected">@color/drawerSelectedItemColor</color>
+    <color name="material_drawer_selected_text">@color/primaryTextColor</color>
+    <color name="material_drawer_header_selection_text">@color/primaryTextColor</color>
 </resources>

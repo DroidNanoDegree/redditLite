@@ -25,7 +25,8 @@
         <FrameLayout
             android:id="@+id/fl_main"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:layout_marginTop="@dimen/master_list_first_item_top_margin">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -43,12 +44,14 @@
                     android:id="@+id/divider"
                     android:layout_width="1dp"
                     android:layout_height="match_parent"
-                    android:background="@color/primaryDarkColor" />
+                    android:background="@color/primaryDarkColor"
+                    android:visibility="gone"/>
 
                 <FrameLayout
                     android:id="@+id/details_container"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
+                    android:layout_height="match_parent"
+                    android:visibility="gone"/>
             </LinearLayout>
         </FrameLayout>
 
@@ -71,11 +74,11 @@
                 app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
 
                 <TextView
+                    android:id="@+id/toolbar_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:text="@string/app_name"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Title" />
+                    android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
 
             </android.support.v7.widget.Toolbar>
 
