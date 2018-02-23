@@ -29,8 +29,6 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.ProgressBar;
 
 import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -105,7 +103,7 @@ public class PostDetailFragment extends Fragment implements ExoPlayer.EventListe
         mFragmentPostDetailsBinding.commentsRecyclerView.setLayoutManager(gridLayoutManager);
         mFragmentPostDetailsBinding.commentsRecyclerView.setAdapter(mGroupAdaptor);
 
-        displayLoadingSnackbar();
+        //displayLoadingSnackbar();
 
         Bundle bundle = getArguments();
         //Bundle will be null on tablets(TwoPane mode).
@@ -194,6 +192,7 @@ public class PostDetailFragment extends Fragment implements ExoPlayer.EventListe
         });
     }
 
+    /*
     private void displayLoadingSnackbar() {
         mLoadingSnackbar = Snackbar.make(mFragmentPostDetailsBinding.getRoot(),
                 R.string.data_updating, Snackbar.LENGTH_INDEFINITE);
@@ -210,11 +209,11 @@ public class PostDetailFragment extends Fragment implements ExoPlayer.EventListe
             Timber.d("hideLoadingSnackbar()");
             mLoadingSnackbar.dismiss();
         }
-    }
+    }*/
 
     private void bindViews(final RedditPost redditPost) {
         //hide loading snackbar.
-        hideLoadingSnackbar();
+        //hideLoadingSnackbar();
 
         //fetch the comments data.
         getCommentsRootNode(redditPost.getPostId());
@@ -252,7 +251,7 @@ public class PostDetailFragment extends Fragment implements ExoPlayer.EventListe
             }
 
             default: {
-                Timber.e("Unsupported post type: %d", type);
+                Timber.e("Unsupported post type: %s", type.name());
             }
         }
 
@@ -317,7 +316,7 @@ public class PostDetailFragment extends Fragment implements ExoPlayer.EventListe
             //reset the image view to wrap content to remove any space.
             mFragmentPostDetailsBinding.image.getLayoutParams().height =
                     ViewGroup.LayoutParams.WRAP_CONTENT;
-            mFragmentPostDetailsBinding.image.requestLayout();
+            mFragmentPostDetailsBinding.getRoot().requestLayout();
         }
     }
 
