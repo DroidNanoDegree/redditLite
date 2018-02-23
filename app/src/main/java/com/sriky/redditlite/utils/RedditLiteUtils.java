@@ -164,10 +164,6 @@ public final class RedditLiteUtils {
     }
 
     /**
-     *
-     */
-
-    /**
      * Shares the post with available apps.
      *
      * @param context The calling activity.
