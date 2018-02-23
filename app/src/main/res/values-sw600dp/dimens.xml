@@ -17,5 +17,5 @@
     <dimen name="details_image_height">400dp</dimen>
     <dimen name="master_width">350dp</dimen>
     <dimen name="master_list_first_item_top_margin">72dp</dimen>
-    <dimen name="details_first_item_top_margin">0dp</dimen>
+    <dimen name="details_first_item_top_margin">32dp</dimen>
 </resources>

@@ -19,5 +19,5 @@
     <dimen name="comment_item_end_margin">4dp</dimen>
     <dimen name="details_image_height">400dp</dimen>
     <dimen name="master_list_first_item_top_margin">64dp</dimen>
-    <dimen name="details_first_item_top_margin">64dp</dimen>
+    <dimen name="details_first_item_top_margin">32dp</dimen>
 </resources>
