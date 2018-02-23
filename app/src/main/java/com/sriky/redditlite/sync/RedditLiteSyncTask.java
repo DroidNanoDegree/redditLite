@@ -190,7 +190,7 @@ public final class RedditLiteSyncTask {
                 PreferenceManager.getDefaultSharedPreferences(context).edit();
 
         //set the current time.
-        editor.putLong(context.getString(R.string.pref_last_data_fetch_time),
+        editor.putLong(context.getString(R.string.pref_last_data_fetch_time_key),
                 System.currentTimeMillis());
         //commit the changes.
         editor.apply();

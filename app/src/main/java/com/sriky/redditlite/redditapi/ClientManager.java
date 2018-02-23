@@ -20,6 +20,8 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 
+import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
+import com.mikepenz.materialdrawer.model.interfaces.IProfile;
 import com.sriky.redditlite.BuildConfig;
 import com.sriky.redditlite.R;
 
@@ -28,6 +30,9 @@ import net.dean.jraw.http.UserAgent;
 import net.dean.jraw.oauth.AccountHelper;
 import net.dean.jraw.oauth.Credentials;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import timber.log.Timber;
@@ -44,6 +49,7 @@ public final class ClientManager {
 
     private static ClientManager sInstance;
     private static String mCurrentUsername;
+    private final RedditClientTokenStore mTokenStore;
 
     private AccountHelper mAccountHelper;
 
@@ -59,10 +65,10 @@ public final class ClientManager {
         // This is what really sends HTTP requests
         OkHttpNetworkAdapter mNetworkAdaptor = new OkHttpNetworkAdapter(userAgent);
 
-        RedditClientTokenStore tokenStore = new RedditClientTokenStore(context);
+        mTokenStore = new RedditClientTokenStore(context);
 
         mAccountHelper =
-                new AccountHelper(mNetworkAdaptor, mCredentials, tokenStore, UUID.randomUUID());
+                new AccountHelper(mNetworkAdaptor, mCredentials, mTokenStore, UUID.randomUUID());
     }
 
     synchronized private static ClientManager getInstance(Context context) {
@@ -140,6 +146,30 @@ public final class ClientManager {
     public static boolean isAuthenticateModeUserless(Context context) {
         String userless = context.getString(R.string.user_account_pref_default);
         return userless.equals(getCurrentAuthenticatedUsername(context));
+    }
+
+    /**
+     * Generates user profiles from previously used Reddit Accounts.
+     *
+     * @param context The calling activity or service
+     * @return List of {@link IProfile}
+     */
+    public static List<IProfile> getProfiles(Context context) {
+        Set<String> usernames = getInstance(context).mTokenStore.getUserNames();
+        String userless = context.getResources().getString(R.string.user_account_pref_default);
+        List<IProfile> iProfileList = new ArrayList<>();
+        int id = 0;
+        for (String username : usernames) {
+            if (userless.equals(userless)) {
+                Timber.d("Skipping %s", userless);
+            }
+
+            iProfileList.add(new ProfileDrawerItem()
+                    .withName(username)
+                    .withIcon(context.getResources().getDrawable(R.drawable.ic_person))
+                    .withIdentifier(id++));
+        }
+        return iProfileList;
     }
 
     /**

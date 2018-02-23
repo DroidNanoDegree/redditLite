@@ -22,6 +22,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
@@ -29,9 +30,14 @@ import android.view.View;
 
 import com.mikepenz.aboutlibraries.LibsBuilder;
 import com.mikepenz.aboutlibraries.ui.LibsSupportFragment;
+import com.mikepenz.materialdrawer.AccountHeader;
+import com.mikepenz.materialdrawer.AccountHeaderBuilder;
 import com.mikepenz.materialdrawer.Drawer;
 import com.mikepenz.materialdrawer.DrawerBuilder;
+import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
+import com.mikepenz.materialdrawer.model.ProfileSettingDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
+import com.mikepenz.materialdrawer.model.interfaces.IProfile;
 import com.mikepenz.materialdrawer.model.interfaces.Nameable;
 import com.sriky.redditlite.R;
 import com.sriky.redditlite.databinding.ActivityPostListBinding;
@@ -47,6 +53,8 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.util.List;
+
 import timber.log.Timber;
 
 /**
@@ -54,15 +62,16 @@ import timber.log.Timber;
  */
 
 public class PostListActivity extends AppCompatActivity
-        implements Drawer.OnDrawerItemClickListener {
+        implements Drawer.OnDrawerItemClickListener, AccountHeader.OnAccountHeaderListener {
 
-    private static final int REQ_CODE_LOGIN = 222;
     private static final String MASTER_LIST_FRAGMENT_TAG = "masterlist_fragment";
     private static final String DETAILS_FRAGMENT_TAG = "post_details_fragment";
     private static final String DRAWER_SELECTED_ITEM_POSITION_BUNDLE_KEY = "selected_drawer_item";
     private static final String LAYOUT_DETAILS_DIVIDER_VISIBILITY_BUNDLE_KEY = "layout_details_divider_visibility";
     private static final String ABOUT_FRAGMENT_TAG = "the_about_fragment";
     private static final String TOOLBAR_TITLE_BUNDLE_KEY = "toolbar_title";
+    private static final int ADD_NEW_ACCOUNT = 10001;
+    private static final int SIGN_OUT = ADD_NEW_ACCOUNT + 1;
 
     private ActivityPostListBinding mActivityPostListBinding;
     private RedditLiteIdlingResource mIdlingResource;
@@ -76,11 +85,16 @@ public class PostListActivity extends AppCompatActivity
     private String mSelectedId;
     private String mPreviousSelectedId;
     private Drawer mNavigationDrawer;
+    private AccountHeader mAccountHeader;
     private LibsSupportFragment mAboutFragment;
+    private Bundle mSavedInstanceState;
+    private int mUserProfilesCount;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        mSavedInstanceState = savedInstanceState;
 
         //inflate the layout.
         mActivityPostListBinding = DataBindingUtil.setContentView(PostListActivity.this,
@@ -100,18 +114,6 @@ public class PostListActivity extends AppCompatActivity
 
         mRedditPostSharedViewModel = ViewModelProviders.of(this)
                 .get(RedditPostSharedViewModel.class);
-
-        // add the navigation drawer
-        addNavigationDrawer();
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        // The user could have pressed the back button before authorizing our app, make sure we have
-        // an authenticated user using the client.
-        if (requestCode == REQ_CODE_LOGIN && resultCode == RESULT_OK) {
-            Timber.d("Login success!");
-        }
     }
 
     @Override
@@ -131,11 +133,15 @@ public class PostListActivity extends AppCompatActivity
         } else {
             ClientManager.authenticateUsingLastUsedUsername(PostListActivity.this);
         }
+
+        //add the navigation drawer.
+        addNavigationDrawer();
     }
 
     @Override
     protected void onStart() {
         super.onStart();
+
         //register to listen to callback events.
         EventBus.getDefault().register(PostListActivity.this);
     }
@@ -144,6 +150,7 @@ public class PostListActivity extends AppCompatActivity
     protected void onStop() {
         //unregister to listen to callback events.
         EventBus.getDefault().unregister(PostListActivity.this);
+
         super.onStop();
     }
 
@@ -186,24 +193,81 @@ public class PostListActivity extends AppCompatActivity
         return false;
     }
 
+    @Override
+    public boolean onProfileChanged(View view, IProfile profile, boolean current) {
+        if (profile instanceof IDrawerItem) {
+            int action = (int) profile.getIdentifier();
+
+            if (action >= 0 && action < mUserProfilesCount) {
+                //authenticate the client to selected username.
+                ClientManager.authenticate(PostListActivity.this,
+                        profile.getName().getText().toString());
+            } else {
+                switch (action) {
+                    case ADD_NEW_ACCOUNT: {
+                        //start the login activity.
+                        Intent intent = new Intent(PostListActivity.this, LoginActivity.class);
+                        startActivity(intent);
+                        break;
+                    }
+
+                    case SIGN_OUT: {
+                        //switch to "<userless>" mode when user opts to sign out!
+                        ClientManager.authenticate(PostListActivity.this,
+                                getResources().getString(R.string.user_account_pref_default));
+                        break;
+                    }
+
+                    default: {
+                        throw new RuntimeException("Unsupported action:" + action);
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
 
     /**
      * Event receiver that is triggered after authentication process is complete.
      *
      * @param event
      */
-    @Subscribe(threadMode = ThreadMode.MAIN)
+    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
     public void onAuthenticationComplete(Message.RedditClientAuthenticationComplete event) {
+
         if (!event.getAuthenticationStatus()) {
             Timber.e("Unable to authenticate user!");
+
+            //display a snackbar.
+            Snackbar.make(mActivityPostListBinding.getRoot(),
+                    R.string.login_failed,
+                    Snackbar.LENGTH_SHORT)
+                    .show();
             return;
         }
 
-        Timber.d("Authenticated username: %s",
+        if (!ClientManager.isAuthenticateModeUserless(PostListActivity.this)) {
+            //display a snackbar.
+            Snackbar.make(mActivityPostListBinding.getRoot(),
+                    getResources().getString(R.string.login_success_format,
+                            ClientManager.getCurrentAuthenticatedUsername(PostListActivity.this)),
+                    Snackbar.LENGTH_SHORT)
+                    .show();
+        }
+
+        Timber.i("onAuthenticationComplete() - authenticated username: %s",
                 ClientManager.getCurrentAuthenticatedUsername(this));
+
+        //add the navigation drawer.
+        addNavigationDrawer();
+        //mActivityPostListBinding.getRoot().requestLayout();
 
         //trigger data sync operation.
         initDataSync();
+
+        //remove the event.
+        EventBus.getDefault().removeStickyEvent(Message.RedditClientAuthenticationComplete.class);
     }
 
     /**
@@ -274,7 +338,12 @@ public class PostListActivity extends AppCompatActivity
         RedditLiteSyncUtils.initDataSync(PostListActivity.this, getIdlingResource());
     }
 
+    /**
+     * Adds the navigation drawer.
+     */
     private void addNavigationDrawer() {
+        Timber.d("addNavigationDrawer()");
+
         // add toolbar
         setSupportActionBar(mActivityPostListBinding.toolbar);
 
@@ -289,11 +358,68 @@ public class PostListActivity extends AppCompatActivity
         // Create the drawer
         mNavigationDrawer = new DrawerBuilder()
                 .withActivity(this)
+                .withAccountHeader(buildAccountHeader())
                 .withToolbar(mActivityPostListBinding.toolbar)
                 .withSelectedItemByPosition(mRestoredSelectedItemPosition)
                 .inflateMenu(R.menu.navigation_drawer_menu)
                 .withOnDrawerItemClickListener(PostListActivity.this)
+                .withSavedInstance(mSavedInstanceState)
+                .withShowDrawerOnFirstLaunch(true)
+                //TODO add subreddit the user has subscribed to.
                 .build();
+    }
+
+    /**
+     * Builds the {@link AccountHeader} used in the navigation drawer.
+     *
+     * @return {@link AccountHeader} with the previously used user accounts.
+     */
+    private AccountHeader buildAccountHeader() {
+        List<IProfile> iProfileList = ClientManager.getProfiles(PostListActivity.this);
+
+        mUserProfilesCount = iProfileList.size();
+        boolean currentProfileHidden = false;
+        //display not sign-in as the first profile, if there are no profiles or
+        //currently logged in "<userless>" mode.
+        if (mUserProfilesCount == 0 ||
+                ClientManager.isAuthenticateModeUserless(PostListActivity.this)) {
+            //don't show this in the list.
+            currentProfileHidden = true;
+            iProfileList.add(0, new ProfileDrawerItem()
+                    .withName(getResources().getString(R.string.not_signed_in))
+                    .withEmail(getResources().getString(R.string.signin_or_add_new_account))
+                    .withIcon(getResources().getDrawable(R.drawable.ic_person_outline))
+                    .withIdentifier(SIGN_OUT));
+        }
+
+        //add profile setting to add new user accounts
+        iProfileList.add(new ProfileSettingDrawerItem()
+                .withName(getResources().getString(R.string.add_account))
+                .withDescription(getResources().getString(R.string.add_reddit_account))
+                .withIcon(getResources().getDrawable(R.drawable.ic_person_add))
+                .withIdentifier(ADD_NEW_ACCOUNT));
+
+        //add profile setting to sign out, i.e. if signed in already!
+        if (!currentProfileHidden) {
+            iProfileList.add(new ProfileSettingDrawerItem()
+                    .withName(getResources().getString(R.string.sign_out))
+                    .withIcon(getResources().getDrawable(R.drawable.ic_person_outline))
+                    .withIdentifier(SIGN_OUT));
+        }
+
+        IProfile[] iProfiles = new IProfile[iProfileList.size()];
+        iProfiles = iProfileList.toArray(iProfiles);
+        mAccountHeader = new AccountHeaderBuilder()
+                .withActivity(this)
+                .withTranslucentStatusBar(true)
+                .withHeaderBackground(R.drawable.account_bkg)
+                .addProfiles(iProfiles)
+                .withOnAccountHeaderListener(PostListActivity.this)
+                .withSavedInstance(mSavedInstanceState)
+                .withCurrentProfileHiddenInList(currentProfileHidden)
+                .build();
+
+        return mAccountHeader;
     }
 
     private void onNavigationDrawerMasterSelected() {

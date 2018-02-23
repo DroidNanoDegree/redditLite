@@ -17,7 +17,6 @@ package com.sriky.redditlite.redditapi;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.os.AsyncTask;
 
 import com.sriky.redditlite.event.Message;
@@ -67,6 +66,9 @@ public class AuthenticationTask extends AsyncTask<String, Void, Boolean> {
                 try {
                     RedditClient client = mHelper.onUserChallenge(params[0]);
                     Timber.d("username:%s", client.me().getUsername());
+                    //update the last signed in username in SharedPreferences.
+                    ClientManager.updateLastestAuthenticatedUsername(mContext.get());
+                    return true;
                 } catch (OAuthException e) {
                     // Report failure if an OAuthException occurs
                     Timber.e("Authentication error: %s", e.getLocalizedMessage());
@@ -105,18 +107,17 @@ public class AuthenticationTask extends AsyncTask<String, Void, Boolean> {
                 // Finish the activity if it's still running
                 Activity host = (Activity) mContext.get();
                 if (host != null) {
-                    if (result) {
-                        host.setResult(result ? Activity.RESULT_OK : Activity.RESULT_CANCELED, new Intent());
-                    } else {
-                        host.setResult(RESULT_AUTHENTICATION_FAILED, new Intent());
-                    }
+                    EventBus.getDefault().postSticky(
+                            new Message.RedditClientAuthenticationComplete(result));
+
+                    //close the activity.
                     host.finish();
                 }
                 break;
             }
 
             case REAUTHENTICATE: {
-                EventBus.getDefault().post(
+                EventBus.getDefault().postSticky(
                         new Message.RedditClientAuthenticationComplete(result));
                 break;
             }
