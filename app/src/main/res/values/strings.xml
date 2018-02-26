@@ -13,6 +13,13 @@
     <string name="user_account_pref_key">user_account</string>
     <string name="user_account_pref_default">&lt;userless&gt;</string>
 
+    <!-- shared pref selected subreddit -->
+    <string name="selected_subreddit_pref_key">selected_subreddit</string>
+    <string name="selected_subreddit_pref_default">popular</string>
+
+    <!-- shared prefs navigation drawer selected item position -->
+    <string name="navigation_drawer_selected_subreddit_id_pref_key">selected_subreddit_idx</string>
+
     <!-- post list items -->
     <string name="subreddit_format">
         <xliff:g id="subreddit">/r/%1$s</xliff:g>
@@ -50,7 +57,6 @@
     <string name="no_comments">No comments for the post yet!</string>
     <string name="replies">replies</string>
 
-    <string name="action_popular">Popular</string>
     <string name="action_about">About</string>
     <string name="about_the_app">Stay on top of your communities (subreddits) with App’s news feed tailored to the communities you subscribe to, with the functionality to identify and sort through unread posts. Never miss any action from your community and get notified periodically when there is new content. redditLite will manage unread posts and provide various UI indicators to keep track of unread posts. \n
         The redditLite makes it easy to navigate between communities/content but also provides the ability to discover/join new communities from all of Reddit.\n\n
@@ -69,4 +75,7 @@
         <xliff:g id="username_karma">karma [comment : %1$d, link : %2$d]</xliff:g>
     </string>
     <string name="login_failed">Oh no! There was a problem logging into Reddit.</string>
+    <string name="drawer_item_section_subreddit_header">Subreddits</string>
+    <string name="subscribed">Subscribed</string>
+    <string name="not_logged_in">You are not signed in.</string>
 </resources>

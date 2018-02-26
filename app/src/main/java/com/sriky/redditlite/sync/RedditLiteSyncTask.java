@@ -78,11 +78,31 @@ public final class RedditLiteSyncTask {
     synchronized public static void fetchPosts(Context context, boolean clearData) {
         Timber.d("fetchPosts() clearData : %b", clearData);
 
+        //get the selected subreddit if any, "popular" will be defaulf.
+        String subReddit = PreferenceManager.getDefaultSharedPreferences(context)
+                .getString(context.getString(R.string.selected_subreddit_pref_key),
+                        context.getString(R.string.selected_subreddit_pref_default));
+
         RedditClient redditClient = ClientManager.getRedditAccountHelper(context).getReddit();
-        //Check to see if the Paginator handle is not set or we need to clear old data and fetch
-        //fresh data.
-        if (mPaginator == null || clearData) {
-            mPaginator = redditClient.frontPage()
+        //init pagnitor if not initialized already.
+        if (mPaginator == null) {
+            mPaginator = redditClient.subreddit(subReddit)
+                    .posts()
+                    // of all time
+                    .timePeriod(TimePeriod.ALL)
+                    .build();
+        }
+
+        //don't delete data during pagination.
+        if (clearData) {
+            ContentResolver contentResolver = context.getContentResolver();
+            //clear old data from the db
+            contentResolver.delete(RedditLiteContentProvider.PostDataEntry.CONTENT_URI,
+                    null, null);
+
+            //init a new paginator.for fetching new data
+            mPaginator = redditClient.subreddit(subReddit)
+                    .posts()
                     // of all time
                     .timePeriod(TimePeriod.ALL)
                     .build();
@@ -90,16 +110,7 @@ public final class RedditLiteSyncTask {
 
         //Get the specified number of pages from the api.
         List<Submission> submissions = mPaginator.accumulateMerged(NUMBER_OF_PAGES_TO_ACCUMULATE);
-
         if (submissions.size() > 0) {
-            ContentResolver contentResolver = context.getContentResolver();
-
-            //don't delete data during pagination.
-            if (clearData) {
-                //clear old data from the db
-                contentResolver.delete(RedditLiteContentProvider.PostDataEntry.CONTENT_URI,
-                        null, null);
-            }
             //add the submission to local db.
             addEntries(context, submissions);
         }

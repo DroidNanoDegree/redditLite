@@ -15,6 +15,8 @@
 
 package com.sriky.redditlite.event;
 
+import java.util.List;
+
 /**
  * Class for all {@link org.greenrobot.eventbus.EventBus} messages.
  */
@@ -26,13 +28,23 @@ public final class Message {
      */
     public static class RedditClientAuthenticationComplete {
         private boolean mSuccess;
+        private List<String> mSubscribedSubRedditList;
 
         public RedditClientAuthenticationComplete(boolean success) {
             mSuccess = success;
         }
 
+        public RedditClientAuthenticationComplete(boolean success, List<String> subRedditLists) {
+            mSuccess = success;
+            mSubscribedSubRedditList = subRedditLists;
+        }
+
         public boolean getAuthenticationStatus() {
             return mSuccess;
+        }
+
+        public List<String> getSubscribedSubRedditList() {
+            return mSubscribedSubRedditList;
         }
     }
 

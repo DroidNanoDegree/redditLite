@@ -42,7 +42,7 @@ import timber.log.Timber;
  */
 
 public final class ClientManager {
-    public static final String[] SCOPES = {"account", "identity", "read", "vote"};
+    public static final String[] SCOPES = {"account", "identity", "read", "vote", "mysubreddits"};
 
     private static final String PLATFORM = "android";
     private static final String VERSION = "v0.1";
@@ -52,6 +52,7 @@ public final class ClientManager {
     private final RedditClientTokenStore mTokenStore;
 
     private AccountHelper mAccountHelper;
+    private List<String> mSubscribedSubRedditList;
 
     //make it a singleton.
     private ClientManager(Context context) {
@@ -170,6 +171,14 @@ public final class ClientManager {
                     .withIdentifier(id++));
         }
         return iProfileList;
+    }
+
+    public static void setSubscribedRedditList(Context context, List<String> subscribedRedditList) {
+        getInstance(context).mSubscribedSubRedditList = subscribedRedditList;
+    }
+
+    public static List<String> getSubscribedRedditList(Context context) {
+        return getInstance(context).mSubscribedSubRedditList;
     }
 
     /**

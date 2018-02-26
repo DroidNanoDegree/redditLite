@@ -91,7 +91,7 @@ public final class RedditLiteSyncUtils {
     /**
      * Starts an {@link android.app.IntentService} to fetch data
      *
-     * @param context   The context.
+     * @param context   The calling activity/fragment/service.
      * @param clearData Clear existing data in the db.
      */
     public static void fetchRecipeDataImmediately(Context context, boolean clearData) {
