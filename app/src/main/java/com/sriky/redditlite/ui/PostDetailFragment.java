@@ -192,29 +192,7 @@ public class PostDetailFragment extends Fragment implements ExoPlayer.EventListe
         });
     }
 
-    /*
-    private void displayLoadingSnackbar() {
-        mLoadingSnackbar = Snackbar.make(mFragmentPostDetailsBinding.getRoot(),
-                R.string.data_updating, Snackbar.LENGTH_INDEFINITE);
-        ViewGroup contentLay = (ViewGroup) mLoadingSnackbar.getView()
-                .findViewById(android.support.design.R.id.snackbar_text).getParent();
-
-        ProgressBar item = new ProgressBar(getContext());
-        contentLay.addView(item, 0);
-        mLoadingSnackbar.show();
-    }
-
-    private void hideLoadingSnackbar() {
-        if (mLoadingSnackbar != null) {
-            Timber.d("hideLoadingSnackbar()");
-            mLoadingSnackbar.dismiss();
-        }
-    }*/
-
     private void bindViews(final RedditPost redditPost) {
-        //hide loading snackbar.
-        //hideLoadingSnackbar();
-
         //fetch the comments data.
         getCommentsRootNode(redditPost.getPostId());
 
@@ -228,6 +206,7 @@ public class PostDetailFragment extends Fragment implements ExoPlayer.EventListe
                     setBody(body);
                     return;
                 }
+            case SELF:
             case IMAGE:
             case HOSTED_VIDEO: {
                 setImage(redditPost);

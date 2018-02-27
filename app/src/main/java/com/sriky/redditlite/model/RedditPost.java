@@ -96,6 +96,7 @@ public class RedditPost implements Parcelable {
     /* Type of the post */
     public enum PostType {
         NO_MEDIA,
+        SELF,
         LINK,
         IMAGE,
         HOSTED_VIDEO,
@@ -116,6 +117,7 @@ public class RedditPost implements Parcelable {
     private static final int POST_TYPE_IMAGE = 2;
     private static final int POST_TYPE_HOSTED_VIDEO = 3;
     private static final int POST_TYPE_RICH_VIDEO = 4;
+    private static final int POST_TYPE_SELF = 5;
 
     //post thumbnail type indexes.
     private static final int DEFAULT = 0;
@@ -175,6 +177,8 @@ public class RedditPost implements Parcelable {
                 mType = PostType.HOSTED_VIDEO;
             } else if (postTypes.getString(POST_TYPE_RICH_VIDEO).equals(mPostHint)) {
                 mType = PostType.RICH_VIDEO;
+            } if (postTypes.getString(POST_TYPE_SELF).equals(mPostHint)) {
+                mType = PostType.SELF;
             }
         }
 

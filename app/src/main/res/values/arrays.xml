@@ -21,6 +21,7 @@
         <item>image</item>
         <item>rich:video</item>
         <item>hosted:video</item>
+        <item>self</item>
     </array>
 
     <array name="postThumbnailImageTypes">
