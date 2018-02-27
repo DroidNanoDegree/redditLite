@@ -574,13 +574,13 @@ public class PostListActivity extends AppCompatActivity
 
         if (mIsTwoPane) {
             //remove the old details fragment.
-            removeRecipeDetailsFragment();
+            removeDetailsFragment();
 
             //show the views.
             setDividerAndDetailsContainerVisibility(View.VISIBLE);
         }
 
-        //remove the details fragment.
+        //remove the About fragment.
         removeAboutFragment();
         // add the MasterFragment with all recipes
         addMasterListFragment();
@@ -615,7 +615,7 @@ public class PostListActivity extends AppCompatActivity
 
         if (mIsTwoPane) {
             //remove detail fragments.
-            removeRecipeDetailsFragment();
+            removeDetailsFragment();
 
             //hide views.
             setDividerAndDetailsContainerVisibility(View.GONE);
@@ -762,7 +762,7 @@ public class PostListActivity extends AppCompatActivity
     /**
      * Removes the {@link PostDetailFragment}
      */
-    private void removeRecipeDetailsFragment() {
+    private void removeDetailsFragment() {
         if (mDetailsFragment != null) {
             getSupportFragmentManager().beginTransaction()
                     .remove(mDetailsFragment)
