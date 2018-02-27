@@ -29,4 +29,33 @@
         <item>image</item>
         <item>self</item>
     </array>
+
+    <!-- settings prefs -->
+    <string-array name="pref_sync_time_options_labels">
+        <item>@string/fifteen_mins_fetch_time_pref_label</item>
+        <item>@string/thirty_mins_fetch_time_pref_label</item>
+        <item>@string/one_hour_fetch_time_pref_label</item>
+        <item>@string/two_hour_fetch_time_pref_label</item>
+        <item>@string/three_hour_fetch_time_pref_label</item>
+    </string-array>
+
+    <!--
+    <integer-array name="pref_sync_time_options_values">
+        <item>@integer/fifteen_mins_fetch_time_pref_value</item>
+        <item>@integer/thirty_mins_fetch_time_pref_value</item>
+        <item>@integer/one_hour_fetch_time_pref_value</item>
+        <item>@integer/two_hour_fetch_time_pref_value</item>
+        <item>@integer/three_hour_fetch_time_pref_value</item>
+    </integer-array> -->
+
+    <string-array name="pref_sync_time_options_values">
+        <item>@string/fifteen_mins_fetch_time_pref_label</item>
+        <item>@string/thirty_mins_fetch_time_pref_label</item>
+        <item>@string/one_hour_fetch_time_pref_label</item>
+        <item>@string/two_hour_fetch_time_pref_label</item>
+        <item>@string/three_hour_fetch_time_pref_label</item>
+    </string-array>
+
+
+
 </resources>

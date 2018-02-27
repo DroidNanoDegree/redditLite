@@ -78,4 +78,18 @@
     <string name="drawer_item_section_subreddit_header">Subreddits</string>
     <string name="subscribed">Subscribed</string>
     <string name="not_logged_in">You are not signed in.</string>
+    <string name="action_settings">Settings</string>
+
+    <!-- settings prefs -->
+    <string name="fifteen_mins_fetch_time_pref_label">every 15 mins</string>
+    <string name="thirty_mins_fetch_time_pref_label">every 30 mins</string>
+    <string name="one_hour_fetch_time_pref_label">every 1 hour</string>
+    <string name="two_hour_fetch_time_pref_label">every 2 hours</string>
+    <string name="three_hour_fetch_time_pref_label">every 3 hours</string>
+    <string name="pref_sync_time_options_key" translatable="false">data_sync_timings_pref_key</string>
+    <string name="pref_sync_time_options_label">Check for new posts</string>
+    <string name="pref_enable_notifications_key" translatable="false">enable_notifications</string>
+    <string name="pref_enable_notifications_false">Not enabled</string>
+    <string name="pref_enable_notifications_true">Enabled</string>
+    <string name="pref_enable_notifications_label">Notifications</string>
 </resources>

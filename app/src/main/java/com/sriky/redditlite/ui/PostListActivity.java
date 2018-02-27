@@ -75,11 +75,13 @@ public class PostListActivity extends AppCompatActivity
     private static final String DETAILS_FRAGMENT_TAG = "post_details_fragment";
     private static final String DRAWER_SELECTED_ITEM_ID_BUNDLE_KEY = "selected_drawer_item";
     private static final String ABOUT_FRAGMENT_TAG = "the_about_fragment";
+    private static final String SETTINGS_FRAGMENT_TAG = "the_settings_fragment";
     private static final String TOOLBAR_TITLE_BUNDLE_KEY = "toolbar_title";
     private static final String ACTIVE_FRAGMENT_ID_BUNDLE_KEY = "active_fragment";
     //fragment ids
     private static final int FRAGMENT_MASTER = 0; //master-detail (in twopane mode).
     private static final int FRAGMENT_ABOUT = 1;
+    private static final int FRAGMENT_SETTINGS = 2;
     //navigation drawer item ids.
     private static final int SUBREDDIT_START_NAVIGATION_DRAWER_ID = 30001;
     private static final int ADD_NEW_ACCOUNT_NAVIGATION_DRAWER_ID = 10001;
@@ -87,6 +89,8 @@ public class PostListActivity extends AppCompatActivity
     private static final int ACTION_POPULAR_NAVIGATION_DRAWER_ID = SIGN_OUT_NAVIGATION_DRAWER_ID + 1;
     private static final int ACTION_ABOUT_NAVIGATION_DRAWER_ID = ACTION_POPULAR_NAVIGATION_DRAWER_ID + 1;
     private static final int SUBREDDIT_EXPANDABLE_GROUP_NAVIGATION_DRAWER_ID = ACTION_ABOUT_NAVIGATION_DRAWER_ID + 1;
+    private static final int ACTION_SETTINGS_NAVIGATION_DRAWER_ID = SUBREDDIT_EXPANDABLE_GROUP_NAVIGATION_DRAWER_ID + 1;
+
 
     private ActivityPostListBinding mActivityPostListBinding;
     private RedditLiteIdlingResource mIdlingResource;
@@ -110,6 +114,8 @@ public class PostListActivity extends AppCompatActivity
     private SharedPreferences mPreferences;
     private String mToolbarTitle;
     private int mActiveFragmentId;
+    private int mLastActiveFragmentId;
+    private SettingsFragment mSettingsFragment;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -224,6 +230,11 @@ public class PostListActivity extends AppCompatActivity
 
                 case ACTION_ABOUT_NAVIGATION_DRAWER_ID: {
                     onNavigationDrawerAboutSelected();
+                    break;
+                }
+
+                case ACTION_SETTINGS_NAVIGATION_DRAWER_ID: {
+                    onNavigationDrawerSettingsSelected();
                     break;
                 }
 
@@ -499,6 +510,13 @@ public class PostListActivity extends AppCompatActivity
 
         iDrawerItems.add(new DividerDrawerItem());
 
+        //add settings launcher
+        iDrawerItems.add(new PrimaryDrawerItem()
+                .withName(R.string.action_settings)
+                .withIcon(R.drawable.ic_settings)
+                .withIdentifier(ACTION_SETTINGS_NAVIGATION_DRAWER_ID));
+
+        //add about launcher
         iDrawerItems.add(new PrimaryDrawerItem()
                 .withName(R.string.action_about)
                 .withIcon(R.drawable.ic_info)
@@ -562,7 +580,7 @@ public class PostListActivity extends AppCompatActivity
 
     private void onNavigationDrawerMasterSelected(String subRedditName, int id) {
         //set the active fragment id.
-        mActiveFragmentId = FRAGMENT_MASTER;
+        updateCurrentActiveFragmentAndRemovePreviouslyActiveFragment(FRAGMENT_MASTER);
 
         //set the current selected item id.
         mNavigationDrawerSelectedItemId = id;
@@ -573,17 +591,13 @@ public class PostListActivity extends AppCompatActivity
         updateNavigationDrawerSelectedItemIdInPrefs(id);
 
         if (mIsTwoPane) {
-            //remove the old details fragment.
-            removeDetailsFragment();
-
             //show the views.
             setDividerAndDetailsContainerVisibility(View.VISIBLE);
         }
 
-        //remove the About fragment.
-        removeAboutFragment();
         // add the MasterFragment with all recipes
         addMasterListFragment();
+
         //fetch latest data
         RedditLiteSyncUtils.fetchRecipeDataImmediately(PostListActivity.this, true);
     }
@@ -591,16 +605,13 @@ public class PostListActivity extends AppCompatActivity
     private void onNavigationDrawerAboutSelected() {
 
         //set the active fragment id.
-        mActiveFragmentId = FRAGMENT_ABOUT;
+        updateCurrentActiveFragmentAndRemovePreviouslyActiveFragment(FRAGMENT_ABOUT);
 
         //update the toolbar title
         updateToolbarTitle(getString(R.string.action_about));
 
         //set the current selected item id.
         mNavigationDrawerSelectedItemId = ACTION_ABOUT_NAVIGATION_DRAWER_ID;
-
-        //remove masterlist.
-        removeMasterListFragment();
 
         //add the about fragment.
         mAboutFragment = new LibsBuilder()
@@ -613,18 +624,75 @@ public class PostListActivity extends AppCompatActivity
                 .withAutoDetect(true)
                 .supportFragment();
 
-        if (mIsTwoPane) {
-            //remove detail fragments.
-            removeDetailsFragment();
-
-            //hide views.
-            setDividerAndDetailsContainerVisibility(View.GONE);
-        }
-
         //add the about fragment.
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.fl_main, mAboutFragment, ABOUT_FRAGMENT_TAG)
                 .commit();
+    }
+
+    private void onNavigationDrawerSettingsSelected() {
+
+        //set the active fragment id.
+        updateCurrentActiveFragmentAndRemovePreviouslyActiveFragment(FRAGMENT_SETTINGS);
+
+        //update the toolbar title
+        updateToolbarTitle(getString(R.string.action_settings));
+
+        //set the current selected item id.
+        mNavigationDrawerSelectedItemId = ACTION_SETTINGS_NAVIGATION_DRAWER_ID;
+
+        mSettingsFragment = new SettingsFragment();
+        //add the settings fragment.
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fl_main, mSettingsFragment, SETTINGS_FRAGMENT_TAG)
+                .commit();
+    }
+
+    /**
+     * Sets the ID for current active fragment and removes previously active fragment.
+     * @param activeFragmentId
+     */
+    private void updateCurrentActiveFragmentAndRemovePreviouslyActiveFragment(int activeFragmentId) {
+        mLastActiveFragmentId = mActiveFragmentId;
+        mActiveFragmentId = activeFragmentId;
+
+        //remove other fragments.
+        removeOtherFragments();
+    }
+
+    private void removeOtherFragments() {
+        switch (mLastActiveFragmentId) {
+            case FRAGMENT_MASTER: {
+                //remove masterlist.
+                removeMasterListFragment();
+
+                if (mIsTwoPane) {
+                    //remove detail fragments.
+                    removeDetailsFragment();
+
+                    //hide views.
+                    setDividerAndDetailsContainerVisibility(View.GONE);
+                }
+                break;
+            }
+
+            case FRAGMENT_ABOUT:{
+                //remove about.
+                removeAboutFragment();
+                break;
+            }
+
+            case FRAGMENT_SETTINGS: {
+                //remove settings fragment.
+                removeSettingsFragment();
+                break;
+            }
+
+            default:{
+                throw new RuntimeException("Unsupported fragment removal operation " +
+                        "for fragment with id: %d" + mLastActiveFragmentId);
+            }
+        }
     }
 
     private void updateSelectedSubRedditNameInPreferences(String subRedditName) {
@@ -699,6 +767,8 @@ public class PostListActivity extends AppCompatActivity
                 (PostDetailFragment) fm.findFragmentByTag(DETAILS_FRAGMENT_TAG);
 
         mAboutFragment = (LibsSupportFragment) fm.findFragmentByTag(ABOUT_FRAGMENT_TAG);
+
+        mSettingsFragment = (SettingsFragment) fm.findFragmentByTag(SETTINGS_FRAGMENT_TAG);
 
         //restore the toolbar title
         if (savedInstanceState.containsKey(TOOLBAR_TITLE_BUNDLE_KEY)) {
@@ -793,6 +863,18 @@ public class PostListActivity extends AppCompatActivity
                     .remove(mAboutFragment)
                     .commit();
             mAboutFragment = null;
+        }
+    }
+
+    /**
+     * Removes the Settings fragment.
+     */
+    private void removeSettingsFragment() {
+        if (mSettingsFragment != null) {
+            getSupportFragmentManager().beginTransaction()
+                    .remove(mSettingsFragment)
+                    .commit();
+            mSettingsFragment = null;
         }
     }
 

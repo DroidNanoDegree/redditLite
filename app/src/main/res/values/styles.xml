@@ -7,6 +7,8 @@
         <item name="colorAccent">@color/secondaryLightColor</item>
         <item name="android:textColor">@color/primaryTextColor</item>
         <item name="android:windowBackground">@color/primaryLightColor</item>
+        <!-- Used for settings preference theme -->
+        <item name="preferenceTheme">@style/PreferenceThemeOverlay</item>
     </style>
 
     <style name="RedditLite.Dialog" parent="@android:style/Theme.Material.Light.Dialog.NoActionBar">
