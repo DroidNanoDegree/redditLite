@@ -47,7 +47,7 @@
 
     <string name="pref_last_data_fetch_time_key">last_time_since_data_fetch</string>
 
-    <string name="data_download_error">Failed to get data! Please check the internet connection and try again.</string>
+    <string name="data_download_error">There was a problem getting data!</string>
     <string name="share">Share</string>
 
     <string name="dialog_login_title">Login Required!</string>

@@ -31,6 +31,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 
 import com.sriky.redditlite.R;
 import com.sriky.redditlite.adaptor.PostListAdaptor;
@@ -64,6 +65,7 @@ public class MasterListFragment extends Fragment implements LoaderManager.Loader
     private EndlessRecyclerViewScrollListener mEndlessRecyclerViewScrollListener;
     /* RecyclerView position */
     private int mPosition = RecyclerView.NO_POSITION;
+    private Snackbar mSnackbar;
 
     /* mandatory empty constructor */
     public MasterListFragment() {
@@ -101,40 +103,30 @@ public class MasterListFragment extends Fragment implements LoaderManager.Loader
 
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext(),
                 LinearLayoutManager.VERTICAL, false);
-
         mMasterListBinding.recyclerView.setLayoutManager(linearLayoutManager);
 
-        mEndlessRecyclerViewScrollListener = new EndlessRecyclerViewScrollListener(linearLayoutManager) {
-            @Override
-            public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
-                Timber.d("Page: %d, totalItems: %d", page, totalItemsCount);
-                if (checkNetworkAvailableOrDisplayError()) {
-                    //set the position the RecyclerView should scroll to after getting new data.
-                    mPosition = totalItemsCount;
-                    RedditLiteSyncUtils.fetchRecipeDataImmediately(getContext(), false);
-                } else {
-                    //reset the state, so that LoadMore can get called once there is network.
-                    resetState();
-                }
-            }
-        };
+        //init the loader to get data from local db.
+        getLoaderManager().initLoader(LOAD_POSTS_DATA_ID, null, MasterListFragment.this);
 
-        //add the listener to be notified when to load more items.
-        mMasterListBinding.recyclerView.addOnScrollListener(mEndlessRecyclerViewScrollListener);
+        showProgressBar();
 
         return mMasterListBinding.getRoot();
+    }
+
+    @Override
+    public void onDetach() {
+        mMasterListBinding.recyclerView.removeOnScrollListener(mEndlessRecyclerViewScrollListener);
+        mEndlessRecyclerViewScrollListener = null;
+        super.onDetach();
     }
 
     @Override
     public void onResume() {
         super.onResume();
 
-        showProgressBar();
-
-        mEndlessRecyclerViewScrollListener.resetState();
-
-        //init the loader to get data from local db.
-        getLoaderManager().initLoader(LOAD_POSTS_DATA_ID, null, MasterListFragment.this);
+        if (mEndlessRecyclerViewScrollListener != null) {
+            mEndlessRecyclerViewScrollListener.resetState();
+        }
     }
 
     @Override
@@ -235,8 +227,28 @@ public class MasterListFragment extends Fragment implements LoaderManager.Loader
      */
     private void onDataLoadComplete() {
         Timber.d("onDataLoadComplete()");
-        /* hide the progress bar & the error msg view. */
-        mMasterListBinding.progressBar.setVisibility(View.INVISIBLE);
+
+        mEndlessRecyclerViewScrollListener = new EndlessRecyclerViewScrollListener(
+                (LinearLayoutManager) mMasterListBinding.recyclerView.getLayoutManager()) {
+            @Override
+            public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
+                if (totalItemsCount > 0) {
+                    Timber.d("Page: %d, totalItems: %d", page, totalItemsCount);
+                    if (checkNetworkAvailableOrDisplayError()) {
+                        //set the position the RecyclerView should scroll to after getting new data.
+                        mPosition = totalItemsCount;
+                        RedditLiteSyncUtils.fetchRecipeDataImmediately(getContext(), false);
+                    } else {
+                        //reset the state, so that LoadMore can get called once there is network.
+                        resetState();
+                    }
+                }
+            }
+        };
+
+        //add the listener to be notified when to load more items.
+        mMasterListBinding.recyclerView.addOnScrollListener(mEndlessRecyclerViewScrollListener);
+
         /* if the timer was running then cancel it. */
         cancelDataFetchTimer();
     }
@@ -265,14 +277,25 @@ public class MasterListFragment extends Fragment implements LoaderManager.Loader
      * Displays the progress bar.
      */
     private void showProgressBar() {
-        mMasterListBinding.progressBar.setVisibility(View.VISIBLE);
+        if (mSnackbar == null) {
+            mSnackbar = Snackbar.make(mMasterListBinding.getRoot(),
+                    R.string.data_updating, Snackbar.LENGTH_SHORT);
+            ViewGroup contentLay = (ViewGroup) mSnackbar.getView()
+                    .findViewById(android.support.design.R.id.snackbar_text).getParent();
+
+            ProgressBar item = new ProgressBar(getContext());
+            contentLay.addView(item, 0);
+        }
+        mSnackbar.show();
     }
 
     /**
      * Hides the progress bar view and makes the the error message view VISIBLE.
      */
     private void hideProgressBarAndShowErrorMessage() {
-        mMasterListBinding.progressBar.setVisibility(View.INVISIBLE);
+        if (mSnackbar != null){
+            mSnackbar.dismiss();
+        }
         displayError();
     }
 
