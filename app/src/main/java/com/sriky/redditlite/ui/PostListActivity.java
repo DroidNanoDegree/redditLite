@@ -27,7 +27,6 @@ import android.support.annotation.VisibleForTesting;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
-import android.text.TextUtils;
 import android.view.View;
 
 import com.mikepenz.aboutlibraries.LibsBuilder;
@@ -75,9 +74,13 @@ public class PostListActivity extends AppCompatActivity
     private static final String MASTER_LIST_FRAGMENT_TAG = "masterlist_fragment";
     private static final String DETAILS_FRAGMENT_TAG = "post_details_fragment";
     private static final String DRAWER_SELECTED_ITEM_ID_BUNDLE_KEY = "selected_drawer_item";
-    private static final String LAYOUT_DETAILS_DIVIDER_VISIBILITY_BUNDLE_KEY = "layout_details_divider_visibility";
     private static final String ABOUT_FRAGMENT_TAG = "the_about_fragment";
     private static final String TOOLBAR_TITLE_BUNDLE_KEY = "toolbar_title";
+    private static final String ACTIVE_FRAGMENT_ID_BUNDLE_KEY = "active_fragment";
+    //fragment ids
+    private static final int FRAGMENT_MASTER = 0; //master-detail (in twopane mode).
+    private static final int FRAGMENT_ABOUT = 1;
+    //navigation drawer item ids.
     private static final int SUBREDDIT_START_NAVIGATION_DRAWER_ID = 30001;
     private static final int ADD_NEW_ACCOUNT_NAVIGATION_DRAWER_ID = 10001;
     private static final int SIGN_OUT_NAVIGATION_DRAWER_ID = ADD_NEW_ACCOUNT_NAVIGATION_DRAWER_ID + 1;
@@ -91,8 +94,7 @@ public class PostListActivity extends AppCompatActivity
     private RedditPostSharedViewModel mRedditPostSharedViewModel;
     private boolean mIsTwoPane;
     private boolean mCanReplaceDetailsFragment;
-    private int mRestoredNavigationSelectedItemId;
-    private String mRestoredToolbarTitle;
+    private static String sSubRedditFormat;
     private PostDetailFragment mDetailsFragment;
     private String mSelectedPostId;
     private String mPreviousSelectedPostId;
@@ -102,16 +104,20 @@ public class PostListActivity extends AppCompatActivity
     private Bundle mSavedInstanceState;
     private int mUserProfilesCount;
     private List<String> mSubscribedRedditList;
-    private String mSelectedRedditName;
+    private int mNavigationDrawerSelectedItemId;
     private boolean mProfileChangeInitiated;
     private Snackbar mSnackbar;
     private SharedPreferences mPreferences;
+    private String mToolbarTitle;
+    private int mActiveFragmentId;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         mSavedInstanceState = savedInstanceState;
+
+        sSubRedditFormat = getString(R.string.subreddit_format);
 
         //inflate the layout.
         mActivityPostListBinding = DataBindingUtil.setContentView(PostListActivity.this,
@@ -120,21 +126,24 @@ public class PostListActivity extends AppCompatActivity
         //determine if tablet or phone using resources.
         mIsTwoPane = getResources().getBoolean(R.bool.isTablet);
 
-        mPreferences = PreferenceManager.getDefaultSharedPreferences(PostListActivity.this);
         //get the selected subreddit name, defaults to popular if it was never set.
-        mSelectedRedditName = mPreferences.getString(getString(R.string.selected_subreddit_pref_key),
-                        getString(R.string.selected_subreddit_pref_default));
+        mPreferences = PreferenceManager.getDefaultSharedPreferences(PostListActivity.this);
+        mToolbarTitle = mPreferences.getString(getString(R.string.selected_subreddit_pref_key),
+                getString(R.string.selected_subreddit_pref_default));
 
         if (savedInstanceState == null) {
             Timber.plant(new Timber.DebugTree());
             addMasterListFragment();
             mCanReplaceDetailsFragment = true;
-            mRestoredNavigationSelectedItemId =
+            mNavigationDrawerSelectedItemId =
                     mPreferences.getInt(getString(R.string.navigation_drawer_selected_subreddit_id_pref_key),
                             ACTION_POPULAR_NAVIGATION_DRAWER_ID);
         } else {
             restoreStates(savedInstanceState);
         }
+
+        //set the actionbar title
+        updateToolbarTitle(mToolbarTitle);
 
         mRedditPostSharedViewModel = ViewModelProviders.of(this)
                 .get(RedditPostSharedViewModel.class);
@@ -187,13 +196,10 @@ public class PostListActivity extends AppCompatActivity
         outState.putInt(DRAWER_SELECTED_ITEM_ID_BUNDLE_KEY,
                 (int)mNavigationDrawer.getCurrentSelection());
 
-        outState.putString(TOOLBAR_TITLE_BUNDLE_KEY,
-                mActivityPostListBinding.toolbarTitle.getText().toString());
+        outState.putString(TOOLBAR_TITLE_BUNDLE_KEY, mToolbarTitle);
 
-        if (mIsTwoPane) {
-            outState.putInt(LAYOUT_DETAILS_DIVIDER_VISIBILITY_BUNDLE_KEY,
-                    mActivityPostListBinding.divider.getVisibility());
-        }
+        outState.putInt(ACTIVE_FRAGMENT_ID_BUNDLE_KEY, mActiveFragmentId);
+
         super.onSaveInstanceState(outState);
     }
 
@@ -221,9 +227,11 @@ public class PostListActivity extends AppCompatActivity
                     break;
                 }
 
+                case SUBREDDIT_EXPANDABLE_GROUP_NAVIGATION_DRAWER_ID:
+                    break;
+
                 default: {
-                    Timber.e("Unsupported action: %s", ((Nameable) drawerItem).getName());
-                    return true;
+                    throw new RuntimeException("Unsupported action: %s" + ((Nameable) drawerItem).getName());
                 }
             }
         }
@@ -292,18 +300,26 @@ public class PostListActivity extends AppCompatActivity
                     ClientManager.getCurrentAuthenticatedUsername(PostListActivity.this)));
         }
 
-        //if the logged in user profile is changed or new account added or if user signs out,
+        //If the logged in user profile is changed or new account added or if user signs out,
         //then we need to reset to fetch data from "/r/popular".
         if (mProfileChangeInitiated) {
             mProfileChangeInitiated = false;
 
-            //When user account is swapped or new account gets added reset the current selected
-            //preference to popular. This way data fetch operation will get data from "/r/popular"
-            updateSelectedSubRedditNameInPreferences(getString(R.string.selected_subreddit_pref_default));
+            //If the current active fragment is MASTER
+            if (mActiveFragmentId == FRAGMENT_MASTER) {
+                //When user account is swapped or new account gets added reset the current selected
+                //preference to popular. This way data fetch operation will get data from "/r/popular"
+                updateToolbarTitle(getString(R.string.selected_subreddit_pref_default));
 
-            //reset selected item id to "/r/popular".
-            mRestoredNavigationSelectedItemId = ACTION_POPULAR_NAVIGATION_DRAWER_ID;
-            mRestoredToolbarTitle = null;
+                //reset selected item id to "/r/popular".
+                mNavigationDrawerSelectedItemId = ACTION_POPULAR_NAVIGATION_DRAWER_ID;
+
+                updateNavigationDrawerSelectedItemIdInPrefs(mNavigationDrawerSelectedItemId);
+            } else {
+                //When user account is swapped or new account gets added reset the current selected
+                //preference to popular. This way data fetch operation will get data from "/r/popular"
+                updateSelectedSubRedditNameInPreferences(getString(R.string.selected_subreddit_pref_default));
+            }
 
             //initiate an immediate data fetch operation.
             RedditLiteSyncUtils.fetchRecipeDataImmediately(PostListActivity.this, true);
@@ -387,21 +403,6 @@ public class PostListActivity extends AppCompatActivity
     }
 
     /**
-     * Sets the Appbar Title Reddit Style, i.e. /r/xxx
-     *
-     * @param title The SubReddit name
-     */
-    private void setRedditStyleFormattedToolbarTitle(String title) {
-        String format = getString(R.string.subreddit_format);
-        //don't format string if it is already formatted.
-        if (title.startsWith(format.substring(0, 2))) {
-            mActivityPostListBinding.toolbarTitle.setText(title);
-        } else {
-            mActivityPostListBinding.toolbarTitle.setText(String.format(format, title));
-        }
-    }
-
-    /**
      * Displays a message to users using the {@link Snackbar} widget. If a Snackbar is already being
      * displayed, then it will be dismissed before showing the new one.
      *
@@ -449,10 +450,6 @@ public class PostListActivity extends AppCompatActivity
         //disable the tile.
         getSupportActionBar().setTitle("");
 
-        //set the actionbar title
-        setRedditStyleFormattedToolbarTitle(!TextUtils.isEmpty(mRestoredToolbarTitle) ?
-                mRestoredToolbarTitle : mSelectedRedditName);
-
         // Create the drawer
         mNavigationDrawer = new DrawerBuilder()
                 .withActivity(this)
@@ -462,10 +459,10 @@ public class PostListActivity extends AppCompatActivity
                 .withOnDrawerItemClickListener(PostListActivity.this)
                 .withSavedInstance(mSavedInstanceState)
                 .withShowDrawerOnFirstLaunch(true)
-                .withSelectedItem(mRestoredNavigationSelectedItemId)
+                .withSelectedItem(mNavigationDrawerSelectedItemId)
                 .build();
 
-       mNavigationDrawer.setSelection(mRestoredNavigationSelectedItemId);
+        mNavigationDrawer.setSelection(mNavigationDrawerSelectedItemId);
     }
 
     private List<IDrawerItem> getDrawerItems() {
@@ -564,11 +561,16 @@ public class PostListActivity extends AppCompatActivity
     }
 
     private void onNavigationDrawerMasterSelected(String subRedditName, int id) {
-        updateSelectedSubRedditNameInPreferences(subRedditName);
+        //set the active fragment id.
+        mActiveFragmentId = FRAGMENT_MASTER;
 
-        updateSelectedSubRedditNavigationDrawerPosition(id);
+        //set the current selected item id.
+        mNavigationDrawerSelectedItemId = id;
 
-        RedditLiteSyncUtils.fetchRecipeDataImmediately(PostListActivity.this, true);
+        //update the toolbar title
+        updateToolbarTitle(subRedditName);
+
+        updateNavigationDrawerSelectedItemIdInPrefs(id);
 
         if (mIsTwoPane) {
             //remove the old details fragment.
@@ -582,14 +584,23 @@ public class PostListActivity extends AppCompatActivity
         removeAboutFragment();
         // add the MasterFragment with all recipes
         addMasterListFragment();
+        //fetch latest data
+        RedditLiteSyncUtils.fetchRecipeDataImmediately(PostListActivity.this, true);
     }
 
     private void onNavigationDrawerAboutSelected() {
 
+        //set the active fragment id.
+        mActiveFragmentId = FRAGMENT_ABOUT;
+
+        //update the toolbar title
+        updateToolbarTitle(getString(R.string.action_about));
+
+        //set the current selected item id.
+        mNavigationDrawerSelectedItemId = ACTION_ABOUT_NAVIGATION_DRAWER_ID;
+
         //remove masterlist.
         removeMasterListFragment();
-
-        mActivityPostListBinding.toolbarTitle.setText(getString(R.string.action_about));
 
         //add the about fragment.
         mAboutFragment = new LibsBuilder()
@@ -617,13 +628,47 @@ public class PostListActivity extends AppCompatActivity
     }
 
     private void updateSelectedSubRedditNameInPreferences(String subRedditName) {
-        mSelectedRedditName = subRedditName;
-        //set the toolbar title
-        setRedditStyleFormattedToolbarTitle(mSelectedRedditName);
+        //IMPORTANT: we need to remove "/r/" as the preference value is used in
+        //RedditLiteSyncTask.fetchPosts() to fetch data from subreddit where the API method already
+        //contains the "/r/" as such the query will fail if we dont remove it here!!!
+        if (isSubRedditTitle(subRedditName)) {
+            subRedditName = subRedditName.substring(subRedditName.lastIndexOf('/') + 1);
+        }
+
         //update prefs.
         PreferenceManager.getDefaultSharedPreferences(PostListActivity.this).edit()
                 .putString(getString(R.string.selected_subreddit_pref_key), subRedditName)
                 .apply();
+    }
+
+    private void updateToolbarTitle(String title) {
+        mToolbarTitle = title;
+
+        //set the toolbar title
+        if (mActiveFragmentId == FRAGMENT_MASTER) {
+            updateSelectedSubRedditNameInPreferences(title);
+            title = getRedditStyleFormattedToolbarTitle(title);
+        }
+
+        mActivityPostListBinding.toolbarTitle.setText(title);
+    }
+
+    /**
+     * Builds the Title(Subreddit name) Reddit Style, i.e. /r/xxx
+     *
+     * @param title The SubReddit name
+     */
+    private String getRedditStyleFormattedToolbarTitle(String title) {
+        //don't format string if it is already formatted.
+        if (isSubRedditTitle(title)) {
+            return title;
+        } else {
+            return String.format(sSubRedditFormat, title);
+        }
+    }
+
+    private boolean isSubRedditTitle(String title) {
+        return title.startsWith(sSubRedditFormat.substring(0, 2));
     }
 
     /**
@@ -631,7 +676,7 @@ public class PostListActivity extends AppCompatActivity
      *
      * @param id The ID of the item in the Navigation Drawer.
      */
-    private void updateSelectedSubRedditNavigationDrawerPosition(int id) {
+    private void updateNavigationDrawerSelectedItemIdInPrefs(int id) {
         mPreferences.edit()
                 .putInt(getString(R.string.navigation_drawer_selected_subreddit_id_pref_key), id)
                 .apply();
@@ -641,6 +686,9 @@ public class PostListActivity extends AppCompatActivity
      * Restores the states of the components after a configuration change.
      */
     private void restoreStates(Bundle savedInstanceState) {
+        //retrieve active fragment id.
+        mActiveFragmentId = savedInstanceState.getInt(ACTIVE_FRAGMENT_ID_BUNDLE_KEY);
+
         //set the value for the fields after a configuration change, this way fragments can
         //fragment transactions can be done properly.
         FragmentManager fm = getSupportFragmentManager();
@@ -654,19 +702,30 @@ public class PostListActivity extends AppCompatActivity
 
         //restore the toolbar title
         if (savedInstanceState.containsKey(TOOLBAR_TITLE_BUNDLE_KEY)) {
-            mRestoredToolbarTitle = savedInstanceState.getString(TOOLBAR_TITLE_BUNDLE_KEY);
+            mToolbarTitle = savedInstanceState.getString(TOOLBAR_TITLE_BUNDLE_KEY);
         }
 
         //get the previous selected item position of the drawer.
         if (savedInstanceState.containsKey(DRAWER_SELECTED_ITEM_ID_BUNDLE_KEY)) {
-            mRestoredNavigationSelectedItemId =
+            mNavigationDrawerSelectedItemId =
                     savedInstanceState.getInt(DRAWER_SELECTED_ITEM_ID_BUNDLE_KEY);
         }
 
         if (mIsTwoPane) {
-            if (savedInstanceState.containsKey(LAYOUT_DETAILS_DIVIDER_VISIBILITY_BUNDLE_KEY)) {
-                setDividerAndDetailsContainerVisibility(
-                        savedInstanceState.getInt(LAYOUT_DETAILS_DIVIDER_VISIBILITY_BUNDLE_KEY));
+            switch (mActiveFragmentId) {
+                case FRAGMENT_MASTER: {
+                    setDividerAndDetailsContainerVisibility(View.VISIBLE);
+                    break;
+                }
+
+                case FRAGMENT_ABOUT: {
+                    setDividerAndDetailsContainerVisibility(View.GONE);
+                    break;
+                }
+
+                default: {
+                    throw new RuntimeException("Unsupported fragment id: %d" + mActiveFragmentId);
+                }
             }
         }
     }
@@ -693,7 +752,6 @@ public class PostListActivity extends AppCompatActivity
 
             //add the new fragment.
             mDetailsFragment = new PostDetailFragment();
-            //mDetailsFragment.setArguments(mSelectedBundleArgs);
 
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.details_container, mDetailsFragment, DETAILS_FRAGMENT_TAG)
