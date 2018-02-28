@@ -52,7 +52,7 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (savedInstanceState == null) {
+        if (savedInstanceState == null && Timber.treeCount() == 0) {
             Timber.plant(new Timber.DebugTree());
         }
 

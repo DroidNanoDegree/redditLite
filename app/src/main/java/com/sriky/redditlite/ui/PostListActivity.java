@@ -137,8 +137,11 @@ public class PostListActivity extends AppCompatActivity
         mToolbarTitle = mPreferences.getString(getString(R.string.selected_subreddit_pref_key),
                 getString(R.string.selected_subreddit_pref_default));
 
-        if (savedInstanceState == null) {
+        if (Timber.treeCount() == 0) {
             Timber.plant(new Timber.DebugTree());
+        }
+
+        if (savedInstanceState == null) {
             addMasterListFragment();
             mCanReplaceDetailsFragment = true;
             mNavigationDrawerSelectedItemId =
