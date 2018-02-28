@@ -133,8 +133,14 @@ public class AuthenticationTask extends AsyncTask<String, Void, Boolean> {
             }
 
             case REAUTHENTICATE: {
-                EventBus.getDefault().postSticky(
-                        new Message.RedditClientAuthenticationComplete(result));
+                //post sticky events when for activity and not service.
+                if (mContext.get() instanceof Activity) {
+                    EventBus.getDefault().postSticky(
+                            new Message.RedditClientAuthenticationComplete(result));
+                } else {
+                    EventBus.getDefault().post(
+                            new Message.RedditClientAuthenticationComplete(result));
+                }
                 break;
             }
 

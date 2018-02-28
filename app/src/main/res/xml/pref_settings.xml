@@ -19,7 +19,7 @@
     android:layout_height="match_parent">
 
     <ListPreference
-        android:defaultValue="@string/one_hour_fetch_time_pref_label"
+        android:defaultValue="@string/pref_sync_time_options_default_value"
         android:entries="@array/pref_sync_time_options_labels"
         android:entryValues="@array/pref_sync_time_options_values"
         android:key="@string/pref_sync_time_options_key"

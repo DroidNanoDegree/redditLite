@@ -45,7 +45,13 @@
             android:authorities="com.sriky.redditlite"
             android:exported="false" />
 
-        <service android:name=".sync.RedditLiteFirebaseJobService" />
-        <service android:name=".sync.RedditLitePostsDataSyncIntentService" />
+        <service android:name=".sync.RedditLiteFirebaseJobService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.firebase.jobdispatcher.ACTION_EXECUTE"/>
+            </intent-filter>
+        </service>
+
+        <service android:name=".sync.RedditLitePostsDataSyncIntentService" android:exported="false" />
     </application>
 </manifest>

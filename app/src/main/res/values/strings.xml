@@ -87,9 +87,11 @@
     <string name="two_hour_fetch_time_pref_label">every 2 hours</string>
     <string name="three_hour_fetch_time_pref_label">every 3 hours</string>
     <string name="pref_sync_time_options_key" translatable="false">data_sync_timings_pref_key</string>
+    <string name="pref_sync_time_options_default_value" translatable="false">@string/one_hour_fetch_time_pref_label</string>
     <string name="pref_sync_time_options_label">Check for new posts</string>
     <string name="pref_enable_notifications_key" translatable="false">enable_notifications</string>
     <string name="pref_enable_notifications_false">Not enabled</string>
     <string name="pref_enable_notifications_true">Enabled</string>
     <string name="pref_enable_notifications_label">Notifications</string>
+    <string name="new_posts_available">New posts are available.</string>
 </resources>

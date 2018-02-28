@@ -27,6 +27,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.sriky.redditlite.R;
+import com.sriky.redditlite.sync.RedditLiteSyncUtils;
 
 /**
  * The SettingsFragment serves as the display for all of the user's settings.
@@ -84,6 +85,11 @@ public class SettingsFragment extends PreferenceFragmentCompat implements
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        //reschedule the sync job to new time.
+        if (key.equals(getString(R.string.pref_sync_time_options_key))) {
+            RedditLiteSyncUtils.scheduleFirebaseFetchJob(getContext());
+        }
+
         //set the summary.
         Preference preference = findPreference(key);
         if (null != preference) {

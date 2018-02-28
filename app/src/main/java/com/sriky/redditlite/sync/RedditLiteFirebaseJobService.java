@@ -46,11 +46,9 @@ public class RedditLiteFirebaseJobService extends JobService {
      */
     @Override
     public boolean onStartJob(JobParameters job) {
-        //return early if there is no network.
-        if (!RedditLiteUtils.isNetworkConnectionAvailable(RedditLiteFirebaseJobService.this)) {
-            return false;
+        if (Timber.treeCount() == 0) {
+            Timber.plant(new Timber.DebugTree());
         }
-
         mJob = job;
 
         //Trigger a network data sync if the client is authenticated already. Otherwise, log in
@@ -87,7 +85,7 @@ public class RedditLiteFirebaseJobService extends JobService {
      *
      * @param event
      */
-    @Subscribe(threadMode = ThreadMode.MAIN)
+    @Subscribe(threadMode = ThreadMode.BACKGROUND)
     public void onAuthenticationComplete(Message.RedditClientAuthenticationComplete event) {
         Timber.d("Authenticated username: %s",
                 ClientManager.getCurrentAuthenticatedUsername(this));
