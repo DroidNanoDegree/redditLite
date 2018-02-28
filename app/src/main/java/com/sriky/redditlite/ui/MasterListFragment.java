@@ -293,7 +293,7 @@ public class MasterListFragment extends Fragment implements LoaderManager.Loader
      * Hides the progress bar view and makes the the error message view VISIBLE.
      */
     private void hideProgressBarAndShowErrorMessage() {
-        if (mSnackbar != null){
+        if (mSnackbar != null) {
             mSnackbar.dismiss();
         }
         displayError();

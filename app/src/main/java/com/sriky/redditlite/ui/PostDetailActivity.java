@@ -15,14 +15,10 @@
 
 package com.sriky.redditlite.ui;
 
-import android.app.Activity;
-import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -30,10 +26,6 @@ import android.view.MenuItem;
 
 import com.sriky.redditlite.R;
 import com.sriky.redditlite.databinding.ActivityPostDetailBinding;
-import com.sriky.redditlite.model.RedditPost;
-import com.sriky.redditlite.viewmodel.RedditPostSharedViewModel;
-
-import timber.log.Timber;
 
 /**
  * Activity containing the {@link PostDetailFragment}

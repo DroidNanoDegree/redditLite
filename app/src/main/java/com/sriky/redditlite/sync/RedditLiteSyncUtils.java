@@ -36,8 +36,6 @@ import com.sriky.redditlite.idlingresource.RedditLiteIdlingResource;
 import com.sriky.redditlite.provider.PostContract;
 import com.sriky.redditlite.provider.RedditLiteContentProvider;
 
-import java.util.concurrent.TimeUnit;
-
 import timber.log.Timber;
 
 /**
@@ -46,9 +44,8 @@ import timber.log.Timber;
 
 public final class RedditLiteSyncUtils {
     private static final String JOB_NAME = "redditlite_fetch_data";
-
-    private static boolean sInitialized;
     private static final int DEFAULT_SYNC_TIME_IN_SECS = 3600; //1hour
+    private static boolean sInitialized;
 
     /**
      * Initialize the data sync operations, which schedules a {@link Job} and starts an
@@ -128,7 +125,7 @@ public final class RedditLiteSyncUtils {
 
         int syncIntervalSecs = 0;
         //Get the index of value set in "pref_sync_time_options_values" array to get the time in secs.
-        for(int i = 0; i < syncTimes.length(); i++) {
+        for (int i = 0; i < syncTimes.length(); i++) {
             String val = syncTimes.getString(i);
             if (!TextUtils.isEmpty(val) && val.equals(prefValue)) {
                 syncIntervalSecs = syncTimesInSecs.getInt(i, DEFAULT_SYNC_TIME_IN_SECS);

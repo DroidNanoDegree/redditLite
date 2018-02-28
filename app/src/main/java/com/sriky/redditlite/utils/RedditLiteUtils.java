@@ -22,7 +22,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
-import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
@@ -76,9 +75,8 @@ public final class RedditLiteUtils {
     /**
      * Formats supplied date(in milli) to hours or mins from current time.
      *
-     * @param context       The calling activity or service.
-     * @param dateInMillis  The date in millis.
-     *
+     * @param context      The calling activity or service.
+     * @param dateInMillis The date in millis.
      * @return String formatted to either hour or min from current time.
      */
     public static String getFormattedDateFromNow(Context context, long dateInMillis) {
@@ -109,7 +107,7 @@ public final class RedditLiteUtils {
             votesCountFormatted = context.getString(R.string.subreddit_format_count_over_thousand,
                     votes / 1000f);
         } else {
-            votesCountFormatted = context.getString( R.string.subreddit_format_count_less_than_thousand,
+            votesCountFormatted = context.getString(R.string.subreddit_format_count_less_than_thousand,
                     votes);
         }
         return votesCountFormatted;
@@ -200,7 +198,6 @@ public final class RedditLiteUtils {
      * {@link com.sriky.redditlite.ui.SettingsFragment}
      *
      * @param context The calling activity/service.
-     *
      * @return True if enabled, false otherwise.
      */
     public static boolean shouldDisplayNotification(Context context) {
@@ -223,7 +220,7 @@ public final class RedditLiteUtils {
         Resources resources = context.getResources();
 
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context)
-                .setColor(ContextCompat.getColor(context,R.color.primaryColor))
+                .setColor(ContextCompat.getColor(context, R.color.primaryColor))
                 .setSmallIcon(R.mipmap.ic_launcher) //TODO: change to app white icon when ready.
                 .setContentTitle(resources.getString(R.string.app_name))
                 .setContentText(resources.getString(R.string.new_posts_available))
@@ -231,7 +228,7 @@ public final class RedditLiteUtils {
 
         Intent intent = new Intent(context, PostListActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(context,
-                0, intent,  PendingIntent.FLAG_UPDATE_CURRENT);
+                0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         notificationBuilder.setContentIntent(pendingIntent);
 

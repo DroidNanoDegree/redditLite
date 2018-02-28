@@ -25,14 +25,52 @@ import android.text.TextUtils;
 import com.sriky.redditlite.R;
 import com.sriky.redditlite.provider.PostContract;
 
-import timber.log.Timber;
-
 /**
  * Class to represent a Reddit post.
  */
 
 public class RedditPost implements Parcelable {
 
+    public static final Creator<RedditPost> CREATOR = new Creator<RedditPost>() {
+        @Override
+        public RedditPost createFromParcel(Parcel in) {
+            return new RedditPost(in);
+        }
+
+        @Override
+        public RedditPost[] newArray(int size) {
+            return new RedditPost[size];
+        }
+    };
+    //post type indexes.
+    private static final int POST_TYPE_NO_MEDIA = 0;
+    private static final int POST_TYPE_LINK = 1;
+    private static final int POST_TYPE_IMAGE = 2;
+    private static final int POST_TYPE_HOSTED_VIDEO = 3;
+    private static final int POST_TYPE_RICH_VIDEO = 4;
+    private static final int POST_TYPE_SELF = 5;
+    //post thumbnail type indexes.
+    private static final int DEFAULT = 0;
+    private static final int SELF = 1;
+    private static final int IMAGE = 2;
+    private long mDate;
+    private int mVotesCount;
+    private int mCommentesCount;
+    private PostType mType;
+    private PostThumbnailType mPostThumbnailType;
+    private String mPostId;
+    private String mTitle;
+    private String mAuthor;
+    private String mSubreddit;
+    private String mUrl;
+    private String mPostDomain;
+    private String mPostThumbnailUrl;
+    private String mPostHint;
+    private String mVideoUrl;
+    private String mImageUrl;
+    private String mBody;
+    private boolean mVisited;
+    private boolean mIsFavorite;
     protected RedditPost(Parcel in) {
         mDate = in.readLong();
         mVotesCount = in.readInt();
@@ -53,96 +91,6 @@ public class RedditPost implements Parcelable {
         mVisited = in.readByte() != 0;
         mIsFavorite = in.readByte() != 0;
     }
-
-    public static final Creator<RedditPost> CREATOR = new Creator<RedditPost>() {
-        @Override
-        public RedditPost createFromParcel(Parcel in) {
-            return new RedditPost(in);
-        }
-
-        @Override
-        public RedditPost[] newArray(int size) {
-            return new RedditPost[size];
-        }
-    };
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel parcel, int i) {
-        parcel.writeLong(mDate);
-        parcel.writeInt(mVotesCount);
-        parcel.writeInt(mCommentesCount);
-        parcel.writeString(mType == null ? PostType.NO_MEDIA.name() : mType.name());
-        parcel.writeString(mPostThumbnailType.name());
-        parcel.writeString(mPostId);
-        parcel.writeString(mTitle);
-        parcel.writeString(mAuthor);
-        parcel.writeString(mSubreddit);
-        parcel.writeString(mUrl);
-        parcel.writeString(mPostDomain);
-        parcel.writeString(mPostThumbnailUrl);
-        parcel.writeString(mPostHint);
-        parcel.writeString(mVideoUrl);
-        parcel.writeString(mImageUrl);
-        parcel.writeString(mBody);
-        parcel.writeByte((byte) (mVisited ? 1 : 0));
-        parcel.writeByte((byte) (mIsFavorite ? 1 : 0));
-    }
-
-    /* Type of the post */
-    public enum PostType {
-        NO_MEDIA,
-        SELF,
-        LINK,
-        IMAGE,
-        HOSTED_VIDEO,
-        RICH_VIDEO
-    }
-
-    /* Type of the thumnail */
-    public enum PostThumbnailType {
-        DEFAULT,
-        SELF,
-        IMAGE,
-        THUMBNAIL
-    }
-
-    //post type indexes.
-    private static final int POST_TYPE_NO_MEDIA = 0;
-    private static final int POST_TYPE_LINK = 1;
-    private static final int POST_TYPE_IMAGE = 2;
-    private static final int POST_TYPE_HOSTED_VIDEO = 3;
-    private static final int POST_TYPE_RICH_VIDEO = 4;
-    private static final int POST_TYPE_SELF = 5;
-
-    //post thumbnail type indexes.
-    private static final int DEFAULT = 0;
-    private static final int SELF = 1;
-    private static final int IMAGE = 2;
-
-    private long mDate;
-    private int mVotesCount;
-    private int mCommentesCount;
-    private PostType mType;
-    private PostThumbnailType mPostThumbnailType;
-    private String mPostId;
-    private String mTitle;
-    private String mAuthor;
-    private String mSubreddit;
-    private String mUrl;
-    private String mPostDomain;
-    private String mPostThumbnailUrl;
-    private String mPostHint;
-    private String mVideoUrl;
-    private String mImageUrl;
-    private String mBody;
-    private boolean mVisited;
-    private boolean mIsFavorite;
-
     public RedditPost(Cursor cursor, Context context) {
         mDate = cursor.getLong(cursor.getColumnIndex(PostContract.COLUMN_POST_DATE));
         mTitle = cursor.getString(cursor.getColumnIndex(PostContract.COLUMN_POST_TITLE));
@@ -177,7 +125,8 @@ public class RedditPost implements Parcelable {
                 mType = PostType.HOSTED_VIDEO;
             } else if (postTypes.getString(POST_TYPE_RICH_VIDEO).equals(mPostHint)) {
                 mType = PostType.RICH_VIDEO;
-            } if (postTypes.getString(POST_TYPE_SELF).equals(mPostHint)) {
+            }
+            if (postTypes.getString(POST_TYPE_SELF).equals(mPostHint)) {
                 mType = PostType.SELF;
             }
         }
@@ -193,6 +142,33 @@ public class RedditPost implements Parcelable {
         } else if (!TextUtils.isEmpty(mPostThumbnailUrl)) {
             mPostThumbnailType = PostThumbnailType.THUMBNAIL;
         }
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeLong(mDate);
+        parcel.writeInt(mVotesCount);
+        parcel.writeInt(mCommentesCount);
+        parcel.writeString(mType == null ? PostType.NO_MEDIA.name() : mType.name());
+        parcel.writeString(mPostThumbnailType.name());
+        parcel.writeString(mPostId);
+        parcel.writeString(mTitle);
+        parcel.writeString(mAuthor);
+        parcel.writeString(mSubreddit);
+        parcel.writeString(mUrl);
+        parcel.writeString(mPostDomain);
+        parcel.writeString(mPostThumbnailUrl);
+        parcel.writeString(mPostHint);
+        parcel.writeString(mVideoUrl);
+        parcel.writeString(mImageUrl);
+        parcel.writeString(mBody);
+        parcel.writeByte((byte) (mVisited ? 1 : 0));
+        parcel.writeByte((byte) (mIsFavorite ? 1 : 0));
     }
 
     public PostType getType() {
@@ -251,7 +227,9 @@ public class RedditPost implements Parcelable {
         return mImageUrl;
     }
 
-    public String getBody() { return mBody; }
+    public String getBody() {
+        return mBody;
+    }
 
     public boolean isVisited() {
         return mVisited;
@@ -261,5 +239,25 @@ public class RedditPost implements Parcelable {
         return mIsFavorite;
     }
 
-    public PostThumbnailType getThumbnailType() { return mPostThumbnailType; }
+    public PostThumbnailType getThumbnailType() {
+        return mPostThumbnailType;
+    }
+
+    /* Type of the post */
+    public enum PostType {
+        NO_MEDIA,
+        SELF,
+        LINK,
+        IMAGE,
+        HOSTED_VIDEO,
+        RICH_VIDEO
+    }
+
+    /* Type of the thumnail */
+    public enum PostThumbnailType {
+        DEFAULT,
+        SELF,
+        IMAGE,
+        THUMBNAIL
+    }
 }

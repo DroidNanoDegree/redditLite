@@ -21,7 +21,6 @@ import com.firebase.jobdispatcher.JobParameters;
 import com.firebase.jobdispatcher.JobService;
 import com.sriky.redditlite.event.Message;
 import com.sriky.redditlite.redditapi.ClientManager;
-import com.sriky.redditlite.utils.RedditLiteUtils;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;

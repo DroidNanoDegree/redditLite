@@ -90,15 +90,13 @@ public class PostListActivity extends AppCompatActivity
     private static final int ACTION_ABOUT_NAVIGATION_DRAWER_ID = ACTION_POPULAR_NAVIGATION_DRAWER_ID + 1;
     private static final int SUBREDDIT_EXPANDABLE_GROUP_NAVIGATION_DRAWER_ID = ACTION_ABOUT_NAVIGATION_DRAWER_ID + 1;
     private static final int ACTION_SETTINGS_NAVIGATION_DRAWER_ID = SUBREDDIT_EXPANDABLE_GROUP_NAVIGATION_DRAWER_ID + 1;
-
-
+    private static String sSubRedditFormat;
     private ActivityPostListBinding mActivityPostListBinding;
     private RedditLiteIdlingResource mIdlingResource;
     private MasterListFragment mMasterListFragment;
     private RedditPostSharedViewModel mRedditPostSharedViewModel;
     private boolean mIsTwoPane;
     private boolean mCanReplaceDetailsFragment;
-    private static String sSubRedditFormat;
     private PostDetailFragment mDetailsFragment;
     private String mSelectedPostId;
     private String mPreviousSelectedPostId;
@@ -203,7 +201,7 @@ public class PostListActivity extends AppCompatActivity
     public void onSaveInstanceState(Bundle outState) {
 
         outState.putInt(DRAWER_SELECTED_ITEM_ID_BUNDLE_KEY,
-                (int)mNavigationDrawer.getCurrentSelection());
+                (int) mNavigationDrawer.getCurrentSelection());
 
         outState.putString(TOOLBAR_TITLE_BUNDLE_KEY, mToolbarTitle);
 
@@ -214,7 +212,7 @@ public class PostListActivity extends AppCompatActivity
 
     @Override
     public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
-        if(view == null) return true;
+        if (view == null) return true;
 
         int selectedItemId = view.getId();
         if (mSubscribedRedditList != null && (selectedItemId >= SUBREDDIT_START_NAVIGATION_DRAWER_ID
@@ -653,6 +651,7 @@ public class PostListActivity extends AppCompatActivity
 
     /**
      * Sets the ID for current active fragment and removes previously active fragment.
+     *
      * @param activeFragmentId
      */
     private void updateCurrentActiveFragmentAndRemovePreviouslyActiveFragment(int activeFragmentId) {
@@ -679,7 +678,7 @@ public class PostListActivity extends AppCompatActivity
                 break;
             }
 
-            case FRAGMENT_ABOUT:{
+            case FRAGMENT_ABOUT: {
                 //remove about.
                 removeAboutFragment();
                 break;
@@ -691,7 +690,7 @@ public class PostListActivity extends AppCompatActivity
                 break;
             }
 
-            default:{
+            default: {
                 throw new RuntimeException("Unsupported fragment removal operation " +
                         "for fragment with id: %d" + mLastActiveFragmentId);
             }
