@@ -29,6 +29,7 @@ import com.sriky.redditlite.R;
 import com.sriky.redditlite.provider.PostContract;
 import com.sriky.redditlite.provider.RedditLiteContentProvider;
 import com.sriky.redditlite.redditapi.ClientManager;
+import com.sriky.redditlite.utils.RedditLiteUtils;
 
 import net.dean.jraw.RedditClient;
 import net.dean.jraw.models.EmbeddedMedia;
@@ -114,6 +115,9 @@ public final class RedditLiteSyncTask {
             //add the submission to local db.
             addEntries(context, submissions);
         }
+
+        //trigger a notification.
+        RedditLiteUtils.displayNewPostsFetchedNotification(context);
     }
 
     /**
