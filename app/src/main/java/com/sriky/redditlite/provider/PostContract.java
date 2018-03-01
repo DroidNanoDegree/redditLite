@@ -92,6 +92,9 @@ public interface PostContract {
     @DataType(TEXT)
     String COLUMN_POST_BODY = "post_body";
 
+    @DataType(TEXT)
+    String COLUMN_POST_SELF_TEXT = "post_self_text";
+
     @DataType(INTEGER)
     String COLUMN_POST_FAVORITE = "post_favorite";
 }

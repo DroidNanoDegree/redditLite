@@ -35,6 +35,7 @@ import com.sriky.redditlite.utils.RedditLiteUtils;
 import com.sriky.redditlite.widget.RedditLiteWidget;
 
 import net.dean.jraw.RedditClient;
+import net.dean.jraw.models.DistinguishedStatus;
 import net.dean.jraw.models.EmbeddedMedia;
 import net.dean.jraw.models.Submission;
 import net.dean.jraw.models.SubmissionPreview;
@@ -140,8 +141,9 @@ public final class RedditLiteSyncTask {
         ArrayList<ContentProviderOperation> operations = new ArrayList<>();
 
         for (Submission submission : submissions) {
-            //add only SFW posts
-            if (!submission.isNsfw()) {
+            //add only SFW posts and regular user content.
+            if (!submission.isNsfw() &&
+                    submission.getDistinguished().equals(DistinguishedStatus.NORMAL)) {
                 ContentValues cv = new ContentValues();
 
                 cv.put(PostContract.COLUMN_POST_ID, submission.getId());
@@ -158,6 +160,7 @@ public final class RedditLiteSyncTask {
                 cv.put(PostContract.COLUMN_POST_HINT, submission.getPostHint());
                 cv.put(PostContract.COLUMN_POST_FAVORITE, submission.isSaved());
                 cv.put(PostContract.COLUMN_POST_BODY, submission.getBody());
+                cv.put(PostContract.COLUMN_POST_SELF_TEXT, submission.getSelfText());
 
                 if (submission.getEmbeddedMedia() != null) {
                     EmbeddedMedia.RedditVideo video = submission.getEmbeddedMedia().getRedditVideo();
