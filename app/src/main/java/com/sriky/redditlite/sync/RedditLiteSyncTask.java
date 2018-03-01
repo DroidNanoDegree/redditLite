@@ -15,6 +15,8 @@
 
 package com.sriky.redditlite.sync;
 
+import android.appwidget.AppWidgetManager;
+import android.content.ComponentName;
 import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -30,6 +32,7 @@ import com.sriky.redditlite.provider.PostContract;
 import com.sriky.redditlite.provider.RedditLiteContentProvider;
 import com.sriky.redditlite.redditapi.ClientManager;
 import com.sriky.redditlite.utils.RedditLiteUtils;
+import com.sriky.redditlite.widget.RedditLiteWidget;
 
 import net.dean.jraw.RedditClient;
 import net.dean.jraw.models.EmbeddedMedia;
@@ -118,6 +121,12 @@ public final class RedditLiteSyncTask {
 
         //trigger a notification.
         RedditLiteUtils.displayNewPostsFetchedNotification(context);
+
+        //Trigger data update to handle the GridView widgets and force a data refresh
+        AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
+        int[] appWidgetIds = appWidgetManager.getAppWidgetIds(new ComponentName(context, RedditLiteWidget.class));
+
+        appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.widget_grid_view);
     }
 
     /**
