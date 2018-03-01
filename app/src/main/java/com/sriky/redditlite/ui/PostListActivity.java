@@ -114,6 +114,7 @@ public class PostListActivity extends AppCompatActivity
     private int mActiveFragmentId;
     private int mLastActiveFragmentId;
     private SettingsFragment mSettingsFragment;
+    private boolean mDataFetchRequired;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -599,8 +600,13 @@ public class PostListActivity extends AppCompatActivity
         // add the MasterFragment with all recipes
         addMasterListFragment();
 
-        //fetch latest data
-        RedditLiteSyncUtils.fetchRecipeDataImmediately(PostListActivity.this, true);
+        // Fetch data only if required. Eg: if the Master Fragment holds data for say "/r/popular"
+        // and the user navigates to either settings or about screen and then back to "/r/popular",
+        // for scenarios like such we shouldn't make the call to fetch data.
+        if (mDataFetchRequired) {
+            //fetch latest data
+            RedditLiteSyncUtils.fetchRecipeDataImmediately(PostListActivity.this, true);
+        }
     }
 
     private void onNavigationDrawerAboutSelected() {
@@ -706,9 +712,21 @@ public class PostListActivity extends AppCompatActivity
         }
 
         //update prefs.
-        PreferenceManager.getDefaultSharedPreferences(PostListActivity.this).edit()
-                .putString(getString(R.string.selected_subreddit_pref_key), subRedditName)
-                .apply();
+        SharedPreferences preference =
+                PreferenceManager.getDefaultSharedPreferences(PostListActivity.this);
+
+        String previousSubRedditName =
+                preference.getString(getString(R.string.selected_subreddit_pref_key),
+                getString(R.string.selected_subreddit_pref_default));
+
+        if (!previousSubRedditName.equals(subRedditName)) {
+            mDataFetchRequired = true;
+            preference.edit()
+                    .putString(getString(R.string.selected_subreddit_pref_key), subRedditName)
+                    .apply();
+        } else {
+            mDataFetchRequired = false;
+        }
     }
 
     private void updateToolbarTitle(String title) {
