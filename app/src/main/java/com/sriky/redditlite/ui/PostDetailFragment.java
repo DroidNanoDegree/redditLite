@@ -207,9 +207,17 @@ public class PostDetailFragment extends Fragment implements ExoPlayer.EventListe
                     return;
                 }
             case SELF:
-            case IMAGE:
-            case HOSTED_VIDEO: {
+            case IMAGE: {
                 setImage(redditPost);
+                break;
+            }
+
+            case HOSTED_VIDEO: {
+                String url = redditPost.getUrl();
+                if (url.startsWith(getString(R.string.gfycat_home_url))){
+                    url = getString(R.string.gfycat_format, url.substring(url.lastIndexOf('/') + 1));
+                }
+                setWebView(url);
                 break;
             }
 

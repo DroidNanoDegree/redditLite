@@ -94,4 +94,10 @@
     <string name="pref_enable_notifications_true">Enabled</string>
     <string name="pref_enable_notifications_label">Notifications</string>
     <string name="new_posts_available">New posts are available.</string>
+
+    <!-- gfhcat -->
+    <string name="gfycat_home_url"> https://gfycat.com/</string>
+    <string name="gfycat_format">
+        <xliff:g id="gfycat">https://thumbs.gfycat.com/%1$s</xliff:g>-size_restricted.gif
+    </string>
 </resources>
