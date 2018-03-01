@@ -18,7 +18,18 @@ package com.sriky.redditlite.livedata;
 import android.arch.lifecycle.LiveData;
 import android.content.Context;
 
+import com.sriky.redditlite.R;
+import com.sriky.redditlite.event.Message;
+import com.sriky.redditlite.redditapi.ClientManager;
+import com.sriky.redditlite.ui.PostListActivity;
+
 import net.dean.jraw.tree.RootCommentNode;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
+import timber.log.Timber;
 
 /**
  * The {@link LiveData} associated with Post Details.
@@ -31,7 +42,17 @@ public class PostCommentsLiveData extends LiveData<RootCommentNode> {
     public PostCommentsLiveData(Context context, String postId) {
         mContext = context;
         mPostId = postId;
-        loadData();
+
+        //Trigger a network data sync if the client is authenticated already. Otherwise, log in
+        //with the previously used username, if the user has never logged in, then the client will
+        //be in "userless" mode.
+        if (ClientManager.getRedditAccountHelper(mContext).isAuthenticated()) {
+            loadData();
+        } else {
+            ClientManager.authenticateUsingLastUsedUsername(mContext);
+            //register to listen to callback events.
+            EventBus.getDefault().register(PostCommentsLiveData.this);
+        }
     }
 
     /**
@@ -47,5 +68,24 @@ public class PostCommentsLiveData extends LiveData<RootCommentNode> {
         FetchPostCommentsTask task = new FetchPostCommentsTask(mContext,
                 PostCommentsLiveData.this, mPostId);
         task.execute();
+    }
+
+    /**
+     * Event receiver that is triggered after authentication process is complete.
+     *
+     * @param event The authentication status.
+     */
+    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
+    public void onAuthenticationComplete(Message.RedditClientAuthenticationComplete event) {
+
+        if (!event.getAuthenticationStatus()) {
+            Timber.e("Unable to authenticate user!");
+            return;
+        }
+        loadData();
+        //register to listen to callback events.
+        EventBus.getDefault().unregister(PostCommentsLiveData.this);
+        //remove the event.
+        EventBus.getDefault().removeStickyEvent(Message.RedditClientAuthenticationComplete.class);
     }
 }
