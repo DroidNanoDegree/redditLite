@@ -69,6 +69,7 @@ public class RedditPost implements Parcelable {
     private String mVideoUrl;
     private String mImageUrl;
     private String mBody;
+    private String mSelfText;
     private boolean mVisited;
     private boolean mIsFavorite;
     protected RedditPost(Parcel in) {
@@ -88,6 +89,7 @@ public class RedditPost implements Parcelable {
         mVideoUrl = in.readString();
         mImageUrl = in.readString();
         mBody = in.readString();
+        mSelfText = in.readString();
         mVisited = in.readByte() != 0;
         mIsFavorite = in.readByte() != 0;
     }
@@ -108,6 +110,7 @@ public class RedditPost implements Parcelable {
         mVideoUrl = cursor.getString(cursor.getColumnIndex(PostContract.COLUMN_POST_VIDEO_URL));
         mImageUrl = cursor.getString(cursor.getColumnIndex(PostContract.COLUMN_POST_IMAGE_URL));
         mBody = cursor.getString(cursor.getColumnIndex(PostContract.COLUMN_POST_BODY));
+        mSelfText = cursor.getString(cursor.getColumnIndex(PostContract.COLUMN_POST_SELF_TEXT));
         mVisited = cursor.getInt(cursor.getColumnIndex(PostContract.COLUMN_POST_VISITED)) > 0;
         mIsFavorite = cursor.getInt(cursor.getColumnIndex(PostContract.COLUMN_POST_FAVORITE)) > 0;
 
@@ -167,6 +170,7 @@ public class RedditPost implements Parcelable {
         parcel.writeString(mVideoUrl);
         parcel.writeString(mImageUrl);
         parcel.writeString(mBody);
+        parcel.writeString(mSelfText);
         parcel.writeByte((byte) (mVisited ? 1 : 0));
         parcel.writeByte((byte) (mIsFavorite ? 1 : 0));
     }
@@ -229,6 +233,10 @@ public class RedditPost implements Parcelable {
 
     public String getBody() {
         return mBody;
+    }
+
+    public String getmSelfText() {
+        return mSelfText;
     }
 
     public boolean isVisited() {
