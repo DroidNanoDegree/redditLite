@@ -36,6 +36,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
             android:textAppearance="@style/TextAppearance.AppCompat.Small"
+            android:textColor="@color/primaryTextDarkColor"
             tools:text="/r/subreddit" />
 
         <ImageView
@@ -51,6 +52,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
             android:textAppearance="@style/TextAppearance.AppCompat.Small"
+            android:textColor="@color/primaryTextDarkColor"
             tools:text="3h" />
 
         <ImageView
@@ -66,6 +68,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
             android:textAppearance="@style/TextAppearance.AppCompat.Small"
+            android:textColor="@color/primaryTextDarkColor"
             tools:text="v.redd.it" />
     </LinearLayout>
 
@@ -73,7 +76,6 @@
         android:id="@+id/widget_item_post_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
         android:layout_marginStart="8dp"
         android:layout_marginLeft="8dp"
         android:layout_marginEnd="8dp"

@@ -44,6 +44,8 @@
             android:layout_marginLeft="16dp"
             android:layout_marginStart="16dp"
             android:background="@color/primaryColor"
+            android:textAppearance="@style/TextAppearance.AppCompat.Small"
+            android:textColor="@color/primaryTextDarkColor"
             tools:text="/u/author" />
 
         <TextView

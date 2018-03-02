@@ -44,7 +44,7 @@
         android:layout_margin="@dimen/comment_item_start_margin"
         tools:text="/u/Username"
         app:layout_constraintTop_toTopOf="parent"
-        android:textColor="@color/primaryTextColor"
+        android:textColor="@color/primaryTextDarkColor"
         android:textAppearance="@style/TextAppearance.AppCompat.Small"
         app:layout_constraintLeft_toRightOf="@id/separatorContainer" />
 
@@ -66,7 +66,7 @@
         android:layout_marginStart="8dp"
         android:layout_marginLeft="8dp"
         android:textAppearance="@style/TextAppearance.AppCompat.Small"
-        android:textColor="@color/primaryTextColor"
+        android:textColor="@color/primaryTextDarkColor"
         app:layout_constraintBottom_toBottomOf="@+id/tv_user"
         app:layout_constraintStart_toEndOf="@+id/circle_separator"
         app:layout_constraintTop_toTopOf="@+id/tv_user"
@@ -74,14 +74,14 @@
 
     <TextView
         android:id="@+id/comment_body"
-        style="@style/TextAppearance.AppCompat.Medium"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/comment_item_start_margin"
         android:layout_marginTop="8dp"
         android:autoLink="web"
         android:background="@drawable/comment_background"
-        android:textColor="@color/primaryTextColor"
+        style="@style/TextAppearance.AppCompat.Medium"
+        android:textColor="@color/primaryTextDarkColor"
         app:layout_constraintLeft_toRightOf="@id/separatorContainer"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tv_user"
@@ -99,7 +99,7 @@
         android:drawableRight="@drawable/ic_expand_more"
         android:drawableEnd="@drawable/ic_expand_more"
         android:textAppearance="@style/TextAppearance.AppCompat.Small"
-        android:textColor="@color/primaryTextColor"
+        android:textColor="@color/primaryTextDarkColor"
         app:layout_constraintStart_toStartOf="@+id/comment_body"
         app:layout_constraintTop_toBottomOf="@+id/comment_body" />
 
@@ -116,7 +116,7 @@
         android:drawableRight="@drawable/ic_arrow_upward"
         android:drawableStart="@drawable/ic_arrow_downward"
         android:textAppearance="@style/TextAppearance.AppCompat.Small"
-        android:textColor="@color/primaryTextColor"
+        android:textColor="@color/primaryTextDarkColor"
         app:layout_constraintEnd_toEndOf="@+id/comment_body"
         app:layout_constraintTop_toBottomOf="@+id/comment_body"
         tools:text="1.2k" />
