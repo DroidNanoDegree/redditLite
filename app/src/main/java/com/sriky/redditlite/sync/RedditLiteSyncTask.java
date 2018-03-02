@@ -15,14 +15,13 @@
 
 package com.sriky.redditlite.sync;
 
-import android.appwidget.AppWidgetManager;
-import android.content.ComponentName;
 import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.OperationApplicationException;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.os.RemoteException;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
@@ -32,7 +31,6 @@ import com.sriky.redditlite.provider.PostContract;
 import com.sriky.redditlite.provider.RedditLiteContentProvider;
 import com.sriky.redditlite.redditapi.ClientManager;
 import com.sriky.redditlite.utils.RedditLiteUtils;
-import com.sriky.redditlite.widget.RedditLiteWidget;
 
 import net.dean.jraw.RedditClient;
 import net.dean.jraw.models.DistinguishedStatus;
@@ -56,6 +54,7 @@ public final class RedditLiteSyncTask {
     private static final int NUMBER_OF_PAGES_TO_ACCUMULATE = 2;
 
     private static DefaultPaginator<Submission> mPaginator;
+    private static List<String> sVisitedPostIds;
 
     /**
      * Fetches the post data and updates the local database.
@@ -98,9 +97,12 @@ public final class RedditLiteSyncTask {
                     .build();
         }
 
+        ContentResolver contentResolver = context.getContentResolver();
+        //cache visited ids.
+        cacheVisitedIds(contentResolver);
         //don't delete data during pagination.
         if (clearData) {
-            ContentResolver contentResolver = context.getContentResolver();
+
             //clear old data from the db
             contentResolver.delete(RedditLiteContentProvider.PostDataEntry.CONTENT_URI,
                     null, null);
@@ -123,11 +125,8 @@ public final class RedditLiteSyncTask {
         //trigger a notification.
         RedditLiteUtils.displayNewPostsFetchedNotification(context);
 
-        //Trigger data update to handle the GridView widgets and force a data refresh
-        AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
-        int[] appWidgetIds = appWidgetManager.getAppWidgetIds(new ComponentName(context, RedditLiteWidget.class));
-
-        appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.widget_grid_view);
+        //notify the widgets regards the data update.
+        RedditLiteUtils.notifyDataForWidgets(context);
     }
 
     /**
@@ -152,7 +151,8 @@ public final class RedditLiteSyncTask {
                 cv.put(PostContract.COLUMN_POST_DATE, submission.getCreated().getTime());
                 cv.put(PostContract.COLUMN_POST_REDDIT_URL, submission.getUrl());
                 cv.put(PostContract.COLUMN_POST_SUBREDDIT, submission.getSubreddit());
-                cv.put(PostContract.COLUMN_POST_VISITED, submission.isVisited());
+                cv.put(PostContract.COLUMN_POST_VISITED, submission.isVisited() ||
+                        sVisitedPostIds.contains(submission.getId()));
                 cv.put(PostContract.COLUMN_POST_VOTES, submission.getScore());
                 cv.put(PostContract.COLUMN_POST_DOMAIN, submission.getDomain());
                 cv.put(PostContract.COLUMN_POST_MEDIA_THUMBNAIL_URL, submission.getThumbnail());
@@ -221,5 +221,32 @@ public final class RedditLiteSyncTask {
                 System.currentTimeMillis());
         //commit the changes.
         editor.apply();
+    }
+
+    /**
+     * Cache the visited post IDs
+     *
+     * @param contentResolver The {@link RedditLiteContentProvider}
+     */
+    private static void cacheVisitedIds(ContentResolver contentResolver) {
+        if (sVisitedPostIds == null) {
+            sVisitedPostIds = new ArrayList<>();
+        }
+        sVisitedPostIds.clear();
+
+        // query for the favorite recipe IDs
+        Cursor cursor = contentResolver.query(RedditLiteContentProvider.PostDataEntry.CONTENT_URI,
+                new String[]{PostContract.COLUMN_POST_ID},
+                PostContract.COLUMN_POST_VISITED + " =? ",
+                new String[]{"1"},
+                null);
+
+        // generate the array of ids
+        if (cursor != null) {
+            while (cursor.moveToNext()) {
+                sVisitedPostIds.add(cursor.getString(0));
+            }
+        }
+        cursor.close();
     }
 }

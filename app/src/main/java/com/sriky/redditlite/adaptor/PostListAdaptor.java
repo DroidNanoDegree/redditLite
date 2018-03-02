@@ -149,6 +149,14 @@ public class PostListAdaptor extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
             //set title
             postListItemBinding.bodyLayout.postTitle.setText(redditPost.getTitle());
+            //change the title color to dark if the post has already been visited.
+            if (redditPost.isVisited()) {
+                postListItemBinding.bodyLayout.postTitle
+                        .setTextColor(mContext.getResources().getColor(R.color.primaryTextDarkColor));
+            } else {
+                postListItemBinding.bodyLayout.postTitle
+                        .setTextColor(mContext.getResources().getColor(R.color.primaryTextColor));
+            }
 
             //set subreddit
             postListItemBinding.headerLayout.postSubreddit.setText(
@@ -228,8 +236,8 @@ public class PostListAdaptor extends RecyclerView.Adapter<RecyclerView.ViewHolde
             }
 
             default: {
-                Timber.e("Thumbnail type not supported, type: %d",
-                        redditPost.getThumbnailType());
+                Timber.e("Thumbnail type not supported, type: %s",
+                        redditPost.getThumbnailType().name());
                 postListItemBinding.bodyLayout.postThumbnail.setVisibility(View.GONE);
             }
         }

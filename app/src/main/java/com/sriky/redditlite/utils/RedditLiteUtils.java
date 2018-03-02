@@ -18,6 +18,8 @@ package com.sriky.redditlite.utils;
 import android.app.Activity;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.appwidget.AppWidgetManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -35,6 +37,7 @@ import android.util.DisplayMetrics;
 import com.sriky.redditlite.R;
 import com.sriky.redditlite.ui.LoginActivity;
 import com.sriky.redditlite.ui.PostListActivity;
+import com.sriky.redditlite.widget.RedditLiteWidget;
 
 import timber.log.Timber;
 
@@ -236,5 +239,18 @@ public final class RedditLiteUtils {
                 context.getSystemService(Context.NOTIFICATION_SERVICE);
 
         notificationManager.notify(NEW_POSTS_RECEIVED_NOTIFICATION_ID, notificationBuilder.build());
+    }
+
+    /**
+     * Notifies the widgets to query the db and update the UI when local db is updated.
+     *
+     * @param context The calling activity/fragment/service.
+     */
+    public static void notifyDataForWidgets(Context context) {
+        //Trigger data update to handle the GridView widgets and force a data refresh
+        AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
+        int[] appWidgetIds = appWidgetManager.getAppWidgetIds(new ComponentName(context, RedditLiteWidget.class));
+
+        appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.widget_grid_view);
     }
 }

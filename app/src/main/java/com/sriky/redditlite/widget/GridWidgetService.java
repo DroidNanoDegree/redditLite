@@ -18,7 +18,6 @@ package com.sriky.redditlite.widget;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.os.Bundle;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
 
@@ -108,6 +107,14 @@ class GridRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
         // set the value for the TextViews
         views.setTextViewText(R.id.widget_item_post_title, redditPost.getTitle());
+        //change the title color to dark if the post has already been visited.
+        if (redditPost.isVisited()) {
+            views.setTextColor(R.id.widget_item_post_title,
+                    mContext.getResources().getColor(R.color.primaryTextDarkColor));
+        } else {
+            views.setTextColor(R.id.widget_item_post_title,
+                    mContext.getResources().getColor(R.color.primaryTextColor));
+        }
         views.setTextViewText(R.id.widget_post_date,
                 RedditLiteUtils.getFormattedDateFromNow(mContext, redditPost.getDate()));
         views.setTextViewText(R.id.widget_post_subreddit,

@@ -17,6 +17,7 @@ package com.sriky.redditlite.ui;
 
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -28,7 +29,6 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.text.TextUtils;
-import android.text.method.LinkMovementMethod;
 import android.text.util.Linkify;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -55,6 +55,8 @@ import com.sriky.redditlite.R;
 import com.sriky.redditlite.adaptor.ExpandableCommentGroup;
 import com.sriky.redditlite.databinding.FragmentPostDetailsBinding;
 import com.sriky.redditlite.model.RedditPost;
+import com.sriky.redditlite.provider.PostContract;
+import com.sriky.redditlite.provider.RedditLiteContentProvider;
 import com.sriky.redditlite.utils.RedditLiteUtils;
 import com.sriky.redditlite.viewmodel.PostCommentsViewModel;
 import com.sriky.redditlite.viewmodel.RedditPostSharedViewModel;
@@ -287,6 +289,9 @@ public class PostDetailFragment extends Fragment implements ExoPlayer.EventListe
                 RedditLiteUtils.sharePost(context, redditPost.getUrl());
             }
         });
+
+        //set visited in the local db.
+        setVisited(redditPost.getPostId());
     }
 
     private void setBody(String body) {
@@ -381,6 +386,36 @@ public class PostDetailFragment extends Fragment implements ExoPlayer.EventListe
     private String getText(RedditPost redditPost) {
         return !TextUtils.isEmpty(redditPost.getBody()) ?
                 redditPost.getBody() : redditPost.getmSelfText();
+    }
+
+    /**
+     * Update the visited flag to true in the local db.
+     *
+     * @param postId The POST ID for which the data needs to be updated.
+     */
+    private void setVisited(final String postId) {
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                ContentValues cv = new ContentValues();
+                cv.put(PostContract.COLUMN_POST_VISITED, 1);
+
+                //set the record in the db
+                int i = getContext().getContentResolver().update(RedditLiteContentProvider.PostDataEntry.CONTENT_URI,
+                        cv,
+                        PostContract.COLUMN_POST_ID + " =? ",
+                        new String[]{postId});
+
+                if (i < 0) {
+                    throw new RuntimeException("Unable to update record for redditPost with id: %s"
+                            + postId);
+                }
+            }
+        }).run();
+
+        //notify the widgets regards the data update.
+        RedditLiteUtils.notifyDataForWidgets(getContext());
     }
 
     /**
