@@ -279,6 +279,7 @@ public class PostListAdaptor extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     break;
                 }
 
+                /* Disabling voting for this submission. Open the details page instead!
                 case R.id.post_votes: {
                     RedditPost post = (RedditPost) view.getTag();
                     if (post == null) {
@@ -289,9 +290,10 @@ public class PostListAdaptor extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     //vote
                     voteRedditPost(post);
                     break;
-                }
+                }*/
 
                 //open details for following actions.
+                case R.id.post_votes:
                 case R.id.post_comments:
                 case R.id.posts_cardView: {
                     RedditPost post = (RedditPost) view.getTag();

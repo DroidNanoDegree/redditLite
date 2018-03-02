@@ -144,6 +144,6 @@ public class ExpandableCommentItem extends Item implements ExpandableItem {
 
     private void vote() {
         //TODO: implement login in the utils class and use it in main activity as well.
-        Timber.e("TODO!!!");
+        Timber.i("TODO! Post submission...");
     }
 }
