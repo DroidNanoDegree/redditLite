@@ -203,7 +203,7 @@ public class PostDetailFragment extends Fragment implements ExoPlayer.EventListe
 
         switch (type) {
             case NO_MEDIA:
-                String body = redditPost.getBody();
+                String body = getText(redditPost);
                 if (!TextUtils.isEmpty(body)) {
                     setBody(body);
                     return;
@@ -361,6 +361,11 @@ public class PostDetailFragment extends Fragment implements ExoPlayer.EventListe
                 mGroupAdaptor.add(new ExpandableCommentGroup(comments.next(), 0));
             }
         }
+    }
+
+    private String getText(RedditPost redditPost) {
+        return !TextUtils.isEmpty(redditPost.getBody()) ?
+                redditPost.getBody() : redditPost.getmSelfText();
     }
 
     /**
