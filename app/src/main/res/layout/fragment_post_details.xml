@@ -88,7 +88,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="24dp"
                             android:layout_gravity="bottom|end"
-                            android:background="#99000000"/>
+                            android:background="@color/postItemBackgroundColor"/>
 
                         <ImageView
                             android:layout_width="wrap_content"
