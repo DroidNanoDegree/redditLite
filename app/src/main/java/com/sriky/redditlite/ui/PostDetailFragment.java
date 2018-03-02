@@ -26,6 +26,8 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.text.TextUtils;
+import android.text.method.LinkMovementMethod;
+import android.text.util.Linkify;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -287,6 +289,8 @@ public class PostDetailFragment extends Fragment implements ExoPlayer.EventListe
 
     private void setBody(String body) {
         mFragmentPostDetailsBinding.textBody.setText(body);
+        //support launching urls
+        Linkify.addLinks(mFragmentPostDetailsBinding.textBody, Linkify.WEB_URLS);
         mFragmentPostDetailsBinding.textBody.setVisibility(View.VISIBLE);
     }
 

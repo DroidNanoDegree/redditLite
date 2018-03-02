@@ -2,6 +2,8 @@ package com.sriky.redditlite.adaptor;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.text.method.LinkMovementMethod;
+import android.text.util.Linkify;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -74,6 +76,8 @@ public class ExpandableCommentItem extends Item implements ExpandableItem {
 
         //set the comment.
         TextView body = viewHolder.itemView.findViewById(R.id.comment_body);
+        //support launching urls from comments.
+        Linkify.addLinks(body, Linkify.WEB_URLS);
         body.setText(comment.getBody());
 
         final Button toggle = viewHolder.itemView.findViewById(R.id.toggle_expand);

@@ -61,6 +61,7 @@
                         android:layout_height="wrap_content"
                         android:textAppearance="@style/TextAppearance.AppCompat.Small"
                         android:textColor="@color/primaryTextColor"
+                        android:autoLink="web"
                         android:visibility="gone" />
 
                     <com.google.android.exoplayer2.ui.SimpleExoPlayerView
