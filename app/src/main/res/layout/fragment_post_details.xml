@@ -70,14 +70,32 @@
                         android:layout_height="@dimen/details_media_height"
                         android:visibility="gone" />
 
-                    <ImageView
-                        android:id="@+id/image"
+                    <FrameLayout
+                        android:id="@+id/image_holder"
                         android:layout_width="match_parent"
-                        android:layout_height="@dimen/details_media_height"
+                        android:layout_height="wrap_content"
                         android:layout_marginBottom="8dp"
-                        android:scaleType="fitCenter"
-                        android:adjustViewBounds="true"
-                        android:visibility="gone" />
+                        android:visibility="gone">
+
+                        <ImageView
+                            android:id="@+id/image"
+                            android:layout_width="match_parent"
+                            android:layout_height="@dimen/details_media_height"
+                            android:scaleType="fitCenter"
+                            android:adjustViewBounds="true" />
+
+                        <ImageView
+                            android:layout_width="match_parent"
+                            android:layout_height="24dp"
+                            android:layout_gravity="bottom|end"
+                            android:background="#99000000"/>
+
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/ic_launch"
+                            android:layout_gravity="bottom|end"/>
+                    </FrameLayout>
 
                     <im.delight.android.webview.AdvancedWebView
                         android:id="@+id/webview"

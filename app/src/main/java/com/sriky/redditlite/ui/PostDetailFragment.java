@@ -18,6 +18,8 @@ package com.sriky.redditlite.ui;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -294,10 +296,10 @@ public class PostDetailFragment extends Fragment implements ExoPlayer.EventListe
         mFragmentPostDetailsBinding.textBody.setVisibility(View.VISIBLE);
     }
 
-    private void setImage(RedditPost post) {
+    private void setImage(final RedditPost post) {
         String imageUrl = post.getImageUrl();
         if (!TextUtils.isEmpty(imageUrl)) {
-            mFragmentPostDetailsBinding.image.setVisibility(View.VISIBLE);
+            mFragmentPostDetailsBinding.imageHolder.setVisibility(View.VISIBLE);
             Picasso.with(getContext())
                     .load(imageUrl)
                     .placeholder(R.drawable.ic_image_placeholder)
@@ -308,6 +310,19 @@ public class PostDetailFragment extends Fragment implements ExoPlayer.EventListe
             mFragmentPostDetailsBinding.image.getLayoutParams().height =
                     ViewGroup.LayoutParams.WRAP_CONTENT;
             mFragmentPostDetailsBinding.getRoot().requestLayout();
+
+            mFragmentPostDetailsBinding.image.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Uri webpage = Uri.parse(post.getUrl());
+                    Intent intent = new Intent(Intent.ACTION_VIEW, webpage);
+                    PackageManager packageManager = getContext().getPackageManager();
+                    if (packageManager != null &&
+                            intent.resolveActivity(packageManager) != null) {
+                        startActivity(intent);
+                    }
+                }
+            });
         }
     }
 
