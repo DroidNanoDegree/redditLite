@@ -24,7 +24,6 @@ import android.widget.RemoteViews;
 
 import com.sriky.redditlite.R;
 import com.sriky.redditlite.ui.PostDetailActivity;
-import com.sriky.redditlite.ui.PostDetailFragment;
 import com.sriky.redditlite.ui.PostListActivity;
 
 /**
@@ -61,7 +60,7 @@ public class RedditLiteWidget extends AppWidgetProvider {
 
         PendingIntent operation =
                 PendingIntent.getActivities(context, 0,
-                        new Intent[] {backIntent, action}, PendingIntent.FLAG_CANCEL_CURRENT);
+                        new Intent[]{backIntent, action}, PendingIntent.FLAG_CANCEL_CURRENT);
 
         remoteViews.setPendingIntentTemplate(R.id.widget_grid_view, operation);
         return remoteViews;

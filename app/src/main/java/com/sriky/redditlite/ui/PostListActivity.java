@@ -717,7 +717,7 @@ public class PostListActivity extends AppCompatActivity
 
         String previousSubRedditName =
                 preference.getString(getString(R.string.selected_subreddit_pref_key),
-                getString(R.string.selected_subreddit_pref_default));
+                        getString(R.string.selected_subreddit_pref_default));
 
         if (!previousSubRedditName.equals(subRedditName)) {
             mDataFetchRequired = true;

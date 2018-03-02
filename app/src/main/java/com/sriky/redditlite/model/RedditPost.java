@@ -72,6 +72,7 @@ public class RedditPost implements Parcelable {
     private String mSelfText;
     private boolean mVisited;
     private boolean mIsFavorite;
+
     protected RedditPost(Parcel in) {
         mDate = in.readLong();
         mVotesCount = in.readInt();
@@ -93,6 +94,7 @@ public class RedditPost implements Parcelable {
         mVisited = in.readByte() != 0;
         mIsFavorite = in.readByte() != 0;
     }
+
     public RedditPost(Cursor cursor, Context context) {
         mDate = cursor.getLong(cursor.getColumnIndex(PostContract.COLUMN_POST_DATE));
         mTitle = cursor.getString(cursor.getColumnIndex(PostContract.COLUMN_POST_TITLE));

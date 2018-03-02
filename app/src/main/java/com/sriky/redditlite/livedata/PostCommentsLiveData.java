@@ -18,10 +18,8 @@ package com.sriky.redditlite.livedata;
 import android.arch.lifecycle.LiveData;
 import android.content.Context;
 
-import com.sriky.redditlite.R;
 import com.sriky.redditlite.event.Message;
 import com.sriky.redditlite.redditapi.ClientManager;
-import com.sriky.redditlite.ui.PostListActivity;
 
 import net.dean.jraw.tree.RootCommentNode;
 

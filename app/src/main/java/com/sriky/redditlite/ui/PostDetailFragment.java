@@ -220,7 +220,7 @@ public class PostDetailFragment extends Fragment implements ExoPlayer.EventListe
 
             case HOSTED_VIDEO: {
                 String url = redditPost.getUrl();
-                if (url.startsWith(getString(R.string.gfycat_home_url))){
+                if (url.startsWith(getString(R.string.gfycat_home_url))) {
                     url = getString(R.string.gfycat_format, url.substring(url.lastIndexOf('/') + 1));
                 }
                 setWebView(url);
