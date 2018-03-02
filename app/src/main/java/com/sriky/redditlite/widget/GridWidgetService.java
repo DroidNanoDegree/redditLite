@@ -109,7 +109,7 @@ class GridRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
         // set the value for the TextViews
         views.setTextViewText(R.id.widget_item_post_title, redditPost.getTitle());
         views.setTextViewText(R.id.widget_post_date,
-                RedditLiteUtils.getFormattedDateFromNow(mContext, System.currentTimeMillis()));
+                RedditLiteUtils.getFormattedDateFromNow(mContext, redditPost.getDate()));
         views.setTextViewText(R.id.widget_post_subreddit,
                 RedditLiteUtils.getFormattedSubreddit(mContext, redditPost.getSubreddit()));
         views.setTextViewText(R.id.widget_post_provider, redditPost.getDomain());
