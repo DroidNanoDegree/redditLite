@@ -24,16 +24,14 @@
             android:id="@+id/scrollview"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginBottom="4dp"
             android:layout_marginLeft="4dp"
             android:layout_marginRight="4dp"
-            android:layout_marginTop="@dimen/details_first_item_top_margin"
             android:elevation="4dp">
 
             <android.support.constraint.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:paddingTop="@dimen/details_first_item_top_margin">
+                android:paddingTop="4dp">
 
                 <include
                     android:id="@+id/comment_header"

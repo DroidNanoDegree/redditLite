@@ -40,12 +40,6 @@ public class SettingsFragment extends PreferenceFragmentCompat implements
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = super.onCreateView(inflater, container, savedInstanceState);
 
-        //setting the top margin to account for the appbar
-        view.setPadding(0,
-                (int) getResources().getDimension(R.dimen.master_list_first_item_top_margin),
-                0,
-                0);
-
         return view;
     }
 
