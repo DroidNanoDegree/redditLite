@@ -1,6 +1,24 @@
 apply plugin: 'com.android.application'
 
+// Create a variable called keystorePropertiesFile, and initialize it to your
+// keystore.properties file, in the rootProject folder.
+def keystorePropertiesFile = rootProject.file("keys.properties")
+
+// Initialize a new Properties() object called keystoreProperties.
+def keystoreProperties = new Properties()
+
+// Load your keystore.properties file into the keystoreProperties object.
+keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+
 android {
+    signingConfigs {
+        releaseConfig {
+            keyAlias keystoreProperties['keyAlias']
+            keyPassword keystoreProperties['keyPassword']
+            storeFile file(keystoreProperties['storeFile'])
+            storePassword keystoreProperties['storePassword']
+        }
+    }
     compileSdkVersion redditLiteCompileSdkVersion
     defaultConfig {
         applicationId "com.sriky.redditlite"
@@ -15,22 +33,21 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.releaseConfig
         }
     }
-
     /* gather required ids */
-    buildTypes.each{
+    buildTypes.each {
         it.buildConfigField "String", 'REDDIT_CLIENT_ID', getPropertyFromFile("reddit_client_id")
         it.buildConfigField "String", 'REDDIT_REDIRECT_URL', getPropertyFromFile("reddit_redirect_url")
         it.buildConfigField "String", 'REDDIT_USERNAME', getPropertyFromFile("reddit_username")
     }
-
     /* enable data binding */
     dataBinding.enabled = true;
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
 
     /* Reddit API Client lib */
     implementation 'com.github.mattbdean:JRAW:master-SNAPSHOT'
@@ -45,8 +62,9 @@ dependencies {
     implementation 'com.android.support.constraint:constraint-layout:1.0.2'
     implementation "com.android.support:preference-v7:${supportLibVersion}"
     implementation "com.android.support.test.espresso:espresso-idling-resource:${espressoLibVersion}"
+
     // ViewModel and LiveData
-    implementation "android.arch.lifecycle:extensions:1.1.0"
+    implementation 'android.arch.lifecycle:extensions:1.1.0'
     annotationProcessor "android.arch.lifecycle:compiler:1.1.0"
 
     /* Timber dependencies used for logging */
@@ -63,9 +81,10 @@ dependencies {
     implementation 'org.greenrobot:eventbus:3.1.1'
 
     /* Material Drawer */
-    implementation("com.mikepenz:materialdrawer:6.0.6@aar") {
+    implementation('com.mikepenz:materialdrawer:6.0.6@aar') {
         transitive = true
     }
+
     /* About screen helper */
     implementation('com.mikepenz:aboutlibraries:6.0.0@aar') {
         transitive = true
@@ -98,8 +117,9 @@ dependencies {
     androidTestImplementation "com.android.support.test.espresso:espresso-intents:${espressoLibVersion}"
     androidTestImplementation "com.android.support.test.espresso:espresso-idling-resource:${espressoLibVersion}"
     androidTestImplementation "com.android.support:support-annotations:${supportLibVersion}"
+
     // Test helpers for LiveData
-    testImplementation "android.arch.core:core-testing:1.1.0"
+    testImplementation 'android.arch.core:core-testing:1.1.0'
 
     /* For testing RecyclerViews */
     androidTestImplementation('com.android.support.test.espresso:espresso-contrib:2.2') {
