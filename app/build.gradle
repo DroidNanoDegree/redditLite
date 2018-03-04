@@ -1,7 +1,7 @@
 apply plugin: 'com.android.application'
 
 // Create a variable called keystorePropertiesFile, and initialize it to your
-// keystore.properties file, in the rootProject folder.
+// keys.properties file, in the rootProject folder.
 def keystorePropertiesFile = rootProject.file("keys.properties")
 
 // Initialize a new Properties() object called keystoreProperties.
@@ -36,11 +36,15 @@ android {
             signingConfig signingConfigs.releaseConfig
         }
     }
+
     /* gather required ids */
     buildTypes.each {
-        it.buildConfigField "String", 'REDDIT_CLIENT_ID', getPropertyFromFile("reddit_client_id")
-        it.buildConfigField "String", 'REDDIT_REDIRECT_URL', getPropertyFromFile("reddit_redirect_url")
-        it.buildConfigField "String", 'REDDIT_USERNAME', getPropertyFromFile("reddit_username")
+        it.buildConfigField "String", 'REDDIT_CLIENT_ID',
+                "\"" + keystoreProperties['reddit_client_id'] +"\""
+        it.buildConfigField "String", 'REDDIT_REDIRECT_URL',
+                "\"" + keystoreProperties['reddit_redirect_url'] +"\""
+        it.buildConfigField "String", 'REDDIT_USERNAME',
+                "\"" + keystoreProperties['reddit_username'] +"\""
     }
     /* enable data binding */
     dataBinding.enabled = true;
@@ -131,9 +135,7 @@ dependencies {
     }
 }
 
-//return a API key from a properties file.
-def getPropertyFromFile(String property) {
-    Properties properties = new Properties()
-    properties.load(new FileInputStream("keys.properties"))
-    return "\"" + properties.getProperty(property) +"\""
+//tests
+task runConnectedTests {
+    dependsOn ':app:connectedAndroidTest'
 }
