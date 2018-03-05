@@ -134,6 +134,7 @@ public class RedditPost implements Parcelable {
             if (postTypes.getString(POST_TYPE_SELF).equals(mPostHint)) {
                 mType = PostType.SELF;
             }
+            postTypes.recycle();
         }
 
         TypedArray thumbnails =
@@ -147,6 +148,7 @@ public class RedditPost implements Parcelable {
         } else if (!TextUtils.isEmpty(mPostThumbnailUrl)) {
             mPostThumbnailType = PostThumbnailType.THUMBNAIL;
         }
+        thumbnails.recycle();
     }
 
     @Override
