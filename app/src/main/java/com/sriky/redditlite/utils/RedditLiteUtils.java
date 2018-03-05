@@ -224,7 +224,7 @@ public final class RedditLiteUtils {
 
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context)
                 .setColor(ContextCompat.getColor(context, R.color.primaryColor))
-                .setSmallIcon(R.mipmap.ic_launcher) //TODO: change to app white icon when ready.
+                .setSmallIcon(R.drawable.ic_stat_rl)
                 .setContentTitle(resources.getString(R.string.app_name))
                 .setContentText(resources.getString(R.string.new_posts_available))
                 .setAutoCancel(true);
