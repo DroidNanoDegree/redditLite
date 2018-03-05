@@ -15,6 +15,8 @@
 
 package com.sriky.redditlite.sync;
 
+import android.content.ContentValues;
+import android.content.Context;
 import android.os.AsyncTask;
 
 import com.firebase.jobdispatcher.JobParameters;
@@ -25,6 +27,8 @@ import com.sriky.redditlite.redditapi.ClientManager;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+
+import java.lang.ref.WeakReference;
 
 import timber.log.Timber;
 
@@ -54,7 +58,7 @@ public class RedditLiteFirebaseJobService extends JobService {
         //with the previously used username, if the user has never logged in, then the client will
         //be in "userless" mode.
         if (ClientManager.getRedditAccountHelper(RedditLiteFirebaseJobService.this).isAuthenticated()) {
-            mFetchDataTask = new FetchDataAsyncTask();
+            mFetchDataTask = new FetchDataAsyncTask(RedditLiteFirebaseJobService.this);
             mFetchDataTask.execute(mJob);
         } else {
             //register to listen to authentication callback event.
@@ -93,22 +97,29 @@ public class RedditLiteFirebaseJobService extends JobService {
         EventBus.getDefault().unregister(RedditLiteFirebaseJobService.this);
 
         //trigger data sync operation.
-        mFetchDataTask = new FetchDataAsyncTask();
+        mFetchDataTask = new FetchDataAsyncTask(RedditLiteFirebaseJobService.this);
         mFetchDataTask.execute(mJob);
     }
 
-    class FetchDataAsyncTask extends AsyncTask<JobParameters, Void, JobParameters> {
+    static class FetchDataAsyncTask extends AsyncTask<JobParameters, Void, JobParameters> {
+
+        private WeakReference<Context> mWeakReference;
+
+        public FetchDataAsyncTask(Context context) {
+            mWeakReference = new WeakReference<>(context);
+        }
 
         @Override
         protected JobParameters doInBackground(JobParameters... jobParameters) {
             Timber.d("doInBackground()");
-            RedditLiteSyncTask.fetchPosts(getApplicationContext(), true);
+            RedditLiteSyncTask.fetchPosts(mWeakReference.get(), true);
             return jobParameters[0];
         }
 
         @Override
         protected void onPostExecute(JobParameters jobParameters) {
-            jobFinished(jobParameters, false);
+            ((RedditLiteFirebaseJobService)mWeakReference.get()).
+                    jobFinished(jobParameters, false);
         }
     }
 }
