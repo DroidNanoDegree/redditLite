@@ -23,6 +23,7 @@ import android.os.RemoteException;
 
 import com.sriky.redditlite.provider.RedditLiteContentProvider;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
 /**
@@ -31,11 +32,11 @@ import java.util.ArrayList;
 
 public class OAuthDataSyncTask extends AsyncTask<Void, Void, Void> {
 
-    Context mContext;
-    ArrayList<ContentProviderOperation> mOperationsList;
+    private WeakReference<Context> mWeakReference;
+    private ArrayList<ContentProviderOperation> mOperationsList;
 
     public OAuthDataSyncTask(Context context, ContentProviderOperation operation) {
-        mContext = context;
+        mWeakReference = new WeakReference<>(context);
         mOperationsList = new ArrayList<>();
         mOperationsList.add(operation);
     }
@@ -44,7 +45,8 @@ public class OAuthDataSyncTask extends AsyncTask<Void, Void, Void> {
     @Override
     protected Void doInBackground(Void... voids) {
         try {
-            mContext.getContentResolver().applyBatch(RedditLiteContentProvider.AUTHORITY, mOperationsList);
+            mWeakReference.get().getContentResolver()
+                    .applyBatch(RedditLiteContentProvider.AUTHORITY, mOperationsList);
         } catch (RemoteException e) {
             e.printStackTrace();
         } catch (OperationApplicationException e) {
