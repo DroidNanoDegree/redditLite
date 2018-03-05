@@ -311,6 +311,9 @@ public class PostDetailFragment extends Fragment implements ExoPlayer.EventListe
                     .error(R.drawable.ic_error)
                     .into(mFragmentPostDetailsBinding.image);
 
+            //a11y support.
+            mFragmentPostDetailsBinding.image.setContentDescription(post.getTitle());
+
             //reset the image view to wrap content to remove any space.
             mFragmentPostDetailsBinding.image.getLayoutParams().height =
                     ViewGroup.LayoutParams.WRAP_CONTENT;

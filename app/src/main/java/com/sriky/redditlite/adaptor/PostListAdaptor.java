@@ -232,6 +232,10 @@ public class PostListAdaptor extends RecyclerView.Adapter<RecyclerView.ViewHolde
                         .placeholder(R.color.primaryLightColor)
                         .error(R.drawable.ic_error)
                         .into(postListItemBinding.bodyLayout.postThumbnail);
+
+                //a11y support
+                postListItemBinding.bodyLayout.postThumbnail
+                        .setContentDescription(redditPost.getTitle());
                 break;
             }
 
