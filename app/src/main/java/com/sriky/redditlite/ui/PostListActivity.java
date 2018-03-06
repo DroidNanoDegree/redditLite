@@ -27,6 +27,7 @@ import android.support.annotation.VisibleForTesting;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.view.View;
 
 import com.mikepenz.aboutlibraries.LibsBuilder;
@@ -337,8 +338,11 @@ public class PostListActivity extends AppCompatActivity
             //initiate an immediate data fetch operation.
             RedditLiteSyncUtils.fetchRecipeDataImmediately(PostListActivity.this, true);
         } else {
-            //trigger data sync operation.
-            initDataSync();
+            // mSelectedPostId is set once data is loaded from the local db.
+            // If the data hasn't yet been loaded then trigger data sync operation.
+            if (TextUtils.isEmpty(mSelectedPostId)) {
+                initDataSync();
+            }
         }
         //add the navigation drawer.
         addNavigationDrawer();
