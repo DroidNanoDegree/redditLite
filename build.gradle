@@ -19,6 +19,17 @@ allprojects {
     repositories {
         google()
         jcenter()
+        maven { url 'https://jitpack.io' }
+    }
+
+    ext {
+        redditLiteCompileSdkVersion =  27
+        redditLiteTargetSdkVersion = 27
+        redditLiteMinSdkVersion = 16
+        supportLibVersion = '27.0.2'
+        googleApiClientVersion = '1.23.0'
+        espressoLibVersion = '3.0.1'
+        androidTestLibVersion = '1.0.1'
     }
 }
 

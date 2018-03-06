@@ -1,3 +1,103 @@
-<resources>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="app_name">redditLite</string>
+
+    <!-- Log in activity -->
+    <string name="signin_title">Log in to Reddit</string>
+    <string name="username">Username</string>
+    <string name="password">Password</string>
+    <string name="log_in">LOG IN</string>
+    <string name="title_activity_login">Sign in</string>
+    <string name="permission_denied">Permission request denied!</string>
+
+    <!-- shared pref authentication -->
+    <string name="user_account_pref_key">user_account</string>
+    <string name="user_account_pref_default">&lt;userless&gt;</string>
+
+    <!-- shared pref selected subreddit -->
+    <string name="selected_subreddit_pref_key">selected_subreddit</string>
+    <string name="selected_subreddit_pref_default">popular</string>
+
+    <!-- shared prefs navigation drawer selected item position -->
+    <string name="navigation_drawer_selected_subreddit_id_pref_key">selected_subreddit_idx</string>
+
+    <!-- post list items -->
+    <string name="subreddit_format">
+        <xliff:g id="subreddit">/r/%1$s</xliff:g>
+    </string>
+
+    <string name="subreddit_date_format_hours">
+        <xliff:g id="date">%1$1.0f</xliff:g>h
+    </string>
+
+    <string name="subreddit_date_format_mins">
+        <xliff:g id="date">%1$1.0f</xliff:g>m
+    </string>
+
+    <string name="subreddit_format_count_over_thousand">
+        <xliff:g id="vote">%1$.1f</xliff:g>k
+    </string>
+    <string name="subreddit_format_count_less_than_thousand">
+        <xliff:g id="vote">%1$d</xliff:g>
+    </string>
+
+    <!-- post comment items -->
+    <string name="comment_author_format">
+        <xliff:g id="subreddit">/u/%1$s</xliff:g>
+    </string>
+
+    <string name="pref_last_data_fetch_time_key">last_time_since_data_fetch</string>
+
+    <string name="data_download_error">There was a problem getting data!</string>
+    <string name="share">Share</string>
+
+    <string name="dialog_login_title">Login Required!</string>
+    <string name="dialog_login_body">This action requires you to be logged in to Reddit.</string>
+
+    <string name="data_updating">Loading, please wait.</string>
+    <string name="no_comments">No comments for the post yet!</string>
+    <string name="replies">replies</string>
+
+    <string name="action_about">About</string>
+    <string name="about_the_app">Stay on top of your communities (subreddits) with App’s news feed tailored to the communities you subscribe to, with the functionality to identify and sort through unread posts. Never miss any action from your community and get notified periodically when there is new content. redditLite will manage unread posts and provide various UI indicators to keep track of unread posts. \n
+        The redditLite makes it easy to navigate between communities/content but also provides the ability to discover/join new communities from all of Reddit.\n\n
+        RedditLite App was developed as a project part of the Android Developer Nanodegree program by Udacity.</string>
+    <string name="add_account">Add Account</string>
+    <string name="add_reddit_account">Add new Reddit Account</string>
+    <string name="not_signed_in">You are not signed in</string>
+    <string name="signin_or_add_new_account">Sign-in or add an new account?</string>
+    <string name="sign_out">Sign out</string>
+
+    <string name="login_success_format">
+        <xliff:g id="login">Signed in as: %1$s</xliff:g>
+    </string>
+
+    <string name="username_with_karma">
+        <xliff:g id="username_karma">karma [comment : %1$d, link : %2$d]</xliff:g>
+    </string>
+    <string name="login_failed">Oh no! There was a problem logging into Reddit.</string>
+    <string name="drawer_item_section_subreddit_header">Subreddits</string>
+    <string name="subscribed">Subscribed</string>
+    <string name="not_logged_in">You are not signed in.</string>
+    <string name="action_settings">Settings</string>
+
+    <!-- settings prefs -->
+    <string name="fifteen_mins_fetch_time_pref_label">every 15 mins</string>
+    <string name="thirty_mins_fetch_time_pref_label">every 30 mins</string>
+    <string name="one_hour_fetch_time_pref_label">every 1 hour</string>
+    <string name="two_hour_fetch_time_pref_label">every 2 hours</string>
+    <string name="three_hour_fetch_time_pref_label">every 3 hours</string>
+    <string name="pref_sync_time_options_key" translatable="false">data_sync_timings_pref_key</string>
+    <string name="pref_sync_time_options_default_value" translatable="false">@string/one_hour_fetch_time_pref_label</string>
+    <string name="pref_sync_time_options_label">Check for new posts</string>
+    <string name="pref_enable_notifications_key" translatable="false">enable_notifications</string>
+    <string name="pref_enable_notifications_false">Not enabled</string>
+    <string name="pref_enable_notifications_true">Enabled</string>
+    <string name="pref_enable_notifications_label">Notifications</string>
+    <string name="new_posts_available">New posts are available.</string>
+
+    <!-- gfhcat -->
+    <string name="gfycat_home_url"> https://gfycat.com/</string>
+    <string name="gfycat_format">
+        <xliff:g id="gfycat">https://thumbs.gfycat.com/%1$s</xliff:g>-size_restricted.gif
+    </string>
 </resources>

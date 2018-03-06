@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright (C) 2018 Srikanth Basappa
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and limitations under the License.
+  -->
+
+<resources>
+    <array name="postTypes">
+        <item>null</item>
+        <item>link</item>
+        <item>image</item>
+        <item>rich:video</item>
+        <item>hosted:video</item>
+        <item>self</item>
+    </array>
+
+    <array name="postThumbnailImageTypes">
+        <item>default</item>
+        <item>image</item>
+        <item>self</item>
+    </array>
+
+    <!-- settings prefs -->
+    <string-array name="pref_sync_time_options_labels">
+        <item>@string/fifteen_mins_fetch_time_pref_label</item>
+        <item>@string/thirty_mins_fetch_time_pref_label</item>
+        <item>@string/one_hour_fetch_time_pref_label</item>
+        <item>@string/two_hour_fetch_time_pref_label</item>
+        <item>@string/three_hour_fetch_time_pref_label</item>
+    </string-array>
+
+    <string-array name="pref_sync_time_options_values">
+        <item>@string/fifteen_mins_fetch_time_pref_label</item>
+        <item>@string/thirty_mins_fetch_time_pref_label</item>
+        <item>@string/one_hour_fetch_time_pref_label</item>
+        <item>@string/two_hour_fetch_time_pref_label</item>
+        <item>@string/three_hour_fetch_time_pref_label</item>
+    </string-array>
+
+    <integer-array name="pref_sync_time_options_int_values_in_secs">
+        <item>@integer/fifteen_mins_fetch_time_pref_value</item>
+        <item>@integer/thirty_mins_fetch_time_pref_value</item>
+        <item>@integer/one_hour_fetch_time_pref_value</item>
+        <item>@integer/two_hour_fetch_time_pref_value</item>
+        <item>@integer/three_hour_fetch_time_pref_value</item>
+    </integer-array>
+</resources>

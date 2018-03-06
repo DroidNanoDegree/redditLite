@@ -1,6 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#3F51B5</color>
-    <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorAccent">#FF4081</color>
+    <!-- primary colors -->
+    <color name="primaryColor">#607d8b</color>
+    <color name="primaryLightColor">#8eacbb</color>
+    <color name="primaryDarkColor">#34515e</color>
+
+    <!-- accent colors -->
+    <color name="secondaryColor">#aa00ff</color>
+    <color name="secondaryLightColor">#e254ff</color>
+    <color name="secondaryDarkColor">#7200ca</color>
+
+    <!-- text colors -->
+    <color name="primaryTextColor">#ffffff</color>
+    <color name="primaryTextDarkColor">#d1d1d1</color>
+    <color name="secondaryTextColor">#000000</color>
+
+    <!-- misc -->
+    <color name="windowBackgroundColor">#1b1b1b</color>
+    <color name="postItemBackgroundColor">#99000000</color>
+    <color name="drawerSelectedItemColor">#33e254ff</color>
+
+    <!-- Material DEFAULT colors -->
+    <color name="material_drawer_primary">@color/primaryColor</color>
+    <color name="material_drawer_primary_dark">@color/primaryDarkColor</color>
+    <color name="material_drawer_primary_light">@color/primaryLightColor</color>
+    <color name="material_drawer_accent">@color/secondaryLightColor</color>
+
+    <!-- OVERWRITE THESE COLORS FOR A LIGHT THEME -->
+    <!-- MaterialDrawer DEFAULT colors -->
+    <color name="material_drawer_background">@color/primaryColor</color>
+
+    <!-- Material DEFAULT text / items colors -->
+    <color name="material_drawer_primary_text">@color/primaryTextColor</color>
+    <color name="material_drawer_primary_icon">@color/secondaryColor</color>
+    <color name="material_drawer_secondary_text">@color/primaryTextColor</color>
+    <color name="material_drawer_hint_text">@color/secondaryTextColor</color>
+    <color name="material_drawer_divider">@color/primaryLightColor</color>
+
+    <!-- Material DEFAULT drawer colors -->
+    <color name="material_drawer_selected">@color/drawerSelectedItemColor</color>
+    <color name="material_drawer_selected_text">@color/primaryTextColor</color>
+    <color name="material_drawer_header_selection_text">@color/primaryTextColor</color>
+
+    <!-- ...and here we setting appcompat’s color theming attrs -->
+    <color name="about_libraries_primary">@color/primaryColor</color>
+    <color name="about_libraries_primary_dark">@color/primaryDarkColor</color>
+    <color name="about_libraries_accent">@color/secondaryLightColor</color>
+
+    <!-- AboutLibraries specific values -->
+    <color name="about_libraries_window_background_dark">@color/primaryDarkColor</color>
+    <color name="about_libraries_card">@color/primaryColor</color>
+    <color name="about_libraries_card_dark">@color/primaryDarkColor</color>
+    <color name="about_libraries_title_openSource">@color/primaryTextColor</color>
+    <color name="about_libraries_title_openSource_dark">@color/secondaryTextColor</color>
+    <color name="about_libraries_text_openSource">@color/primaryTextDarkColor</color>
+    <color name="about_libraries_text_openSource_dark">@color/primaryTextDarkColor</color>
+    <color name="about_libraries_dividerDark_openSource_dark">@color/primaryDarkColor</color>
+    <color name="about_libraries_dividerLight_openSource_dark">@color/primaryLightColor</color>
+
 </resources>
