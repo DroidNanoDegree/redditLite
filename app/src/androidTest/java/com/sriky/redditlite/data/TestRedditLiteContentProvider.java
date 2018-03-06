@@ -22,6 +22,7 @@ import android.support.test.InstrumentationRegistry;
 
 import com.sriky.redditlite.provider.RedditLiteContentProvider;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -43,6 +44,11 @@ public class TestRedditLiteContentProvider {
 
     @Before
     public void before() {
+        TestUtilities.clearPostsTable(mContext);
+    }
+
+    @After
+    public void after() {
         TestUtilities.clearPostsTable(mContext);
     }
 
