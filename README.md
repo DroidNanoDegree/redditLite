@@ -1,11 +1,15 @@
 Demo
 ---
 
-#### Phone
+#### Phone 
 [![Demo redditLite](https://thumbs.gfycat.com/RepentantHairyAsiansmallclawedotter-size_restricted.gif)](https://youtu.be/8GVDDo3jb8U)
 
 #### Tablet
 [![Demo redditLite](https://thumbs.gfycat.com/OptimalHandmadeAplomadofalcon-size_restricted.gif)](https://youtu.be/AhgIDiuJjJ0)
+
+#### Widget
+[![Demo redditLite](https://thumbs.gfycat.com/RecentJoyfulEmeraldtreeskink-size_restricted.gif)](https://youtu.be/GP2ftMD2k2g)
+
 
 About
 ---
