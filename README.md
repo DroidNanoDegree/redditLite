@@ -1,9 +1,16 @@
+Demo
+---
+
+#### Phone
+[![Demo redditLite](https://thumbs.gfycat.com/RepentantHairyAsiansmallclawedotter-size_restricted.gif)](https://youtu.be/8GVDDo3jb8U)
+
+#### Tablet
+[![Demo redditLite](https://thumbs.gfycat.com/OptimalHandmadeAplomadofalcon-size_restricted.gif)](https://youtu.be/AhgIDiuJjJ0)
+
 About
 ---
 
-Hello there,
-
-The project in this folder contains the implementation for *redditLite App*, the final project part of the [Android Developer Nanodegree](https://www.udacity.com/course/android-developer-nanodegree-by-google--nd801).
+The project in this folder contains the implementation for *redditLite* Android App, the final project part of the [Android Developer Nanodegree](https://www.udacity.com/course/android-developer-nanodegree-by-google--nd801).
 
 ### Description
 Stay on top of your communities (subreddits) with App’s news feed tailored to the communities you subscribe to, with the functionality to identify and sort through unread posts. Never miss any action from your community and get notified periodically when there is new content. redditLite will manage unread posts and provide various UI indicators to keep track of unread posts.
